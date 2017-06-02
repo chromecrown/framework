@@ -1,0 +1,22 @@
+{
+  "name": "flower/framework",
+  "type": "library",
+  "description": "flower php api framework",
+  "keywords": ["php", "framework", "flower", "api", "swoole"],
+  "license": "MIT",
+  "require": {
+    "php": ">=7.0.0",
+    "ext-redis": "*",
+    "ext-msgpack": "*",
+    "ext-swoole": "~1.9",
+    "ramsey/uuid": ">=3.5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Flower\\": "src"
+    },
+    "files": [
+      "src/Support/Common.php"
+    ]
+  }
+}
