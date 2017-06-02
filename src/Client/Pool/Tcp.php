@@ -4,7 +4,7 @@ namespace Flower\Client\Pool;
 
 use Flower\Log\Log;
 use Flower\Pool\Pool;
-use Flower\Packet\Packet;
+use Flower\Core\Packet;
 use Flower\Contract\Coroutine;
 use Flower\Core\Application;
 use Flower\Client\Tcp as TcpClient;

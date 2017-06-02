@@ -111,7 +111,6 @@ abstract class Controller extends Base
 
         $this->logRunInfo();
 
-        $this->response->header('Content-Type', 'application/json;charset=utf-8');
         $this->response->status($code);
         $this->response->end($data);
     }

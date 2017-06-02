@@ -2,6 +2,7 @@
 
 namespace Flower\Dispatcher;
 
+use Flower\Support\Define;
 use Flower\Utility\Console;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -13,26 +14,13 @@ use Swoole\Http\Response;
 class Http extends Base
 {
     /**
-     * @var Request
-     */
-    private $request;
-
-    /**
-     * @var Response
-     */
-    private $response;
-
-    /**
      * @param Request $request
      * @param Response $response
      * @throws \Exception
      */
     public function dispatch(Request $request, Response $response)
     {
-        $this->request  = $request;
-        $this->response = $response;
-
-        list($controller, $method) = $this->parseRequest($this->request);
+        list($controller, $method) = $this->parseRequest($request);
 
         $object = $this->app->make($controller);
 
@@ -41,7 +29,9 @@ class Http extends Base
             throw new \Exception('Http Request Not Found.');
         }
 
-        $object->setHttp($this->request, $this->response);
+        $object->setHttp($request, $response);
+        $response->header('Server', 'flower '. Define::VERSION);
+        $response->header('Content-Type', 'application/json;charset=utf-8');
 
         Console::debug('HTTP '. $this->getRequestString($controller, $method), 'blue');
 
@@ -91,10 +81,5 @@ class Http extends Base
         }
 
         throw new \Exception('Http Request Not Found.');
-    }
-
-    public function __destruct()
-    {
-        unset($this->request, $this->response);
     }
 }

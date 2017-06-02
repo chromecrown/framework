@@ -254,7 +254,7 @@ class Command
             );
 
             $display  = $firstSplitLine;
-            $display .= "Flower version: ". Define::VERSION. str_pad('', 27 - strlen(Define::VERSION)). "PHP version: " . PHP_VERSION. "\n";
+            $display .= "Flower version: ". Define::VERSION. str_pad('', 24 - strlen(Define::VERSION)). "PHP version: " . PHP_VERSION. "\n";
 
             if ($status) {
                 $runTime = Time::format(time() - $status['start_time'] ?? 0, false);
@@ -298,12 +298,12 @@ class Command
     public function getServerStatus($set, $type = 'all')
     {
         $status = $this->app->get('client.tcp.sync', [
-            'set'    => $set,
-            'config' => [
-                'host' => $this->app['config']->get('tcp_server_ip', '127.0.0.1'),
-                'port' => $this->app['config']->get('tcp_server_port', '9501'),
-            ],
-        ])->request(['type' => 'status']);
+                'set'    => $set,
+                'config' => [
+                    'host' => $this->app['config']->get('tcp_server_ip', '127.0.0.1'),
+                    'port' => $this->app['config']->get('tcp_server_port', '9501'),
+                ],
+            ])->request(['type' => 'status'])['data'] ?? [];
 
         if ($type == 'avg_time') {
             return $status['total']['avg_time'] ?? 0;

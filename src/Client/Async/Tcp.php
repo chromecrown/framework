@@ -3,7 +3,7 @@
 namespace Flower\Client\Async;
 
 use Flower\Log\Log;
-use Flower\Packet\Packet;
+use Flower\Core\Packet;
 use Flower\Core\Application;
 use Flower\Contract\Coroutine;
 use Flower\Client\Tcp as TcpClient;

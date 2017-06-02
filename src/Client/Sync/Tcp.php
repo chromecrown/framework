@@ -2,7 +2,7 @@
 
 namespace Flower\Client\Sync;
 
-use Flower\Packet\Packet;
+use Flower\Core\Packet;
 use Swoole\Client as SwooleClient;
 
 /**
