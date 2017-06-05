@@ -6,6 +6,7 @@ use Flower\Contract\Coroutine as ICoroutine;
 
 /**
  * Class Task
+ *
  * @package Flower\Coroutine
  */
 class Task
@@ -13,12 +14,12 @@ class Task
     /**
      * @var null
      */
-    private $data      = null;
+    private $data = null;
 
     /**
      * @var null|\SplStack
      */
-    private $stack     = null;
+    private $stack = null;
 
     /**
      * @var \Generator
@@ -76,21 +77,19 @@ class Task
                 // 异步操作
                 if ($value instanceof ICoroutine) {
                     $this->stack->push($generator);
-                    $value->send(
-                        function ($data) {
-                            if (! empty($data['exception'])) {
-                                throw new \Exception($data['exception']);
-                            } else {
-                                $this->data = $data;
+                    $value->send(function ($data) {
+                        if (! empty($data['exception'])) {
+                            throw new \Exception($data['exception']);
+                        } else {
+                            $this->data = $data;
 
-                                $generator = $this->stack->pop();
-                                $generator->send($data);
+                            $generator = $this->stack->pop();
+                            $generator->send($data);
 
-                                // 返回了就继续
-                                $this->run($generator);
-                            }
+                            // 返回了就继续
+                            $this->run($generator);
                         }
-                    );
+                    });
 
                     return;
                 }
@@ -118,11 +117,12 @@ class Task
 
                 $this->data = null;
             } catch (\Exception $e) {
-                while ( ! $this->stack->isEmpty()) {
+                while (! $this->stack->isEmpty()) {
                     $this->coroutine = $this->stack->pop();
                 }
 
                 $generator->throw($e);
+
                 return;
             }
         }

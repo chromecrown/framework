@@ -4,6 +4,7 @@ namespace Flower\Contract;
 
 /**
  * Interface Coroutine
+ *
  * @package Flower\Contract
  */
 interface Coroutine

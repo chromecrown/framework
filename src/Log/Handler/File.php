@@ -6,6 +6,11 @@ use Flower\Log\Handler;
 use Flower\Utility\Time;
 use Flower\Utility\File as FileTool;
 
+/**
+ * Class File
+ *
+ * @package Flower\Log\Handler
+ */
 class File extends Handler
 {
     /**
@@ -13,8 +18,8 @@ class File extends Handler
      */
     public function write(array $data)
     {
-        $file = storage_path('logs/'. $data['level']. '/'. $data['name']);
-        $dir  = dirname($file);
+        $file = storage_path('logs/' . $data['level'] . '/' . $data['name']);
+        $dir = dirname($file);
         if (! is_dir($dir)) {
             @mkdir($dir, 0777, true);
         }
@@ -33,17 +38,17 @@ class File extends Handler
      */
     private function getFormatString(& $data)
     {
-        $time    = Time::date($data['time']);
-        $level   = strtoupper($data['level']);
+        $time = Time::date($data['time']);
+        $level = strtoupper($data['level']);
 
         $message = (is_array($data['message']) or is_object($data['message']))
             ? json_encode($data['message'], JSON_UNESCAPED_UNICODE)
-            : (string) $data['message'];
+            : (string)$data['message'];
         $message = str_replace("\n", '', $message);
 
         $context = json_encode($data['context'], JSON_UNESCAPED_UNICODE);
 
-        $string  = "[{$time}]";
+        $string = "[{$time}]";
         $string .= " [{$level}]";
         $string .= " [{$message}]";
         if ($data['client']) {

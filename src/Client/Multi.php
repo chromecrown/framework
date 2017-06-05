@@ -7,6 +7,7 @@ use Flower\Contract\Coroutine;
 
 /**
  * Class Multi
+ *
  * @package Flower\Client
  */
 class Multi implements Coroutine
@@ -16,7 +17,11 @@ class Multi implements Coroutine
      */
     private $scheduler = null;
 
-    private $callback = null;
+    /**
+     * @var callable
+     */
+    private $callback;
+
     private $request  = [];
     private $result   = [];
     private $counter  = 0;
@@ -26,6 +31,7 @@ class Multi implements Coroutine
 
     /**
      * Multi constructor.
+     *
      * @param Application $app
      */
     public function __construct(Application $app)
@@ -34,12 +40,12 @@ class Multi implements Coroutine
     }
 
     /**
-     * @param string $key
+     * @param string     $key
      * @param \Generator $generator
      */
     public function add(string $key, \Generator $generator)
     {
-        $this->counter ++;
+        $this->counter++;
         $this->request[] = $key;
 
         $this->scheduler->newTask(

@@ -4,19 +4,20 @@ namespace Flower\Utility;
 
 /**
  * Class Time
+ *
  * @package Flower\Utility
  */
 class Time
 {
     /**
-     * @param $time
+     * @param int  $time
      * @param bool $isLog
-     * @return bool|string
+     * @return string
      */
-    public static function format($time, $isLog = true)
+    public static function format(int $time, bool $isLog = true): string
     {
         if (! is_numeric($time)) {
-            return false;
+            return '';
         }
 
         $value = [
@@ -61,18 +62,18 @@ class Time
     /**
      * @return float
      */
-    public static function millisecond()
+    public static function millisecond(): float
     {
         return (float)sprintf('%.0f', array_sum(array_map('floatval', explode(' ', microtime()))) * 1000);
     }
 
     /**
-     * @param $millisecond
+     * @param int    $millisecond
      * @param string $format
-     * @param bool $appendMillisecond
-     * @return false|string
+     * @param bool   $appendMillisecond
+     * @return string
      */
-    public static function date($millisecond, $format = 'Y-m-d H:i:s', $appendMillisecond = true)
+    public static function date(int $millisecond, string $format = 'Y-m-d H:i:s', bool $appendMillisecond = true): string
     {
         $date = date($format, substr($millisecond, 0, 10));
         if ($appendMillisecond) {

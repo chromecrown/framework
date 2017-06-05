@@ -7,6 +7,7 @@ use Flower\Core\Application;
 
 /**
  * Class Log
+ *
  * @package Flower\Core
  */
 class Log
@@ -33,27 +34,28 @@ class Log
 
     /**
      * Log constructor.
+     *
      * @param Application $app
      */
     public function __construct(Application $app)
     {
-        $this->app     = $app;
+        $this->app = $app;
         $this->appName = $app['server']->getServerName();
-        $this->host    = $app['config']->get('server_ip', '127.0.0.1')
-            . '_'. $app['config']->get('tcp_server_port', '9501');
+        $this->host = $app['config']->get('server_ip', '127.0.0.1') . '_' . $app['config']->get('tcp_server_port',
+                '9501');
 
         $this->logHandler = $app['config']->get('log_handler', 'file');
     }
 
     /**
-     * @param string $level
-     * @param $message
-     * @param array $context
-     * @param null $logName
+     * @param string       $level
+     * @param string|array $message
+     * @param array        $context
+     * @param string|null  $logName
      */
-    public function log(string $level, $message, $context = [], $logName = null)
+    public function log(string $level, $message, array $context = [], string $logName = null)
     {
-        $logName = $logName ?: date('Ym/YmdH'). '.log';
+        $logName = $logName ?: date('Ym/YmdH') . '.log';
         if (strpos($logName, '.') === false) {
             $logName .= '.log';
         }
@@ -74,7 +76,7 @@ class Log
             'name'         => $logName,
         ];
 
-        $this->app->get('log.'. $this->logHandler)->write($data);
+        $this->app->get('log.' . $this->logHandler)->write($data);
 
         unset($data, $logName, $message, $context, $level);
     }

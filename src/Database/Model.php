@@ -10,6 +10,7 @@ use Flower\Contract\Model as IModel;
 
 /**
  * Class Model
+ *
  * @package Flower\Database
  *
  * @method QueryBuilder bind($uuid)
@@ -93,15 +94,16 @@ class Model extends Base implements IModel
 
     /**
      * Model constructor.
+     *
      * @param Application $app
-     * @param Server $server
+     * @param Server      $server
      */
     public function __construct(Application $app, Server $server)
     {
         parent::__construct($app, $server);
 
         $this->enableQueryCache = $app['config']->get('enable_query_cache', false);
-        $this->cacheTime        = $app['config']->get('query_cache_time', 86400);
+        $this->cacheTime = $app['config']->get('query_cache_time', 86400);
     }
 
     /**
@@ -137,10 +139,10 @@ class Model extends Base implements IModel
     /**
      * 手动开启查询缓存
      *
-     * @param  null $cacheTime
+     * @param  int $cacheTime
      * @return $this
      */
-    public function enableCache($cacheTime = null)
+    public function enableCache(int $cacheTime = null)
     {
         $this->enableQueryCache = true;
 
@@ -174,7 +176,7 @@ class Model extends Base implements IModel
     /**
      * 获取缓存时间
      *
-     * @return int|null
+     * @return int
      */
     public function getCacheTime()
     {
@@ -184,10 +186,10 @@ class Model extends Base implements IModel
     /**
      * 回调方式
      *
-     * @param callable                           $callback
-     * @param string|QueryBuilder                $sql
+     * @param callable                              $callback
+     * @param string|QueryBuilder                   $sql
      * @param null|string|\Flower\Client\Sync\MySQL $bindId
-     * @param bool                               $async
+     * @param bool                                  $async
      */
     public function call(callable $callback, $sql, $bindId = null, $async = true)
     {
@@ -195,9 +197,9 @@ class Model extends Base implements IModel
 
         if (! $async or ($this->server->getServer()->taskworker ?? false)) {
             $callback($this->syncQuery($sql, $bindId));
-        }
-        else {
-            $this->app['pool.manager']->get('mysql', $this->getQueryPool(substr($sql, 0, 6)))
+        } else {
+            $this->app['pool.manager']
+                ->get('mysql', $this->getQueryPool(substr($sql, 0, 6)))
                 ->call($callback, $sql, $bindId);
         }
     }
@@ -205,7 +207,7 @@ class Model extends Base implements IModel
     /**
      * 执行查询
      *
-     * @param  string|QueryBuilder                $sql
+     * @param  string|QueryBuilder                   $sql
      * @param  null|string|\Flower\Client\Sync\MySQL $bindId
      * @return array
      */
@@ -217,7 +219,8 @@ class Model extends Base implements IModel
             return $this->syncQuery($sql, $bindId);
         }
 
-        return $this->app['pool.manager']->get('mysql', $this->getQueryPool(substr($sql, 0, 6)))
+        return $this->app['pool.manager']
+            ->get('mysql', $this->getQueryPool(substr($sql, 0, 6)))
             ->query($sql, $bindId);
     }
 
@@ -246,7 +249,7 @@ class Model extends Base implements IModel
         }
 
         if ($flag == 'slave') {
-            $slave = $this->app->getConfig('_mysql.'. $this->pool);
+            $slave = $this->app->getConfig('_mysql.' . $this->pool);
             if (! $slave) {
                 return $this->pool;
             }
@@ -258,7 +261,7 @@ class Model extends Base implements IModel
     }
 
     /**
-     * @param string                      $sql
+     * @param string                         $sql
      * @param null|\Flower\Client\Sync\MySQL $bindId
      * @return mixed
      */
@@ -266,8 +269,7 @@ class Model extends Base implements IModel
     {
         return $bindId
             ? $bindId->query($sql)
-            : $this->app->get('client.mysql.sync', $this->getQueryPool(substr($sql, 0, 6)))
-                ->query($sql);
+            : $this->app->get('client.mysql.sync', $this->getQueryPool(substr($sql, 0, 6)))->query($sql);
     }
 
     /**
@@ -291,7 +293,7 @@ class Model extends Base implements IModel
      * @param  $pool
      * @return $this
      */
-    public function use($pool)
+    public function use ($pool)
     {
         $this->pool = $pool;
 
@@ -345,6 +347,7 @@ class Model extends Base implements IModel
     public function commit($uuid)
     {
         $result = (yield $this->query('commit', $uuid))['result'];
+
         return (! $result or $result === nil) ? false : true;
     }
 
@@ -355,6 +358,7 @@ class Model extends Base implements IModel
     public function rollback($uuid)
     {
         $result = (yield $this->query('rollback', $uuid))['result'];
+
         return (! $result or $result === nil) ? false : true;
     }
 
@@ -372,7 +376,7 @@ class Model extends Base implements IModel
 
         $object = $this->getQueryBuilder(null);
         if (! method_exists($object, $name)) {
-            throw new \Exception('Model method not found : '. $name);
+            throw new \Exception('Model method not found : ' . $name);
         }
 
         return $object->$name(... $arguments);

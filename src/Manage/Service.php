@@ -6,6 +6,7 @@ use Flower\Support\Construct;
 
 /**
  * Class Service
+ *
  * @package Flower
  */
 class Service
@@ -14,9 +15,9 @@ class Service
 
     /**
      * @param array $data
-     * @param null  $fd
+     * @param int   $fd
      */
-    public function run(array $data, $fd = null)
+    public function run(array $data, int $fd = null)
     {
         switch ($data['request']) {
             case 'heartbeat':
@@ -62,21 +63,16 @@ class Service
     protected function status($fd)
     {
         // 系统负载
-        $loadAvg = array_map(
-            function ($v) {
-                return round($v, 2);
-            }, sys_getloadavg()
-        );
+        $loadAvg = array_map(function ($v) {
+            return round($v, 2);
+        }, sys_getloadavg());
 
         // 服务平均响应时间
-        $requestAvgTime = $this->app['command']->getServerStatus(
-            $this->server->getConfig(),
-            'avg_time'
-        );
+        $requestAvgTime = $this->app['command']->getServerStatus($this->server->getConfig(), 'avg_time');
 
         $this->server->send($fd, [
             'load_avg'         => $loadAvg,
-            'request_avg_time' => $requestAvgTime
+            'request_avg_time' => $requestAvgTime,
         ]);
     }
 }

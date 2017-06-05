@@ -8,15 +8,16 @@ use Swoole\Server;
 
 /**
  * Class Tcp
+ *
  * @package Flower\Dispatcher
  */
 class Tcp extends Base
 {
     /**
      * @param Server $server
-     * @param $fd
-     * @param $fromId
-     * @param $data
+     * @param        $fd
+     * @param        $fromId
+     * @param        $data
      */
     public function dispatch(Server $server, $fd, $fromId, $data)
     {
@@ -49,15 +50,11 @@ class Tcp extends Base
             }
 
             unset($data);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $message = $e->getMessage();
             $request = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-            Log::error(
-                'Dispatch : '. $message,
-                $data
-            );
+            Log::error('Dispatch : ' . $message, $data);
             Console::debug("Exception: {$message}, {$request}", 'red');
 
             // 挂了，返回错误信息
@@ -73,18 +70,18 @@ class Tcp extends Base
     public function api(array $data, $fd = null)
     {
         $request = $this->parseRequest($data['request'] ?: null);
-        $method  = $data['method'] ?? 'index';
+        $method = $data['method'] ?? 'index';
 
         $object = $this->app->make($request);
 
         // 请求的对象木有找到
         if (! method_exists($object, $method)) {
-            throw new \Exception('Tcp Request Not Found:'. $request. ':'. $method);
+            throw new \Exception('Tcp Request Not Found:' . $request . ':' . $method);
         }
 
         $object->setFd($fd);
 
-        Console::debug('TCP '. $this->getRequestString($request, $method, $data['args']), 'blue');
+        Console::debug('TCP ' . $this->getRequestString($request, $method, $data['args']), 'blue');
 
         $generator = $object->$method(...($data['args'] ?: []));
         unset($data);
@@ -95,11 +92,11 @@ class Tcp extends Base
     }
 
     /**
-     * @param  $request
+     * @param  string $request
      * @return string
      * @throws \Exception
      */
-    protected function parseRequest($request)
+    protected function parseRequest(string $request)
     {
         if (! $request) {
             throw new \Exception('Tcp Request Not Found');
@@ -112,11 +109,11 @@ class Tcp extends Base
 
         $namespace = '\App\Controller\Tcp\\';
 
-        if (class_exists($namespace. $request)) {
-            return $namespace. $request;
+        if (class_exists($namespace . $request)) {
+            return $namespace . $request;
         }
 
-        throw new \Exception('Tcp Request Not Found:'. $request);
+        throw new \Exception('Tcp Request Not Found:' . $request);
     }
 
     /**
@@ -133,9 +130,8 @@ class Tcp extends Base
         $status['total'] = [
             'success'  => $total ? $total['success'] : 0,
             'failure'  => $total ? $total['failure'] : 0,
-            'avg_time' => ($total['success'] or $total['failure'])
-                ? bcdiv($total['time'], ($total['success'] + $total['failure']), 7)
-                : 0,
+            'avg_time' => ($total['success'] or $total['failure']) ? bcdiv($total['time'],
+                ($total['success'] + $total['failure']), 7) : 0,
         ];
         unset($total);
 

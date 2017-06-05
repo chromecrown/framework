@@ -8,6 +8,7 @@ use Swoole\Process as SwooleProcess;
 
 /**
  * Class Base
+ *
  * @package Flower\Core
  */
 abstract class Base
@@ -31,12 +32,13 @@ abstract class Base
 
     /**
      * Base constructor.
+     *
      * @param Application $app
-     * @param Server $server
+     * @param Server      $server
      */
     public function __construct(Application $app, Server $server = null)
     {
-        $this->app    = $app;
+        $this->app = $app;
         $this->server = $server;
 
         // 开始运行时间
@@ -60,26 +62,24 @@ abstract class Base
      */
     public function getSwooleServer()
     {
-        return $this->server instanceof Server
-            ? $this->server->getServer()
-            : null;
+        return $this->server instanceof Server ? $this->server->getServer() : null;
     }
 
     /**
      * 获取 Model 实例
      *
      * @param string $name
-     * @param string|null $use
-     * @param string|bool $readWrite
+     * @param string $use
+     * @param string $readWrite
      * @return Model
      */
-    public function model($name, $use = null, $readWrite = 'auto')
+    public function model(string $name, string $use = null, string $readWrite = 'auto')
     {
         $name = strpos($name, '/') !== false
             ? join('\\', array_map('ucfirst', explode('/', $name)))
             : ucfirst($name);
 
-        $model = "\\App\\Model\\". ucfirst($name);
+        $model = "\\App\\Model\\" . ucfirst($name);
 
         /**
          * @var Model $model
@@ -102,11 +102,11 @@ abstract class Base
     /**
      * 获取 Redis 实例
      *
-     * @param string|null $pool
-     * @param string|null $cacheKey
+     * @param string $pool
+     * @param string $cacheKey
      * @return \Redis|\Flower\Client\Redis
      */
-    public function redis($pool = null, $cacheKey = null)
+    public function redis(string $pool = null, string $cacheKey = null)
     {
         return $this->app->get('redis', $pool, $cacheKey);
     }
@@ -155,7 +155,7 @@ abstract class Base
     /**
      * 并行任务处理器
      *
-     * @return null|\Flower\Client\Multi
+     * @return \Flower\Client\Multi
      */
     protected function multi()
     {

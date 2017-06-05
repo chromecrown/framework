@@ -14,6 +14,7 @@ use Swoole\Http\Server as SwooleHttpServer;
 
 /**
  * Class Server
+ *
  * @package Flower\Server
  */
 class Server
@@ -52,26 +53,26 @@ class Server
     protected $config = [
         'open_eof_check' => 1,
         'open_eof_split' => 1,
-        'package_eof' => "#\r\n\r\n",
+        'package_eof'    => "#\r\n\r\n",
 
         'pipe_buffer_size' => 1024 * 1024 * 64,
 
-        'open_tcp_nodelay' => 1,
+        'open_tcp_nodelay'  => 1,
         'open_cpu_affinity' => 1,
 
-        'heartbeat_idle_time' => 30,
+        'heartbeat_idle_time'      => 30,
         'heartbeat_check_interval' => 30,
 
-        'reactor_num' => 96,
-        'worker_num' => 96,
+        'reactor_num'     => 96,
+        'worker_num'      => 96,
         'task_worker_num' => 0,
 
-        'max_request' => 0,
+        'max_request'      => 0,
         'task_max_request' => 0,
 
-        'backlog' => 50000,
-        'log_level' => 1,
-        'log_file' => '/server.log',
+        'backlog'     => 50000,
+        'log_level'   => 1,
+        'log_file'    => '/server.log',
         'task_tmpdir' => '/tmp/task/',
 
         'daemonize' => 0,
@@ -89,6 +90,7 @@ class Server
 
     /**
      * Server constructor.
+     *
      * @param Application $app
      */
     public function __construct(Application $app)
@@ -99,13 +101,10 @@ class Server
         $this->serverName = ucfirst($this->app['config']->get('server_name', 'Flower'));
 
         // set config
-        $this->config = array_merge(
-            $this->config,
-            $this->app['config']->get('server_config', [])
-        );
+        $this->config = array_merge($this->config, $this->app['config']->get('server_config', []));
 
         // 存储地址
-        $this->config['log_file']    = storage_path($this->config['log_file']);
+        $this->config['log_file'] = storage_path($this->config['log_file']);
         $this->config['task_tmpdir'] = storage_path($this->config['task_tmpdir']);
 
         // pid 文件路径
@@ -113,12 +112,9 @@ class Server
 
         // 运行客户端连接的IP列表
         if ($this->app['config']->get('check_remote_ip', false)) {
-            array_map(
-                function ($v) {
-                    $this->allowClientIpList[$v] = true;
-                },
-                $this->app['config']->get('allow_client_ip', ['127.0.0.1'])
-            );
+            array_map(function ($v) {
+                $this->allowClientIpList[$v] = true;
+            }, $this->app['config']->get('allow_client_ip', ['127.0.0.1']));
         }
     }
 
@@ -133,7 +129,7 @@ class Server
 
         // 启用 HTTP 服务
         if ($this->app['config']->get('enable_http_server', false)) {
-            $httpServerIp   = $this->app['config']->get('http_server_ip', '127.0.0.1');
+            $httpServerIp = $this->app['config']->get('http_server_ip', '127.0.0.1');
             $httpServerPort = $this->app['config']->get('http_server_port', '9501');
 
             $this->startHttpServer($httpServerIp, $httpServerPort);
@@ -143,7 +139,7 @@ class Server
 
         // 启用 TCP 服务
         if ($this->app['config']->get('enable_tcp_server', false)) {
-            $tcpServerIp   = $this->app['config']->get('tcp_server_ip', '127.0.0.1');
+            $tcpServerIp = $this->app['config']->get('tcp_server_ip', '127.0.0.1');
             $tcpServerPort = $this->app['config']->get('tcp_server_port', '9501');
 
             $this->startTcpServer($tcpServerIp, $tcpServerPort);
@@ -154,15 +150,15 @@ class Server
         // 修改进程名
         Console::setProcessTitle();
 
-        $this->server->on('Start',        [$this, 'onStart']);
+        $this->server->on('Start', [$this, 'onStart']);
         $this->server->on('ManagerStart', [$this, 'onManagerStart']);
-        $this->server->on('ManagerStop',  [$this, 'onManagerStop']);
-        $this->server->on('WorkerStart',  [$this, 'onWorkerStart']);
-        $this->server->on('WorkerStop',   [$this, 'onWorkerStop']);
-        $this->server->on('WorkerError',  [$this, 'onWorkerError']);
-        $this->server->on('Task',         [$this, 'onTask']);
-        $this->server->on('Finish',       [$this, 'onFinish']);
-        $this->server->on('PipeMessage',  [$this, 'onPipeMessage']);
+        $this->server->on('ManagerStop', [$this, 'onManagerStop']);
+        $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
+        $this->server->on('WorkerStop', [$this, 'onWorkerStop']);
+        $this->server->on('WorkerError', [$this, 'onWorkerError']);
+        $this->server->on('Task', [$this, 'onTask']);
+        $this->server->on('Finish', [$this, 'onFinish']);
+        $this->server->on('PipeMessage', [$this, 'onPipeMessage']);
 
         // 初始化服务
         $this->hook(Define::HOOK_SERVER_INIT, $this->server);
@@ -182,12 +178,12 @@ class Server
         Console::write("Server: start. Swoole version is [" . SWOOLE_VERSION . "]");
 
         // 写入 swoole server pid
-        File::write($this->pidFile, $server->master_pid. ','. $server->manager_pid);
+        File::write($this->pidFile, $server->master_pid . ',' . $server->manager_pid);
     }
 
     /**
      * @param SwooleServer $server
-     * @param $workerId
+     * @param              $workerId
      */
     public function onWorkerStart(SwooleServer $server, $workerId)
     {
@@ -196,8 +192,7 @@ class Server
 
             // 初始化 task 进程
             $this->hook(Define::HOOK_TASK_INIT, $server, $workerId);
-        }
-        else {
+        } else {
             Console::setProcessTitle("Worker|{$workerId}");
 
             // 初始化 Worker 进程
@@ -207,9 +202,9 @@ class Server
 
     /**
      * @param SwooleServer $server
-     * @param $workerId
-     * @param $workerPid
-     * @param $exitCode
+     * @param              $workerId
+     * @param              $workerPid
+     * @param              $exitCode
      */
     public function onWorkerError(SwooleServer $server, $workerId, $workerPid, $exitCode)
     {
@@ -226,9 +221,9 @@ class Server
 
     /**
      * @param SwooleServer $server
-     * @param $taskId
-     * @param $workerId
-     * @param $data
+     * @param              $taskId
+     * @param              $workerId
+     * @param              $data
      * @throws \Exception
      */
     public function onTask(SwooleServer $server, $taskId, $workerId, $data)
@@ -240,8 +235,8 @@ class Server
 
     /**
      * @param SwooleServer $server
-     * @param $taskId
-     * @param $data
+     * @param              $taskId
+     * @param              $data
      */
     public function onFinish(SwooleServer $server, $taskId, $data)
     {
@@ -250,8 +245,8 @@ class Server
 
     /**
      * @param SwooleServer $server
-     * @param $fromId
-     * @param $message
+     * @param              $fromId
+     * @param              $message
      */
     public function onPipeMessage(SwooleServer $server, $fromId, $message)
     {
@@ -260,14 +255,18 @@ class Server
 
     /**
      * @param SwooleServer $server
-     * @param $workerId
+     * @param              $workerId
      */
-    public function onWorkerStop(SwooleServer $server, $workerId) {}
+    public function onWorkerStop(SwooleServer $server, $workerId)
+    {
+    }
 
     /**
      * @param SwooleServer $server
      */
-    public function onManagerStop(SwooleServer $server) {}
+    public function onManagerStop(SwooleServer $server)
+    {
+    }
 
     /**
      * @param $httpServerIp
@@ -275,10 +274,7 @@ class Server
      */
     public function startHttpServer($httpServerIp, $httpServerPort)
     {
-        $this->server = new SwooleHttpServer(
-            $httpServerIp,
-            $httpServerPort
-        );
+        $this->server = new SwooleHttpServer($httpServerIp, $httpServerPort);
 
         $this->server->on('request', [$this, 'onRequest']);
         $this->server->set($this->config);
@@ -294,6 +290,7 @@ class Server
     {
         if ($request->server['request_uri'] == '/favicon.ico') {
             $response->end();
+
             return;
         }
 
@@ -306,15 +303,14 @@ class Server
         }
 
         // merge
-        $request->ip      = $this->getClientIp($request->server);
+        $request->ip = $this->getClientIp($request->server);
         $request->request = array_merge($request->get, $request->post);
 
         try {
             $this->app->get('dispatcher.http')->dispatch($request, $response);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response->status(500);
-            $response->end('Server Error : '. $e->getMessage());
+            $response->end('Server Error : ' . $e->getMessage());
         }
     }
 
@@ -324,21 +320,15 @@ class Server
      */
     public function getClientIp($server)
     {
-        if (isset($server['x-real-ip'])
-            and strcasecmp($server['x-real-ip'], 'unknown')
-        ) {
+        if (isset($server['x-real-ip']) and strcasecmp($server['x-real-ip'], 'unknown')) {
             return $server['x-real-ip'];
         }
 
-        if (isset($server['client_ip'])
-            and strcasecmp($server['client_ip'], 'unknown')
-        ) {
+        if (isset($server['client_ip']) and strcasecmp($server['client_ip'], 'unknown')) {
             return $server['client_ip'];
         }
 
-        if (isset($server['x_forwarded_for'])
-            and strcasecmp($server['x_forwarded_for'], 'unknown')
-        ) {
+        if (isset($server['x_forwarded_for']) and strcasecmp($server['x_forwarded_for'], 'unknown')) {
             return $server['x_forwarded_for'];
         }
 
@@ -357,27 +347,19 @@ class Server
     {
         // 如果已经启动了 HTTP 服务，只需要添加监听就行了
         if ($this->server != null) {
-            $tcpServer = $this->server->addListener(
-                $tcpServerIp,
-                $tcpServerPort,
-                SWOOLE_SOCK_TCP
-            );
+            $tcpServer = $this->server->addListener($tcpServerIp, $tcpServerPort, SWOOLE_SOCK_TCP);
 
             $tcpServer->set($this->config);
 
             $tcpServer->on('Connect', [$this, 'onConnect']);
             $tcpServer->on('Receive', [$this, 'onReceive']);
             $tcpServer->on('Close', [$this, 'onClose']);
+
             return;
         }
 
         // 木有启动 HTTP 服务，那就启动 TCP Server
-        $this->server = new SwooleServer(
-            $tcpServerIp,
-            $tcpServerPort,
-            SWOOLE_PROCESS,
-            SWOOLE_SOCK_TCP
-        );
+        $this->server = new SwooleServer($tcpServerIp, $tcpServerPort, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
         $this->server->on('Connect', [$this, 'onConnect']);
         $this->server->on('Receive', [$this, 'onReceive']);
@@ -388,9 +370,9 @@ class Server
 
     /**
      * @param SwooleServer $server
-     * @param $fd
-     * @param $fromId
-     * @param $data
+     * @param              $fd
+     * @param              $fromId
+     * @param              $data
      */
     public function onReceive(SwooleServer $server, $fd, $fromId, $data)
     {
@@ -398,31 +380,35 @@ class Server
             $ip = $server->connection_info($fd)['remote_ip'];
             if (! isset($this->allowClientIpList[$ip])) {
                 $this->send($fd, null, 404);
+
                 return;
             }
         }
 
-        $this->app->get('dispatcher.tcp')
-            ->dispatch($server, $fd, $fromId, $data);
+        $this->app->get('dispatcher.tcp')->dispatch($server, $fd, $fromId, $data);
     }
 
     /**
      * @param SwooleServer $server
-     * @param $fd
-     * @param $fromId
+     * @param              $fd
+     * @param              $fromId
      */
-    public function onClose(SwooleServer $server, $fd, $fromId) {}
+    public function onClose(SwooleServer $server, $fd, $fromId)
+    {
+    }
 
     /**
      * @param SwooleServer $server
-     * @param $fd
-     * @param $fromId
+     * @param              $fd
+     * @param              $fromId
      */
-    public function onConnect(SwooleServer $server, $fd, $fromId) {}
+    public function onConnect(SwooleServer $server, $fd, $fromId)
+    {
+    }
 
     /**
-     * @param $fd
-     * @param $data
+     * @param     $fd
+     * @param     $data
      * @param int $code
      */
     public function send($fd, $data, int $code = 200)
@@ -436,8 +422,7 @@ class Server
 
         if (mb_strlen($data) > 1024 * 1024) {
             $data = str_split($data, 1024 * 1024);
-        }
-        else {
+        } else {
             $data = [$data];
         }
 
@@ -449,10 +434,10 @@ class Server
     /**
      * 批量发送 (在数据量大时应用)
      *
-     * @param $fd
-     * @param $data
-     * @param bool   $isEnd
-     * @param int    $code
+     * @param      $fd
+     * @param      $data
+     * @param bool $isEnd
+     * @param int  $code
      */
     public function batchSend($fd, $data, bool $isEnd = false, int $code = 200)
     {
@@ -498,7 +483,7 @@ class Server
 
     /**
      * @param string $name
-     * @param array $callback
+     * @param array  $callback
      */
     public function setHook(string $name, array $callback)
     {
@@ -525,11 +510,11 @@ class Server
 
     /**
      * @param string $name
-     * @param array ...$arguments
+     * @param array  ...$arguments
      */
     public function hook(string $name, ... $arguments)
     {
-        if ( ! isset($this->hook[$name])) {
+        if (! isset($this->hook[$name])) {
             return;
         }
 

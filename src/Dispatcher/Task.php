@@ -6,6 +6,7 @@ use Flower\Utility\Console;
 
 /**
  * Class Task
+ *
  * @package Flower\Dispatcher
  */
 class Task extends Base
@@ -20,26 +21,26 @@ class Task extends Base
         $this->app->get('co.scheduler')->newTask(
             (function () use ($data) {
                 $request = $this->parseRequest($data['request'] ?: null);
-                $method  = $data['method'] ?? 'index';
+                $method = $data['method'] ?? 'index';
 
                 $object = $this->app->make($request);
 
                 // 请求的对象木有找到
                 if (! method_exists($object, $method)) {
-                    throw new \Exception('Task Not Found: '. $request. ':'. $method. ')');
+                    throw new \Exception('Task Not Found: ' . $request . ':' . $method . ')');
                 }
 
                 $queryString = $this->getRequestString($request, $method, $data['param']);
 
-                Console::debug('TASK '. $queryString, 'blue');
+                Console::debug('TASK ' . $queryString, 'blue');
 
-                $lockKey      = '';
+                $lockKey = '';
                 $lockInstance = null;
-                $needLock     = isset($data['lock']) and $data['lock'];
+                $needLock = isset($data['lock']) and $data['lock'];
                 if ($needLock) {
                     $lockInstance = $this->app->get('lock');
 
-                    $lockKey = md5($request. $method. $this->app['packet']->pack($data['param']));
+                    $lockKey = md5($request . $method . $this->app['packet']->pack($data['param']));
                     if (yield $lockInstance->lock($lockKey)) {
                         Console::debug("TASK {$queryString} (already locked)", 'blue');
 
@@ -54,8 +55,7 @@ class Task extends Base
                     if ($generator instanceof \Generator) {
                         $this->app->get('co.scheduler')->newTask($generator)->run();
                     }
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     $needLock && yield $lockInstance->unlock($lockKey);
 
                     throw new \Exception($e->getMessage());
@@ -84,10 +84,10 @@ class Task extends Base
         }
 
         $namespace = '\App\Task\\';
-        if (class_exists($namespace. $request)) {
-            return $namespace. $request;
+        if (class_exists($namespace . $request)) {
+            return $namespace . $request;
         }
 
-        throw new \Exception('Task Not Found:'. $request);
+        throw new \Exception('Task Not Found:' . $request);
     }
 }

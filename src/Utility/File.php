@@ -4,6 +4,7 @@ namespace Flower\Utility;
 
 /**
  * Class File
+ *
  * @package Flower\Utility
  */
 class File
@@ -11,17 +12,16 @@ class File
     /**
      * 异步写入文件
      *
-     * @param string $file
-     * @param string $content
-     * @param int    $flag
-     * @param null   $callback
+     * @param string   $file
+     * @param string   $content
+     * @param int      $flag
+     * @param callable $callback
      */
     public static function write(string $file, string $content, int $flag = 0, $callback = null)
     {
         if (version_compare(SWOOLE_VERSION, '1.9.2', '>=')) {
             \Swoole\Async::writeFile($file, $content, $callback, $flag);
-        }
-        else {
+        } else {
             self::writeSync($file, $content, $flag, $callback);
         }
     }
@@ -36,8 +36,7 @@ class File
     {
         if (version_compare(SWOOLE_VERSION, '1.9.2', '>=')) {
             \Swoole\Async::readFile($file, $callback);
-        }
-        else {
+        } else {
             self::readSync($file, $callback);
         }
     }
@@ -45,10 +44,10 @@ class File
     /**
      * 同步写入文件
      *
-     * @param string $file
-     * @param string $content
-     * @param int    $flag
-     * @param null   $callback
+     * @param string   $file
+     * @param string   $content
+     * @param int      $flag
+     * @param callable $callback
      */
     public static function writeSync(string $file, string $content, int $flag = 0, $callback = null)
     {

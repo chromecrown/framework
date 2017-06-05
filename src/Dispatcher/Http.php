@@ -9,12 +9,13 @@ use Swoole\Http\Response;
 
 /**
  * Class Http
+ *
  * @package Flower\Dispatcher
  */
 class Http extends Base
 {
     /**
-     * @param Request $request
+     * @param Request  $request
      * @param Response $response
      * @throws \Exception
      */
@@ -30,10 +31,10 @@ class Http extends Base
         }
 
         $object->setHttp($request, $response);
-        $response->header('Server', 'flower '. Define::VERSION);
+        $response->header('Server', 'flower ' . Define::VERSION);
         $response->header('Content-Type', 'application/json;charset=utf-8');
 
-        Console::debug('HTTP '. $this->getRequestString($controller, $method), 'blue');
+        Console::debug('HTTP ' . $this->getRequestString($controller, $method), 'blue');
 
         $generator = $object->$method();
 
@@ -43,11 +44,11 @@ class Http extends Base
     }
 
     /**
-     * @param $request
+     * @param Request $request
      * @return array
      * @throws \Exception
      */
-    protected function parseRequest($request)
+    protected function parseRequest(Request $request)
     {
         $uri = trim($request->server['request_uri'] ?? '', '/');
 
@@ -61,23 +62,23 @@ class Http extends Base
 
         $controller = ucfirst($uri[0]);
 
-        if (class_exists($namespace. $controller)) {
+        if (class_exists($namespace . $controller)) {
             $method = $uri[1] ?? 'index';
 
-            return [$namespace. $controller, $method];
+            return [$namespace . $controller, $method];
         }
 
         if (! isset($uri[1])) {
             throw new \Exception('Http Request Not Found.');
         }
 
-        $namespace .= $controller. '\\';
+        $namespace .= $controller . '\\';
         $controller = ucfirst($uri[1]);
 
-        if (class_exists($namespace. $controller)) {
+        if (class_exists($namespace . $controller)) {
             $method = $uri[2] ?? 'index';
 
-            return [$namespace. $controller, $method];
+            return [$namespace . $controller, $method];
         }
 
         throw new \Exception('Http Request Not Found.');

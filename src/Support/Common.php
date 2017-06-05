@@ -55,7 +55,7 @@ if (! function_exists('root_path')) {
 
         $path and ($path = ltrim($path, '/'));
 
-        return $basePath. $path;
+        return $basePath . $path;
     }
 }
 
@@ -75,7 +75,7 @@ if (! function_exists('app_path')) {
 
         $path and ($path = ltrim($path, '/'));
 
-        return $appPath. $path;
+        return $appPath . $path;
     }
 }
 
@@ -95,6 +95,6 @@ if (! function_exists('storage_path')) {
 
         $path and ($path = ltrim($path, '/'));
 
-        return $storagePath. $path;
+        return $storagePath . $path;
     }
 }

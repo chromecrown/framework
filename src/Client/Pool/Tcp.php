@@ -11,6 +11,7 @@ use Flower\Client\Tcp as TcpClient;
 
 /**
  * Class TcpPool
+ *
  * @package Flower\Client\Pool
  */
 class Tcp extends Pool implements Coroutine
@@ -41,25 +42,26 @@ class Tcp extends Pool implements Coroutine
     private $set = [
         'open_eof_check' => 1,
         'open_eof_split' => 1,
-        'package_eof' => "#\r\n\r\n",
+        'package_eof'    => "#\r\n\r\n",
 
         'package_max_length' => 1024 * 1024 * 2,
-        'open_tcp_nodelay' => 1,
+        'open_tcp_nodelay'   => 1,
     ];
 
     /**
      * Tcp constructor.
+     *
      * @param Application $app
-     * @param Packet $packet
-     * @param string $name
-     * @param array $config
+     * @param Packet      $packet
+     * @param string      $name
+     * @param array       $config
      * @throws \Exception
      */
     public function __construct(Application $app, Packet $packet, string $name, array $config = [])
     {
-        $this->type   = 'tcp';
-        $this->name   = $name;
-        $this->app    = $app;
+        $this->type = 'tcp';
+        $this->name = $name;
+        $this->app = $app;
         $this->packet = $packet;
 
         if (! isset($config['config'])) {
@@ -67,7 +69,7 @@ class Tcp extends Pool implements Coroutine
         }
 
         $this->config = $config['config'];
-        $this->set    = array_merge($this->set, $config['set'] ?? []);
+        $this->set = array_merge($this->set, $config['set'] ?? []);
         unset($config);
 
         parent::__construct();
@@ -75,26 +77,26 @@ class Tcp extends Pool implements Coroutine
 
     /**
      * @param callable $callback
-     * @param array $request
-     * @param bool $format
+     * @param string   $request
+     * @param bool     $format
      */
-    public function call(callable $callback, $request, $format = true)
+    public function call(callable $callback, string $request, bool $format = true)
     {
         $this->request = $request;
-        $this->format  = $format;
+        $this->format = $format;
 
         $this->send($callback);
     }
 
     /**
-     * @param array $data
-     * @param bool $format
+     * @param mixed $data
+     * @param bool  $format
      * @return \Generator
      */
     public function request($data, bool $format = true)
     {
         $this->request = $data;
-        $this->format  = $format;
+        $this->format = $format;
 
         return yield $this;
     }
@@ -105,17 +107,14 @@ class Tcp extends Pool implements Coroutine
     public function send(callable $callback)
     {
         $request = $this->format
-            ? $this->packet->encode(
-                $this->packet->format($this->request),
-                $this->set['package_eof']
-            )
+            ? $this->packet->encode($this->packet->format($this->request), $this->set['package_eof'])
             : $this->request;
 
         $data = [
             'request' => $request,
             'token'   => $this->getToken($callback, true),
             'retry'   => 0,
-            'format'  => $this->format
+            'format'  => $this->format,
         ];
 
         $this->request = $this->format = null;
@@ -131,6 +130,7 @@ class Tcp extends Pool implements Coroutine
         $client = $this->getConnection();
         if (! $client) {
             $this->retry($data);
+
             return;
         }
 
@@ -151,7 +151,7 @@ class Tcp extends Pool implements Coroutine
      */
     public function connect()
     {
-        $this->waitConnect ++;
+        $this->waitConnect++;
 
         $client = $this->app->get('client.tcp');
         $client->on('close', [$this, 'close']);
@@ -161,10 +161,11 @@ class Tcp extends Pool implements Coroutine
             $this->set,
             $this->getTimeout(),
             function (TcpClient $client, $result) {
-                $this->waitConnect --;
+                $this->waitConnect--;
 
                 if (! $result) {
                     $this->close($client);
+
                     return;
                 }
 

@@ -7,6 +7,7 @@ use Flower\Contract\Model as IModel;
 
 /**
  * Class QueryBuilder
+ *
  * @package Flower\Database
  */
 class QueryBuilder
@@ -62,13 +63,14 @@ class QueryBuilder
 
     /**
      * QueryBuilder constructor.
+     *
      * @param Application $app
-     * @param IModel $model
-     * @param null $queryType
+     * @param IModel      $model
+     * @param string      $queryType
      */
-    public function __construct(Application $app, IModel $model, $queryType = null)
+    public function __construct(Application $app, IModel $model, string $queryType = null)
     {
-        $this->app   = $app;
+        $this->app = $app;
         $this->model = $model;
 
         $this->setQueryType($queryType);
@@ -77,9 +79,9 @@ class QueryBuilder
     }
 
     /**
-     * @param $queryType
+     * @param string $queryType
      */
-    public function setQueryType($queryType)
+    public function setQueryType(string $queryType)
     {
         if ($queryType) {
             $this->{$queryType} = true;
@@ -99,7 +101,7 @@ class QueryBuilder
 
     /**
      * @param string|array $column
-     * @param string $alias
+     * @param string       $alias
      * @return $this
      */
     public function select($column, string $alias = null)
@@ -117,9 +119,7 @@ class QueryBuilder
         }
 
         foreach ($column as $alias => $field) {
-            is_numeric($alias)
-                ? ($this->select[] = $field)
-                : ($this->select[$alias] = $field);
+            is_numeric($alias) ? ($this->select[] = $field) : ($this->select[$alias] = $field);
         }
 
         unset($column);
@@ -142,9 +142,9 @@ class QueryBuilder
 
     /**
      * @param callable|string|array $column
-     * @param null $value
-     * @param string $operator
-     * @param string $connector
+     * @param null                  $value
+     * @param string                $operator
+     * @param string                $connector
      * @return $this
      */
     public function where($column, $value = null, $operator = self::EQUALS, $connector = self::LOGICAL_AND)
@@ -160,14 +160,14 @@ class QueryBuilder
         if ($column instanceof \Closure) {
             $this->where[] = [
                 'bracket'   => self::BRACKET_OPEN,
-                'connector' => $connector
+                'connector' => $connector,
             ];
 
             $column($this);
 
             $this->where[] = [
                 'bracket'   => self::BRACKET_CLOSE,
-                'connector' => null
+                'connector' => null,
             ];
 
             return $this;
@@ -185,15 +185,15 @@ class QueryBuilder
             'column'    => $column,
             'value'     => $value,
             'operator'  => $operator,
-            'connector' => $connector
+            'connector' => $connector,
         ];
 
         return $this;
     }
 
     /**
-     * @param $column
-     * @param null $value
+     * @param        $column
+     * @param null   $value
      * @param string $operator
      * @return QueryBuilder
      */
@@ -203,8 +203,8 @@ class QueryBuilder
     }
 
     /**
-     * @param $column
-     * @param array $values
+     * @param        $column
+     * @param array  $values
      * @param string $connector
      * @return $this
      */
@@ -214,15 +214,15 @@ class QueryBuilder
             'column'    => $column,
             'value'     => $values,
             'operator'  => self::IN,
-            'connector' => $connector
+            'connector' => $connector,
         ];
 
         return $this;
     }
 
     /**
-     * @param $column
-     * @param array $values
+     * @param        $column
+     * @param array  $values
      * @param string $connector
      * @return $this
      */
@@ -232,14 +232,14 @@ class QueryBuilder
             'column'    => $column,
             'value'     => $values,
             'operator'  => self::NOT_IN,
-            'connector' => $connector
+            'connector' => $connector,
         ];
 
         return $this;
     }
 
     /**
-     * @param $column
+     * @param        $column
      * @param string $order
      * @return $this
      */
@@ -247,25 +247,22 @@ class QueryBuilder
     {
         if (! is_array($column)) {
             if (strpos($column, ',') !== false) {
-                $tmp    = array_map('trim', explode(',', $column));
+                $tmp = array_map('trim', explode(',', $column));
                 $column = [];
                 foreach ($tmp as $v) {
                     if (strpos($v, ' ') !== false) {
                         $v = array_map('trim', explode(' ', $v));
                         $column[$v[0]] = $v[1];
-                    }
-                    else {
+                    } else {
                         $column[$v] = $order;
                     }
                 }
-            }
-            elseif (strpos($column, ' ') !== false) {
+            } elseif (strpos($column, ' ') !== false) {
                 $tmp = array_map('trim', explode(' ', $column));
                 $column = [
-                    $tmp[0] => $tmp[1]
+                    $tmp[0] => $tmp[1],
                 ];
-            }
-            else {
+            } else {
                 $column = [$column => $order];
             }
         }
@@ -273,7 +270,7 @@ class QueryBuilder
         foreach ($column as $field => $order) {
             $this->orderBy[] = [
                 'column' => $field,
-                'order'  => $order
+                'order'  => $order,
             ];
         }
 
@@ -287,16 +284,14 @@ class QueryBuilder
     public function groupBy($group = null)
     {
         if ($group) {
-            if (!is_array($group)) {
+            if (! is_array($group)) {
                 $group = trim($group);
-                $group = (strpos($group, ',') !== false)
-                    ? array_map('trim', explode(',', $group))
-                    : [$group];
+                $group = (strpos($group, ',') !== false) ? array_map('trim', explode(',', $group)) : [$group];
             }
 
             foreach ($group as $v) {
                 $this->groupBy[] = [
-                    'column' => $v
+                    'column' => $v,
                 ];
             }
         }
@@ -305,7 +300,7 @@ class QueryBuilder
     }
 
     /**
-     * @param $limit
+     * @param     $limit
      * @param int $offset
      * @return $this
      */
@@ -359,7 +354,7 @@ class QueryBuilder
         list(, $val) = each($values);
         reset($values);
 
-        if (!is_array($val)) {
+        if (! is_array($val)) {
             $values = [$values];
         }
         unset($val);
@@ -372,7 +367,7 @@ class QueryBuilder
     }
 
     /**
-     * @param $column
+     * @param      $column
      * @param null $value
      * @return $this
      */
@@ -397,7 +392,7 @@ class QueryBuilder
      */
     public function isSelect()
     {
-        return !empty($this->select);
+        return ! empty($this->select);
     }
 
     /**
@@ -467,7 +462,7 @@ class QueryBuilder
         }
 
         if ($this->groupBy) {
-            $statement .= ' '. $this->getGroupByString();
+            $statement .= ' ' . $this->getGroupByString();
         }
 
         if ($this->limit) {
@@ -483,7 +478,7 @@ class QueryBuilder
      */
     private function getSelectString($getAll = false)
     {
-        $statement  = 'SELECT ';
+        $statement = 'SELECT ';
         $statement .= $this->getOptionsString();
 
         if ($getAll) {
@@ -509,7 +504,7 @@ class QueryBuilder
     private function getFromString()
     {
         $statement = '';
-        if (!$this->from) {
+        if (! $this->from) {
             $this->from($this->model->getTable());
         }
 
@@ -539,14 +534,12 @@ class QueryBuilder
                         $statement .= ' ' . $criterion['connector'] . ' ';
                     }
                     $useConnector = false;
-                }
-                else {
+                } else {
                     $useConnector = true;
                 }
 
                 $statement .= $criterion['bracket'];
-            }
-            else {
+            } else {
                 if ($useConnector) {
                     $statement .= ' ' . $criterion['connector'] . ' ';
                 }
@@ -633,7 +626,7 @@ class QueryBuilder
     private function getLimitString()
     {
         $statement = '';
-        if (!$this->limit) {
+        if (! $this->limit) {
             return $statement;
         }
         $statement .= $this->limit['limit'];
@@ -669,7 +662,7 @@ class QueryBuilder
     public function getInsertStatement()
     {
         $statement = '';
-        if (!$this->isInsert()) {
+        if (! $this->isInsert()) {
             return $statement;
         }
 
@@ -689,7 +682,7 @@ class QueryBuilder
     private function getValuesString()
     {
         $statement = '';
-        if (!$this->values) {
+        if (! $this->values) {
             return $statement;
         }
 
@@ -703,7 +696,7 @@ class QueryBuilder
                 $statement .= $this->quote($val) . ', ';
             }
 
-            $statement = substr($statement, 0, -2). '), ';
+            $statement = substr($statement, 0, -2) . '), ';
         }
         unset($keys);
 
@@ -716,13 +709,11 @@ class QueryBuilder
     public function getUpdateStatement()
     {
         $statement = '';
-        if (!$this->isUpdate()) {
+        if (! $this->isUpdate()) {
             return $statement;
         }
 
-        $statement .= 'UPDATE '
-            . $this->getOptionsString()
-            . $this->getFromString();
+        $statement .= 'UPDATE ' . $this->getOptionsString() . $this->getFromString();
 
         if ($this->set) {
             $statement .= ' ' . $this->getSetString();
@@ -745,7 +736,7 @@ class QueryBuilder
     private function getSetString()
     {
         $statement = '';
-        if (!$this->set) {
+        if (! $this->set) {
             return $statement;
         }
 
@@ -754,9 +745,7 @@ class QueryBuilder
 
             $statement .= $set['column'] . ' ' . self::EQUALS . ' ';
 
-            $statement .= ($set['value'] instanceof Expression)
-                ? $set['value']->get()
-                : $this->quote($set['value']);
+            $statement .= ($set['value'] instanceof Expression) ? $set['value']->get() : $this->quote($set['value']);
 
             $statement .= ', ';
         }
@@ -775,13 +764,11 @@ class QueryBuilder
     public function getDeleteStatement()
     {
         $statement = '';
-        if (!$this->isDelete()) {
+        if (! $this->isDelete()) {
             return $statement;
         }
 
-        $statement .= 'DELETE '
-            . $this->getOptionsString()
-            . ' ' . $this->getFromString();
+        $statement .= 'DELETE ' . $this->getOptionsString() . ' ' . $this->getFromString();
 
         if ($this->where) {
             $statement .= ' ' . $this->getWhereString();
@@ -894,8 +881,8 @@ class QueryBuilder
     }
 
     /**
-     * @param $field
-     * @param $number
+     * @param       $field
+     * @param       $number
      * @param array $where
      * @return \Generator
      */
@@ -910,8 +897,8 @@ class QueryBuilder
     }
 
     /**
-     * @param $field
-     * @param $number
+     * @param       $field
+     * @param       $number
      * @param array $where
      * @return \Generator
      */
@@ -965,7 +952,7 @@ class QueryBuilder
      * @param $pool
      * @return $this
      */
-    public function use($pool)
+    public function use ($pool)
     {
         $this->model->use($pool);
 
@@ -982,17 +969,17 @@ class QueryBuilder
 
     protected function reset()
     {
-        $this->option = [];
-        $this->select = [];
-        $this->delete = [];
-        $this->set    = [];
-        $this->values = [];
-        $this->from   = [];
-        $this->where  = [];
+        $this->option  = [];
+        $this->select  = [];
+        $this->delete  = [];
+        $this->set     = [];
+        $this->values  = [];
+        $this->from    = [];
+        $this->where   = [];
         $this->orderBy = [];
         $this->groupBy = [];
-        $this->limit  = [];
+        $this->limit   = [];
 
-        $this->bindId = null;
+        $this->bindId  = null;
     }
 }

@@ -10,6 +10,7 @@ use Swoole\Redis as SwooleRedis;
 
 /**
  * Class Redis
+ *
  * @package Flower\Client\Pool
  */
 class Redis extends Pool implements Coroutine
@@ -36,11 +37,11 @@ class Redis extends Pool implements Coroutine
 
     /**
      * @param callable $callback
-     * @param null $method
-     * @param null $arguments
-     * @param null $enableLogSlow
+     * @param string   $method
+     * @param array    $arguments
+     * @param bool     $enableLogSlow
      */
-    public function call(callable $callback, $method = null, $arguments = null, $enableLogSlow = null)
+    public function call(callable $callback, string $method = null, array $arguments = null, bool $enableLogSlow = null)
     {
         $this->method        = $method;
         $this->arguments     = $arguments;
@@ -63,7 +64,7 @@ class Redis extends Pool implements Coroutine
             'arguments' => $this->arguments,
             'token'     => $this->getToken($callback),
             'retry'     => 0,
-            'log_slow'  => $this->enableLogSlow
+            'log_slow'  => $this->enableLogSlow,
         ];
 
         $this->method = $this->arguments = $this->enableLogSlow = null;
@@ -73,12 +74,12 @@ class Redis extends Pool implements Coroutine
 
     /**
      * @param string $name
-     * @param array $arguments
+     * @param array  $arguments
      * @return \Generator
      */
     public function query(string $name, array $arguments)
     {
-        $this->method    = $name;
+        $this->method = $name;
         $this->arguments = $arguments;
 
         return yield $this;
@@ -92,6 +93,7 @@ class Redis extends Pool implements Coroutine
         $client = $this->getConnection();
         if (! $client) {
             $this->retry($data);
+
             return;
         }
 
@@ -119,7 +121,7 @@ class Redis extends Pool implements Coroutine
      */
     public function connect()
     {
-        $this->waitConnect ++;
+        $this->waitConnect++;
 
         $client = new SwooleRedis();
         $client->on('Close', [$this, 'close']);
@@ -127,17 +129,17 @@ class Redis extends Pool implements Coroutine
             $this->config['host'],
             $this->config['port'],
             function ($client, $result) {
-                $this->waitConnect --;
+                $this->waitConnect--;
 
                 if (! $result) {
                     $this->close($client);
+
                     return;
                 }
 
                 (isset($this->config['auth']) and $this->config['auth'])
                     ? $this->auth($client)
                     : $this->select($client);
-
             }
         );
     }
@@ -147,16 +149,15 @@ class Redis extends Pool implements Coroutine
      */
     private function auth(SwooleRedis $client)
     {
-        $client->auth(
-            $this->config['auth'], function ($client, $result) {
-                if (! $result) {
-                    $this->close($client);
-                    return;
-                }
+        $client->auth($this->config['auth'], function ($client, $result) {
+            if (! $result) {
+                $this->close($client);
 
-                $this->select($client);
+                return;
             }
-        );
+
+            $this->select($client);
+        });
     }
 
     /**
@@ -168,21 +169,20 @@ class Redis extends Pool implements Coroutine
     {
         // 存在select
         if (isset($this->config['select'])) {
-            $client->select(
-                $this->config['select'], function ($client, $result) {
-                    if (! $result) {
-                        $this->close($client);
-                        return;
-                    }
+            $client->select($this->config['select'], function ($client, $result) {
+                if (! $result) {
+                    $this->close($client);
 
-                    $this->currConnect ++;
-
-                    $client->isConnected = true;
-                    $this->release($client);
+                    return;
                 }
-            );
+
+                $this->currConnect++;
+
+                $client->isConnected = true;
+                $this->release($client);
+            });
         } else {
-            $this->currConnect ++;
+            $this->currConnect++;
 
             $client->isConnected = true;
             $this->release($client);
@@ -195,7 +195,7 @@ class Redis extends Pool implements Coroutine
     public function close(SwooleRedis $client)
     {
         if (isset($client->errMsg)) {
-            Log::error('Redis Error: '. $client->errMsg);
+            Log::error('Redis Error: ' . $client->errMsg);
         }
 
         $client->isConnected = false;
@@ -309,14 +309,24 @@ class Redis extends Pool implements Coroutine
                     $data['result'][$result[$i]] = $result[$i + 1];
                 }
                 break;
-            
+
             case 'type':
                 switch ($result) {
-                    case 'string': $result = \Redis::REDIS_STRING; break;
-                    case 'list':   $result = \Redis::REDIS_LIST;   break;
-                    case 'set':    $result = \Redis::REDIS_SET;    break;
-                    case 'zset':   $result = \Redis::REDIS_ZSET;   break;
-                    case 'hash':   $result = \Redis::REDIS_HASH;   break;
+                    case 'string':
+                        $result = \Redis::REDIS_STRING;
+                        break;
+                    case 'list':
+                        $result = \Redis::REDIS_LIST;
+                        break;
+                    case 'set':
+                        $result = \Redis::REDIS_SET;
+                        break;
+                    case 'zset':
+                        $result = \Redis::REDIS_ZSET;
+                        break;
+                    case 'hash':
+                        $result = \Redis::REDIS_HASH;
+                        break;
                 }
                 break;
 
@@ -342,7 +352,7 @@ class Redis extends Pool implements Coroutine
         }
 
         $arguments = substr(json_encode(array_values($data['arguments'])), 1, -1);
-        $message   = 'Redis Async ['
+        $message = 'Redis Async ['
             . number_format($useTime, 5)
             . '] : '
             . $data['name']

@@ -9,6 +9,7 @@ use Flower\Support\Construct;
 
 /**
  * Class Command
+ *
  * @package Flower\Server
  */
 class Command
@@ -25,24 +26,30 @@ class Command
     public function run()
     {
         $this->serverName = $this->server->getServerName();
-        $this->pidFile    = $this->server->getPidFile();
+        $this->pidFile = $this->server->getPidFile();
 
         // 分析命令
         $command = $this->parseCommand();
 
         // 执行命令
         switch ($command) {
-            case 'start':   $this->start();
+            case 'start':
+                $this->start();
                 break;
-            case 'reload':  $this->reload();
+            case 'reload':
+                $this->reload();
                 break;
-            case 'stop':    $this->stop('stop');
+            case 'stop':
+                $this->stop('stop');
                 break;
-            case 'restart': $this->stop('restart');
+            case 'restart':
+                $this->stop('restart');
                 break;
-            case 'status':  $this->status();
+            case 'status':
+                $this->status();
                 break;
-            case 'kill':    $this->kill();
+            case 'kill':
+                $this->kill();
                 break;
         }
 
@@ -94,8 +101,7 @@ class Command
             if ($command == 'start' and $flag) {
                 Console::write("{$this->serverName} already running");
                 exit(0);
-            }
-            elseif ($command != 'start' and ! $flag) {
+            } elseif ($command != 'start' and ! $flag) {
                 Console::write("{$this->serverName} not run");
                 exit(0);
             }
@@ -112,14 +118,14 @@ class Command
         $this->checkCommand('start');
 
         $port = $this->getServerPort();
-        if ( ! $port) {
+        if (! $port) {
             return;
         }
 
         if (PHP_OS == 'Linux') {
             foreach ($port as $v) {
                 $result = exec("netstat -apn | grep :{$v} | awk '{print \$4}' | grep :{$v} | wc -l");
-                $result = (int) trim($result);
+                $result = (int)trim($result);
 
                 if ($result > 0) {
                     Console::write("端口号被占用，请检查。Port: {$v}", 'red');
@@ -151,7 +157,7 @@ class Command
      */
     private function stop($command)
     {
-        list(, $masterPid, ) = $this->checkCommand('stop');
+        list(, $masterPid,) = $this->checkCommand('stop');
 
         Console::write("{$this->serverName} is stoping ...");
 
@@ -191,7 +197,7 @@ class Command
     private function kill()
     {
         $title = "为保证安全，请手动执行\n";
-        $kill  = "ps aux | grep %s | grep -v grep | awk '{print \$2}' | xargs kill -9\n";
+        $kill = "ps aux | grep %s | grep -v grep | awk '{print \$2}' | xargs kill -9\n";
 
         if (PHP_OS == 'Darwin') {
             $title .= sprintf($kill, $_SERVER['argv'][0]);
@@ -230,38 +236,41 @@ class Command
      */
     private function status()
     {
-        $prefixLen = ceil((80 - strlen($this->serverName) - 2)/2);
+        $prefixLen = ceil((80 - strlen($this->serverName) - 2) / 2);
         $suffixLen = 80 - $prefixLen - strlen($this->serverName) - 2;
 
-        $firstSplitLine  = str_pad('', $prefixLen, '-');
+        $firstSplitLine = str_pad('', $prefixLen, '-');
         $firstSplitLine .= "\033[47;30m {$this->serverName} \033[0m";
-        $firstSplitLine .= str_pad('', $suffixLen, '-'). "\n";
+        $firstSplitLine .= str_pad('', $suffixLen, '-') . "\n";
 
-        $statusSplitLine  = '------------------------------------';
+        $statusSplitLine = '------------------------------------';
         $statusSplitLine .= "\033[47;30m Total \033[0m";
         $statusSplitLine .= "-------------------------------------\n";
 
-        $retry  = 0;
+        $retry = 0;
         $config = $this->server->getConfig();
 
         do {
             $status = $this->getServerStatus($config);
 
-            $loadAvg = array_map(
-                function ($v) {
-                    return round($v, 2);
-                }, sys_getloadavg()
-            );
+            $loadAvg = array_map(function ($v) {
+                return round($v, 2);
+            }, sys_getloadavg());
 
-            $display  = $firstSplitLine;
-            $display .= "Flower version: ". Define::VERSION. str_pad('', 24 - strlen(Define::VERSION)). "PHP version: " . PHP_VERSION. "\n";
+            $display = $firstSplitLine;
+            $display .= "Flower version: "
+                . Define::VERSION
+                . str_pad('', 24 - strlen(Define::VERSION))
+                . "PHP version: "
+                . PHP_VERSION
+                . "\n";
 
             if ($status) {
                 $runTime = Time::format(time() - $status['start_time'] ?? 0, false);
                 $display .= "Start time: " . date('Y-m-d H:i:s', $status['start_time']) . "         Run {$runTime} \n";
             }
 
-            $display .= "Worker number: {$config['worker_num']}". str_pad('', 25 - strlen($config['worker_num']));
+            $display .= "Worker number: {$config['worker_num']}" . str_pad('', 25 - strlen($config['worker_num']));
             $display .= "Task number: {$config['task_worker_num']}" . "\n";
             $display .= "Load average: " . implode(", ", $loadAvg) . "\n";
 
@@ -269,19 +278,19 @@ class Command
                 $retry = 0;
 
                 $display .= $statusSplitLine;
-                $display .= "Connection num: {$status['connection_num']}". str_pad('', 24 - strlen($status['connection_num']));
+                $display .= "Connection num: {$status['connection_num']}" . str_pad('',
+                        24 - strlen($status['connection_num']));
                 $display .= "Accept count: {$status['accept_count']}\n";
-                $display .= "Close count: {$status['close_count']}". str_pad('', 27 - strlen($status['close_count']));
+                $display .= "Close count: {$status['close_count']}" . str_pad('', 27 - strlen($status['close_count']));
                 $display .= "Tasking num: {$status['tasking_num']}\n";
                 $display .= "Total request: {$status['total']['success']}, {$status['total']['failure']} [{$status['total']['avg_time']}]\n";
                 $display .= "Qps: {$status['qps']}\n";
-            }
-            else{
+            } else {
                 $display .= "get server status failure....\nretrying...{$retry}\n";
-                $retry ++;
+                $retry++;
             }
 
-            $display .= str_pad('', 80, '-'). "\n";
+            $display .= str_pad('', 80, '-') . "\n";
             $display .= "Press Ctrl-C to quit. \n";
 
             Console::writeReplace($display);
@@ -291,7 +300,7 @@ class Command
     }
 
     /**
-     * @param $set
+     * @param        $set
      * @param string $type
      * @return array|int|null
      */

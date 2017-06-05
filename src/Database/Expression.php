@@ -4,6 +4,7 @@ namespace Flower\Database;
 
 /**
  * Class Expression
+ *
  * @package Flower\Database
  */
 class Expression
@@ -15,6 +16,7 @@ class Expression
 
     /**
      * Expression constructor.
+     *
      * @param null $expression
      */
     public function __construct($expression = null)

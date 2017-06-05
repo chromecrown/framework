@@ -7,6 +7,7 @@ use Flower\Core\Application;
 
 /**
  * Class Redis
+ *
  * @package Flower\Client
  */
 class Redis
@@ -28,8 +29,9 @@ class Redis
 
     /**
      * Redis constructor.
+     *
      * @param Application $app
-     * @param Server $server
+     * @param Server      $server
      * @param string|null $pool
      * @param string|null $cacheKey
      */
@@ -46,14 +48,14 @@ class Redis
     }
 
     /**
-     * @param string $pool
+     * @param string      $pool
      * @param string|null $cacheKey
      * @return $this
      */
-    public function use(string $pool, string $cacheKey = null)
+    public function use (string $pool, string $cacheKey = null)
     {
         if ($cacheKey) {
-            $group = $this->app->getConfig('_redis.'. $pool);
+            $group = $this->app->getConfig('_redis.' . $pool);
             $index = crc32($cacheKey) % count($group);
 
             // 不存在则取第一个
@@ -67,52 +69,46 @@ class Redis
 
     /**
      * @param null|callable $callback
-     * @param string $method
-     * @param array $arguments
-     * @param bool $async
-     * @param bool $logSlow
+     * @param string        $method
+     * @param array         $arguments
+     * @param bool          $async
+     * @param bool          $logSlow
      */
-    public function call($callback, string $method, array $arguments, $async = true, bool $logSlow = true)
+    public function call($callback, string $method, array $arguments, bool $async = true, bool $logSlow = true)
     {
         if (! $async or ($this->server->getServer()->taskworker ?? false)) {
             $result = $this->syncQuery($method, $arguments, $logSlow);
 
             $callback and $callback($result);
         } else {
-            $this->app['pool.manager']->get('redis', $this->pool)
-                ->call(
-                    $callback ?: function () {},
-                    $method,
-                    $arguments,
-                    $logSlow
-                );
+            $this->app['pool.manager']
+                ->get('redis', $this->pool)
+                ->call($callback ?: function () {}, $method, $arguments, $logSlow);
         }
     }
 
     /**
-     * @param $method
-     * @param $arguments
-     * @param $logSlow
+     * @param string $method
+     * @param array  $arguments
+     * @param bool   $logSlow
      * @return mixed
      */
-    private function syncQuery($method, $arguments, $logSlow)
+    private function syncQuery(string $method, array $arguments, bool $logSlow)
     {
-        return $this->app->get('client.redis.sync', $this->pool)
-            ->query($method, $arguments, $logSlow);
+        return $this->app->get('client.redis.sync', $this->pool)->query($method, $arguments, $logSlow);
     }
 
     /**
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array  $arguments
      * @return mixed
      */
-    public function __call($name, $arguments)
+    public function __call(string $name, array $arguments)
     {
         if ($this->server->getServer()->taskworker ?? false) {
             return $this->syncQuery($name, $arguments, true);
         }
 
-        return $this->app['pool.manager']->get('redis', $this->pool)
-            ->query($name, $arguments);
+        return $this->app['pool.manager']->get('redis', $this->pool)->query($name, $arguments);
     }
 }

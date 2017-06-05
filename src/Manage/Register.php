@@ -7,6 +7,7 @@ use Flower\Support\Construct;
 
 /**
  * Class Register
+ *
  * @package Flower
  */
 class Register
@@ -17,10 +18,10 @@ class Register
      * @param string $type
      * @return bool
      */
-    public function register($type = 'register')
+    public function register(string $type = 'register')
     {
         $serverName = $this->server->getServerName();
-        $serverIp   = $this->app['config']->get('server_ip', null);
+        $serverIp = $this->app['config']->get('server_ip', null);
         $serverPort = $this->app['config']->get('tcp_server_port', '9501');
         $serverType = $this->app['config']->get('server_type', 1);
         $serverDesc = $this->app['config']->get('server_desc', '');
@@ -30,7 +31,7 @@ class Register
             'ip'   => $serverIp,
             'port' => $serverPort,
             'type' => $serverType,
-            'desc' => $serverDesc
+            'desc' => $serverDesc,
         ]);
     }
 
@@ -44,7 +45,7 @@ class Register
 
     /**
      * @param string $type
-     * @param array $data
+     * @param array  $data
      * @return bool|null
      */
     protected function send(string $type, array $data)
@@ -63,8 +64,8 @@ class Register
                 'config' => [
                     'host'    => $registerIp,
                     'port'    => $registerPort,
-                    'timeout' => 1
-                ]
+                    'timeout' => 1,
+                ],
             ])->request([
                 'type'    => 'api',
                 'request' => 'service',
@@ -77,8 +78,7 @@ class Register
             }
 
             return $data ?: false;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }

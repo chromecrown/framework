@@ -15,7 +15,7 @@ use Flower\Utility\MessagePack;
 class QueryBuilderCache extends QueryBuilder
 {
     private $primaryKey = ':qc:%s:primary:%s';  // data:table:primary:primaryValue
-    private $uniqueKey  = ':qc:%s:unique:%s';   // data:table:unique:uniqueName:uniqueValue
+    private $uniqueKey = ':qc:%s:unique:%s';   // data:table:unique:uniqueName:uniqueValue
     private $uniqueKeyCombine = '&&';           // data:table:unique:uniqueName:uniqueValue
 
     private $cacheKey = null;
@@ -33,8 +33,8 @@ class QueryBuilderCache extends QueryBuilder
 
         $appName = $this->app['server']->getServerName();
 
-        $this->primaryKey = $appName. $this->primaryKey;
-        $this->uniqueKey  = $appName. $this->uniqueKey;
+        $this->primaryKey = $appName . $this->primaryKey;
+        $this->uniqueKey = $appName . $this->uniqueKey;
     }
 
     /**
@@ -66,13 +66,9 @@ class QueryBuilderCache extends QueryBuilder
                 return [];
             }
 
-            yield $this->getRedis()->setex(
-                $this->cacheKey,
-                $this->model->getCacheTime(),
-                $this->app['packet']->pack($result)
-            );
-        }
-        else {
+            yield $this->getRedis()->setex($this->cacheKey, $this->model->getCacheTime(),
+                $this->app['packet']->pack($result));
+        } else {
             $result = $this->app['packet']->unpack($result);
         }
 
@@ -99,10 +95,7 @@ class QueryBuilderCache extends QueryBuilder
     private function makeCleanKey()
     {
         $this->model->disableCache();
-        $result = yield (new self($this->app, $this->model, 'select'))
-            ->select('*')
-            ->overrideWhere($this->where)
-            ->get();
+        $result = yield (new self($this->app, $this->model, 'select'))->select('*')->overrideWhere($this->where)->get();
         $this->model->enableCache();
 
         $this->cacheKey = [];
@@ -168,8 +161,7 @@ class QueryBuilderCache extends QueryBuilder
                 if ($v['operator'] != self::EQUALS or is_object($v['value']) or is_array($v['value'])) {
                     return null;
                 }
-            }
-            elseif (is_object($v['value']) or is_array($v['value'])) {
+            } elseif (is_object($v['value']) or is_array($v['value'])) {
                 continue;
             }
 
@@ -184,7 +176,7 @@ class QueryBuilderCache extends QueryBuilder
         // 主键
         if (isset($where[$primaryKey])) {
             // 存在非主键字段情况下，则不使用缓存
-            return ( ! $isSelect or $count == 1)
+            return (! $isSelect or $count == 1)
                 ? sprintf($this->primaryKey, $this->model->getTable(), $where[$primaryKey]['value'])
                 : null;
         }
@@ -337,11 +329,9 @@ class QueryBuilderCache extends QueryBuilder
 
         if ($this->isSelect()) {
             $result = yield $this->getFromCache();
-        }
-        elseif ($this->isInsert()) {
+        } elseif ($this->isInsert()) {
             $result = yield $this->model->query($this);
-        }
-        else {
+        } else {
             yield $this->makeCleanKey();
             yield $this->clearCache();
 
@@ -389,10 +379,6 @@ class QueryBuilderCache extends QueryBuilder
     {
         $cacheKey = $cacheKey ?: $this->cacheKey;
 
-        return $this->app->get(
-            'redis',
-            'query_cache',
-            $cacheKey
-        );
+        return $this->app->get('redis', 'query_cache', $cacheKey);
     }
 }

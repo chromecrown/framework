@@ -18,6 +18,7 @@ class Lock
 
     /**
      * Lock constructor.
+     *
      * @param Redis $redis
      */
     public function __construct(Redis $redis)
@@ -26,13 +27,13 @@ class Lock
     }
 
     /**
-     * @param $key
-     * @param int $expire
+     * @param string $key
+     * @param int    $expire
      * @return bool
      */
-    public function lock($key, $expire = 5)
+    public function lock(string $key, int $expire = 5)
     {
-        $time  = time();
+        $time = time();
         $value = $time + $expire;
         $isLock = yield $this->redis->set($key, $value, ['NX', 'EX' => $expire]);
         if (! $isLock) {

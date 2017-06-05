@@ -7,11 +7,13 @@ use Flower\Server\Server;
 use Flower\Utility\Console;
 use Flower\Support\Define;
 use Flower\Support\ServiceProvider;
+use Swoole\Process as SwooleProcess;
 use Swoole\Server as SwooleServer;
 use Swoole\Table as SwooleTable;
 
 /**
  * Class Application
+ *
  * @package Flower\Core
  */
 class Application extends Container
@@ -118,7 +120,7 @@ class Application extends Container
     private function registerBindings()
     {
         foreach (Define::BINDINGS as $k => $v) {
-            if ( ! is_array($v)) {
+            if (! is_array($v)) {
                 $v = [$v, true];
             }
 
@@ -181,8 +183,8 @@ class Application extends Container
      * 当 Server 管道收到消息
      *
      * @param SwooleServer $server
-     * @param $fromId
-     * @param $message
+     * @param              $fromId
+     * @param              $message
      */
     public function onPipeMessage(SwooleServer $server, $fromId, $message)
     {
@@ -232,11 +234,11 @@ class Application extends Container
     /**
      * 当 Worker 初始化
      *
-     * @param  $worker
-     * @param  $workerId
+     * @param  SwooleServer|SwooleProcess $worker
+     * @param  int                        $workerId
      * @throws \Exception
      */
-    public function onWorkerInit($worker, $workerId)
+    public function onWorkerInit($worker, int $workerId)
     {
         // 记录请求 QPS
         if ($workerId == 0) {
@@ -247,7 +249,7 @@ class Application extends Container
         $autoInitPool = $this['config']->get('auto_init_pool', []);
         if ($autoInitPool) {
             foreach ($autoInitPool as $pool) {
-                $initFuncName = 'init'. ucfirst($pool). 'Pool';
+                $initFuncName = 'init' . ucfirst($pool) . 'Pool';
                 $this->$initFuncName($workerId);
             }
         }
@@ -256,50 +258,53 @@ class Application extends Container
     /**
      * 初始化 MySQL 连接池
      *
-     * @param $workerId
+     * @param int $workerId
      */
-    protected function initMysqlPool($workerId)
+    protected function initMysqlPool(int $workerId)
     {
         // 连接池管理器
         $poolManager = $this->get('pool.manager');
 
         // 加载 MySQL 配置
-        $poolConfig = $this['config']->load('mysql', true);
-        if ($poolConfig) {
-            foreach ($poolConfig as $name => $config) {
-                // 注册 master 连接到连接池
-                $poolManager->register($this->get('client.mysql.pool', $name, $config['master'])->init());
+        if (! ($poolConfig = $this['config']->load('mysql', true))) {
+            return;
+        }
 
-                // 处理 slave
-                if (isset($config['slave']) and $config['slave']) {
-                    // 只有单个 slave
-                    if (isset($config['slave']['host'])) {
-                        $config['slave'] = [$config['slave']];
-                    }
+        foreach ($poolConfig as $name => $config) {
+            // 注册 master 连接到连接池
+            $poolManager->register($this->get('client.mysql.pool', $name, $config['master'])->init());
 
-                    $slave = [];
-                    foreach ($config['slave'] as $key => $item) {
-                        $key = $name. '_'. $key;
+            // 处理 slave
+            if (! isset($config['slave']) or ! $config['slave']) {
+                continue;
+            }
 
-                        $slave[] = $key;
-                        // 注册 slave 连接到连接池
-                        $poolManager->register($this->get('client.mysql.pool', $key, $item)->init());
-                    }
+            // 只有单个 slave
+            if (isset($config['slave']['host'])) {
+                $config['slave'] = [$config['slave']];
+            }
 
-                    // 把 slave 列表加入到动态配置表，方便自动判断使用哪一个 slave
-                    if ($workerId == 0) {
-                        $this->setConfig('_mysql.' . $name, $slave);
-                    }
-                }
+            $slave = [];
+            foreach ($config['slave'] as $key => $item) {
+                $key = $name . '_' . $key;
+
+                $slave[] = $key;
+                // 注册 slave 连接到连接池
+                $poolManager->register($this->get('client.mysql.pool', $key, $item)->init());
+            }
+
+            // 把 slave 列表加入到动态配置表，方便自动判断使用哪一个 slave
+            if ($workerId == 0) {
+                $this->setConfig('_mysql.' . $name, $slave);
             }
         }
         unset($poolConfig);
     }
 
     /**
-     * @param $workerId
+     * @param int $workerId
      */
-    protected function initTcpPool($workerId)
+    protected function initTcpPool(int $workerId)
     {
         unset($workerId);
 
@@ -308,56 +313,66 @@ class Application extends Container
 
         // 加载 Tcp 配置
         $poolConfig = $this['config']->load('tcp', true);
-        if ($poolConfig) {
-            foreach ($poolConfig as $name => $config) {
-                // 注册到连接池
-                $poolManager->register($this->get('client.tcp.pool', $name, $config)->init());
-            }
+        if (! $poolConfig) {
+            return;
+        }
+
+        foreach ($poolConfig as $name => $config) {
+            // 注册到连接池
+            $poolManager->register($this->get('client.tcp.pool', $name, $config)->init());
         }
         unset($poolConfig);
     }
 
     /**
-     * @param $workerId
+     * @param int $workerId
      */
-    protected function initRedisPool($workerId)
+    protected function initRedisPool(int $workerId)
     {
         // 连接池管理器
         $poolManager = $this->get('pool.manager');
 
         // 加载 Redis 配置
         $redisConfig = $this['config']->load('redis', true);
-        if ($redisConfig) {
-            // 是否启用了查询缓存
-            $isEnableQueryCache = $this['config']->get('enable_query_cache', false);
+        if (! $redisConfig) {
+            return;
+        }
 
-            foreach ($redisConfig as $name => $config) {
-                // 未开启查询缓存
-                if (strpos($name, 'query_cache') !== false and ! $isEnableQueryCache) {
-                    continue;
-                }
+        // 是否启用了查询缓存
+        $isEnableQueryCache = $this['config']->get('enable_query_cache', false);
 
-                // 一组 Redis
-                if (! array_key_exists('host', $config)) {
-                    $group = [];
-                    foreach ($config as $key => $item) {
-                        $key = $name. '_'. $key;
-                        $group[] = $key;
+        foreach ($redisConfig as $name => $config) {
+            // 未开启查询缓存
+            if (strpos($name, 'query_cache') !== false and ! $isEnableQueryCache) {
+                continue;
+            }
 
-                        // 注册到连接池
-                        $poolManager->register($this->get('client.redis.pool', $key, $item)->init(), $item['alias'] ?? []);
-                    }
+            // 一组 Redis
+            if (! array_key_exists('host', $config)) {
+                $group = [];
+                foreach ($config as $key => $item) {
+                    $key = $name . '_' . $key;
+                    $group[] = $key;
 
-                    // 把 Redis 组列表加入到动态配置表，方便自动判断使用哪一个
-                    if ($workerId == 0) {
-                        $this->setConfig('_redis.'. $name, $group);
-                    }
-                }
-                // 单个 Redis
-                else {
                     // 注册到连接池
-                    $poolManager->register($this->get('client.redis.pool', $name, $config)->init(), $config['alias'] ?? []);
+                    $poolManager->register(
+                        $this->get('client.redis.pool', $key, $item)->init(),
+                        $item['alias'] ?? []
+                    );
                 }
+
+                // 把 Redis 组列表加入到动态配置表，方便自动判断使用哪一个
+                if ($workerId == 0) {
+                    $this->setConfig('_redis.' . $name, $group);
+                }
+            }
+            // 单个 Redis
+            else {
+                // 注册到连接池
+                $poolManager->register(
+                    $this->get('client.redis.pool', $name, $config)->init(),
+                    $config['alias'] ?? []
+                );
             }
         }
         unset($redisConfig);
@@ -366,11 +381,11 @@ class Application extends Container
     /**
      * 获取动态配置
      *
-     * @param $key
-     * @param null $default
-     * @return null
+     * @param string $key
+     * @param mixed  $default
+     * @return mixed
      */
-    public function getConfig($key = null, $default = null)
+    public function getConfig(string $key = null, $default = null)
     {
         $packet = $this->get('packet');
 
@@ -397,10 +412,10 @@ class Application extends Container
     /**
      * 动态配置是否存在
      *
-     * @param $key
+     * @param string $key
      * @return bool
      */
-    public function hasConfig($key)
+    public function hasConfig(string $key)
     {
         return $this->configTable->exist($key);
     }
@@ -408,14 +423,14 @@ class Application extends Container
     /**
      * 设置动态配置
      *
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed  $value
      * @return $this
      */
-    public function setConfig($key, $value)
+    public function setConfig(string $key, $value)
     {
         $this->configTable->set($key, [
-            'value' => $this['packet']->pack($value)
+            'value' => $this['packet']->pack($value),
         ]);
 
         return $this;
@@ -424,10 +439,10 @@ class Application extends Container
     /**
      * 删除动态配置
      *
-     * @param $key
+     * @param string $key
      * @return $this
      */
-    public function delConfig($key)
+    public function delConfig(string $key)
     {
         if ($this->hasConfig($key)) {
             $this->configTable->del($key);
@@ -449,7 +464,7 @@ class Application extends Container
     {
         // debug 模式打印出来，方便调试
         if (DEBUG_MODEL) {
-            echo $errStr. "\n";
+            echo $errStr . "\n";
             debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
             echo "\n";
         }
@@ -460,7 +475,7 @@ class Application extends Container
                 $errNo,
                 "{$errFile}:{$errLine}",
                 $errStr,
-                $errContext
+                $errContext,
             ]
         );
     }
@@ -479,13 +494,13 @@ class Application extends Container
             $log = [
                 "WORKER EXIT UNEXPECTED",
                 "$message ($file:$line)",
-                "Stack trace:"
+                "Stack trace:",
             ];
 
             $trace = debug_backtrace();
             foreach ($trace as $i => $t) {
-                $t['file']     = $t['file'] ?? 'unknown';
-                $t['line']     = $t['line'] ?? 0;
+                $t['file'] = $t['file'] ?? 'unknown';
+                $t['line'] = $t['line'] ?? 0;
                 $t['function'] = $t['function'] ?? 'unknown';
 
                 $logString = "#$i {$t['file']} ({$t['line']}): ";
@@ -515,29 +530,29 @@ class Application extends Container
         $this->runTable->incr('total', $status ? 'success' : 'failure', 1);
         $this->runTable->incr('total', 'time', $runTime);
 
-        $this->runTable->incr('qps_'. \time(), 'success', 1);
+        $this->runTable->incr('qps_' . \time(), 'success', 1);
     }
 
     /**
      * 记录最大 QPS
      *
-     * @param $worker
+     * @param int $worker
      */
-    protected function logMaxQps($worker)
+    protected function logMaxQps(int $worker)
     {
         $worker->tick(
             1000,
             function () {
                 $time = \time();
                 $prevSec = $this->runTable->get('qps_' . ($time - 1));
-                if ( ! $prevSec) {
+                if (! $prevSec) {
                     return;
                 }
 
                 // 删除前10~15秒记录
                 $except = ['qps_max' => true];
-                for ($i = 0; $i < 5; $i ++) {
-                    $except['qps_'. ($time - $i)] = true;
+                for ($i = 0; $i < 5; $i++) {
+                    $except['qps_' . ($time - $i)] = true;
                 }
 
                 foreach ($this->runTable as $k => $v) {
@@ -561,14 +576,11 @@ class Application extends Container
                     return;
                 }
 
-                $this->runTable->set(
-                    'qps_max',
-                    [
-                        'time'    => 0,
-                        'success' => $prevSec['success'],
-                        'failure' => 0
-                    ]
-                );
+                $this->runTable->set('qps_max', [
+                    'time'    => 0,
+                    'success' => $prevSec['success'],
+                    'failure' => 0,
+                ]);
             }
         );
     }

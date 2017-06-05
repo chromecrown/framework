@@ -4,6 +4,7 @@ namespace Flower\Core;
 
 /**
  * Class Container
+ *
  * @package Flower\Core
  */
 class Container implements \ArrayAccess
@@ -27,7 +28,7 @@ class Container implements \ArrayAccess
      *
      * @var array
      */
-    protected $register  = [];
+    protected $register = [];
 
     /**
      * 已经实例化的服务
@@ -40,17 +41,17 @@ class Container implements \ArrayAccess
      * 获取服务
      *
      * @param  string $name
-     * @param  array $arguments
+     * @param  array  $arguments
      * @return object|null
      */
-    public function get($name, ...$arguments)
+    public function get(string $name, ...$arguments)
     {
         if (isset($this->shared[$name])) {
             return $this->shared[$name];
         }
 
         if (! isset($this->register[$name])) {
-            throw new \InvalidArgumentException('services not found: '. $name);
+            throw new \InvalidArgumentException('services not found: ' . $name);
         }
 
         $instance = $this->make($this->register[$name]['class'], $arguments);
@@ -66,12 +67,12 @@ class Container implements \ArrayAccess
     /**
      * 实例化一个资源
      *
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array  $arguments
      * @return mixed
      * @throws \Exception
      */
-    public function make($name, $arguments = [])
+    public function make(string $name, array $arguments = [])
     {
         // 是否匿名函数
         $isClosure = ($name instanceof \Closure) ? true : false;
@@ -118,19 +119,17 @@ class Container implements \ArrayAccess
             unset($instance);
         }
 
-        return $isClosure
-            ? $name(...$arguments)
-            : new $name(... $arguments);
+        return $isClosure ? $name(...$arguments) : new $name(... $arguments);
     }
 
     /**
      * 通过反射探测参数
      *
-     * @param $isClosure
-     * @param $object
+     * @param bool            $isClosure
+     * @param string|\Closure $object
      * @return array
      */
-    public function detection($isClosure, $object)
+    public function detection(bool $isClosure, $object)
     {
         $ref = $isClosure
             ? new \ReflectionFunction($object)
@@ -159,8 +158,8 @@ class Container implements \ArrayAccess
     /**
      * 检测是否已经注册
      *
-     * @param $name
-     * @return bool|string
+     * @param string $name
+     * @return bool
      */
     public function hasBind(string $name)
     {
@@ -173,7 +172,7 @@ class Container implements \ArrayAccess
      * @param  string $name
      * @return void
      */
-    public function remove($name)
+    public function remove(string $name)
     {
         unset($this->register[$name]);
         unset($this->shared[$name]);
@@ -183,29 +182,28 @@ class Container implements \ArrayAccess
     /**
      * 注册服务
      *
-     * @param  string  $name
-     * @param  object/closure/string  $class
-     * @param  boolean $shared
+     * @param  string          $name
+     * @param  \Closure|string $class
+     * @param  bool            $shared
      * @return void
      */
-    public function bind($name, $class, $shared = false)
+    public function bind(string $name, $class, bool $shared = false)
     {
         $isClosure = $class instanceof \Closure;
 
-        if ( ! $isClosure and is_object($class)) {
+        if (! $isClosure and is_object($class)) {
             $this->shared[$name] = $class;
 
-            if ( ! isset($this->register[$name])) {
+            if (! isset($this->register[$name])) {
                 $this->register[$name] = [
                     'class'  => get_class($class),
-                    'shared' => true
+                    'shared' => true,
                 ];
             }
-        }
-        else {
+        } else {
             $this->register[$name] = [
-                'class' => $class,
-                'shared' => $shared
+                'class'  => $class,
+                'shared' => $shared,
             ];
         }
 
@@ -217,10 +215,10 @@ class Container implements \ArrayAccess
     /**
      * 设置别名
      *
-     * @param $alias
-     * @param $name
+     * @param string $alias
+     * @param string $name
      */
-    public function alias($alias, $name)
+    public function alias(string $alias, string $name)
     {
         $this->alias[$name] = $alias;
     }
@@ -242,12 +240,11 @@ class Container implements \ArrayAccess
     /**
      * 设置全局唯一容器实例
      *
-     * @param null $instance
-     * @return null
+     * @param object $instance
      */
     public static function setInstance($instance = null)
     {
-        return static::$instance = $instance;
+        static::$instance = $instance;
     }
 
     /**

@@ -10,6 +10,7 @@ use Swoole\MySQL as SwooleMySQL;
 
 /**
  * Class MySQL
+ *
  * @package Flower\Client\Pool
  */
 class MySQL extends Pool implements Coroutine
@@ -27,10 +28,10 @@ class MySQL extends Pool implements Coroutine
 
     /**
      * @param callable $callback
-     * @param null $sql
-     * @param null $bindId
+     * @param string   $sql
+     * @param int      $bindId
      */
-    public function call(callable $callback, $sql = null, $bindId = null)
+    public function call(callable $callback, string $sql = null, int $bindId = null)
     {
         $this->sql    = $sql;
         $this->bindId = $bindId;
@@ -51,8 +52,7 @@ class MySQL extends Pool implements Coroutine
             $sqlError = true;
 
             Log::error('SQL 不能为空');
-        }
-        else {
+        } else {
             $sqlFormat = strtoupper(trim($this->sql));
             if (substr($sqlFormat, 0, 6) !== 'INSERT') {
                 if (strpos($sqlFormat, 'WHERE') === false and strpos($sqlFormat, 'LIMIT') === false) {
@@ -95,7 +95,7 @@ class MySQL extends Pool implements Coroutine
      */
     public function query(string $sql, $bindId = null)
     {
-        $this->sql    = $sql;
+        $this->sql = $sql;
         $this->bindId = $bindId;
 
         return yield $this;
@@ -155,11 +155,11 @@ class MySQL extends Pool implements Coroutine
     }
 
     /**
-     * @param $data
-     * @return bool|mixed|null
+     * @param array $data
+     * @return bool|SwooleMySQL
      * @throws \Exception
      */
-    private function getClient($data)
+    private function getClient(array $data)
     {
         $client = null;
         $bindId = $data['bind_id'] ?? null;
@@ -177,6 +177,7 @@ class MySQL extends Pool implements Coroutine
             $client = $this->getConnection();
             if (! $client) {
                 $this->retry($data);
+
                 return false;
             }
 
@@ -194,27 +195,24 @@ class MySQL extends Pool implements Coroutine
      */
     public function connect()
     {
-        $this->waitConnect ++;
+        $this->waitConnect++;
 
         $client = new SwooleMySQL();
         $client->on('Close', [$this, 'close']);
-        $client->connect(
-            $this->config,
-            function ($client, $result) {
-                $this->waitConnect --;
+        $client->connect($this->config, function ($client, $result) {
+            $this->waitConnect--;
 
-                if (! $result) {
-                    $this->close($client);
-                } else {
-                    if (! isset($client->isConnected)) {
-                        $this->currConnect ++;
-                    }
-
-                    $client->isConnected = true;
-                    $this->release($client);
+            if (! $result) {
+                $this->close($client);
+            } else {
+                if (! isset($client->isConnected)) {
+                    $this->currConnect++;
                 }
+
+                $client->isConnected = true;
+                $this->release($client);
             }
-        );
+        });
     }
 
     /**
@@ -225,7 +223,7 @@ class MySQL extends Pool implements Coroutine
     public function close(SwooleMySQL $client)
     {
         if (isset($client->connect_error)) {
-            Log::error('MySQL Error: '. $client->connect_error);
+            Log::error('MySQL Error: ' . $client->connect_error);
         }
 
         $client->isConnected = false;
@@ -234,9 +232,9 @@ class MySQL extends Pool implements Coroutine
     }
 
     /**
-     * @param $bindId
+     * @param int $bindId
      */
-    public function releaseBind($bindId)
+    public function releaseBind(int $bindId)
     {
         $client = $this->bind[$bindId];
         unset($this->bind[$bindId]);
@@ -251,18 +249,18 @@ class MySQL extends Pool implements Coroutine
      */
     private function reset()
     {
-        $this->sql    = null;
+        $this->sql = null;
         $this->bindId = null;
     }
 
     /**
-     * @param $sql
-     * @param $sTime
+     * @param string $sql
+     * @param float  $sTime
      */
-    private function logSlow($sql, $sTime)
+    private function logSlow(string $sql, $sTime)
     {
         $slowTime = app()->getConfig('slow_time', 0.1);
-        $useTime  = microtime(true) - $sTime;
+        $useTime = microtime(true) - $sTime;
 
         if ($useTime < $slowTime) {
             return;

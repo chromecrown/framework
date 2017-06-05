@@ -6,6 +6,7 @@ use Swoole\Client as SwooleClient;
 
 /**
  * Class Tcp
+ *
  * @package Flower\Client
  */
 class Tcp
@@ -26,11 +27,11 @@ class Tcp
     private $client;
 
     /**
-     * @param $action
-     * @param $callback
+     * @param string         $action
+     * @param array|callable $callback
      * @throws \Exception
      */
-    public function on($action, $callback)
+    public function on(string $action, $callback)
     {
         if ($this->client) {
             return;
@@ -39,20 +40,20 @@ class Tcp
         $action = strtolower($action);
 
         if (! in_array($action, ['connect', 'receive', 'close', 'error'])) {
-            throw new \Exception('Tcp client unknown action: '. $action);
+            throw new \Exception('Tcp client unknown action: ' . $action);
         }
 
         $this->on[$action] = $callback;
     }
 
     /**
-     * @param $host
-     * @param $port
-     * @param $set
-     * @param $timeout
-     * @param $callback
+     * @param string        $host
+     * @param int           $port
+     * @param array         $set
+     * @param float         $timeout
+     * @param callable|null $callback
      */
-    public function connect($host, $port, $set, $timeout, $callback = null)
+    public function connect(string $host, int $port, array $set, float $timeout, callable $callback = null)
     {
         $this->set = $set;
 
@@ -72,10 +73,10 @@ class Tcp
     }
 
     /**
-     * @param $data
-     * @param callable $callback
+     * @param string        $data
+     * @param callable|null $callback
      */
-    public function send($data, $callback = null)
+    public function send(string $data, callable $callback = null)
     {
         if ($callback) {
             $this->on('receive', $callback);
@@ -89,9 +90,7 @@ class Tcp
      */
     public function isConnected()
     {
-        return $this->client
-            ? $this->client->isConnected()
-            : false;
+        return $this->client ? $this->client->isConnected() : false;
     }
 
     /**
@@ -114,7 +113,7 @@ class Tcp
 
     /**
      * @param SwooleClient $client
-     * @param $data
+     * @param              $data
      */
     public function onReceive(SwooleClient $client, $data)
     {
@@ -140,10 +139,10 @@ class Tcp
     }
 
     /**
-     * @param $action
-     * @param array ...$data
+     * @param string $action
+     * @param array  ...$data
      */
-    public function hook($action, ...$data)
+    public function hook(string $action, ...$data)
     {
         if (! isset($this->on[$action])) {
             return;

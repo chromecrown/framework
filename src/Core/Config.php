@@ -7,6 +7,7 @@ use Flower\Utility\Console;
 
 /**
  * Class Config
+ *
  * @package Flower\Core
  */
 class Config
@@ -34,11 +35,11 @@ class Config
     /**
      * 加载配置文件
      *
-     * @param $file
-     * @param bool $return
+     * @param string $file
+     * @param bool   $return
      * @return mixed
      */
-    public function load($file, $return = false)
+    public function load(string $file, bool $return = false)
     {
         if (! isset($this->config[$file])) {
             $filePath = root_path("/config/{$file}.php");
@@ -69,11 +70,11 @@ class Config
     /**
      * 获取配置
      *
-     * @param $key
-     * @param null $default
+     * @param string $key
+     * @param mixed  $default
      * @return null
      */
-    public function get($key, $default = null)
+    public function get(string $key, $default = null)
     {
         list($file, $key) = $this->parseKey($key);
 
@@ -83,11 +84,11 @@ class Config
     /**
      * 设置配置
      *
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed  $value
      * @return $this
      */
-    public function set($key, $value)
+    public function set(string $key, $value)
     {
         list($file, $key) = $this->parseKey($key);
 
@@ -99,10 +100,10 @@ class Config
     /**
      * 是否存在配置
      *
-     * @param $key
+     * @param string $key
      * @return bool
      */
-    public function has($key)
+    public function has(string $key)
     {
         list($file, $key) = $this->parseKey($key);
 
@@ -112,9 +113,9 @@ class Config
     /**
      * 移除配置
      *
-     * @param $key
+     * @param string $key
      */
-    public function del($key)
+    public function del(string $key)
     {
         if (! $this->has($key)) {
             return;
@@ -125,10 +126,10 @@ class Config
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @return array
      */
-    private function parseKey($key)
+    private function parseKey(string $key)
     {
         $file = 'server';
         if (strpos($key, '/') !== false) {

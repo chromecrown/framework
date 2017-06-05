@@ -7,6 +7,7 @@ use Flower\Core\Application;
 
 /**
  * Class Packet
+ *
  * @package Flower\Packet
  */
 class Packet
@@ -19,16 +20,16 @@ class Packet
     /**
      * @var string
      */
-    private $splitEof   = "#\r#\n#";
+    private $splitEof = "#\r#\n#";
 
     /**
      * Packet constructor.
+     *
      * @param Config $config
-     * @param string $handler
      * @param string $packageEof
      * @param string $splitEof
      */
-    public function __construct(Config $config, $handler = null, $packageEof = null, $splitEof = null)
+    public function __construct(Config $config, string $packageEof = null, string $splitEof = null)
     {
         $serverConfig = $config->get('server_config', []);
 
@@ -70,7 +71,7 @@ class Packet
     }
 
     /**
-     * @param $data
+     * @param mixed $data
      * @return string
      */
     public function pack($data)
@@ -79,20 +80,20 @@ class Packet
     }
 
     /**
-     * @param $data
+     * @param string $data
      * @return mixed
      */
-    public function unpack($data)
+    public function unpack(string $data)
     {
         return msgpack_unpack($data);
     }
 
     /**
-     * @param array  $data
-     * @param int    $code
+     * @param array $data
+     * @param int   $code
      * @return array
      */
-    public function format($data = [], $code = 200)
+    public function format(array $data = [], int $code = 200)
     {
         return [
             "code" => $code,
@@ -101,21 +102,21 @@ class Packet
     }
 
     /**
-     * @param $data
-     * @param null $eof
+     * @param mixed  $data
+     * @param string $eof
      * @return string
      */
-    public function encode($data, $eof = null)
+    public function encode($data, string $eof = null)
     {
-        return $this->pack($data). ($eof ?: $this->packageEof);
+        return $this->pack($data) . ($eof ?: $this->packageEof);
     }
 
     /**
-     * @param $str
-     * @param null $eof
+     * @param string $str
+     * @param string $eof
      * @return array
      */
-    public function decode($str, $eof = null)
+    public function decode(string $str, string $eof = null)
     {
         $eof = $eof ?: $this->packageEof;
 
@@ -125,9 +126,8 @@ class Packet
 
         try {
             $str = $this->unpack($str);
-        }
-        catch (\Exception $e) {
-            Log::error('decode message error: '. $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('decode message error: ' . $e->getMessage());
 
             $str = [];
         }

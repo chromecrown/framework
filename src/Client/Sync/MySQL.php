@@ -8,6 +8,7 @@ use Flower\Utility\Console;
 
 /**
  * Class MySQL
+ *
  * @package Flower\Client\Sync
  */
 class MySQL
@@ -32,10 +33,11 @@ class MySQL
 
     /**
      * MySQL constructor.
+     *
      * @param Application $app
-     * @param string $pool
+     * @param string      $pool
      */
-    public function __construct(Application $app, $pool = 'default')
+    public function __construct(Application $app, string $pool = 'default')
     {
         $this->app = $app;
 
@@ -65,9 +67,9 @@ class MySQL
      */
     private function connect()
     {
-        $config = $this->app['config']->get($this->type. '/'. $this->pool, null);
+        $config = $this->app['config']->get($this->type . '/' . $this->pool, null);
         if (! $config) {
-            throw new \Exception('MySQL 配置不存在：'. $this->pool);
+            throw new \Exception('MySQL 配置不存在：' . $this->pool);
         }
 
         if ($this->slave == null) {
@@ -81,9 +83,9 @@ class MySQL
         try {
             $pdo = new \PDO($dsn, $config['user'], $config['password']);
             $pdo->exec("SET NAMES '{$config['charset']}'");
-        }
-        catch (\Exception $e) {
-            Log::error('MySQL [Sync] connect fail：'. $e->getMessage(), null);
+        } catch (\Exception $e) {
+            Log::error('MySQL [Sync] connect fail：' . $e->getMessage(), null);
+
             return;
         }
 
@@ -98,12 +100,12 @@ class MySQL
      * @return array
      * @throws \Exception
      */
-    public function query(string $sql, $logSlow = true)
+    public function query(string $sql, bool $logSlow = true)
     {
         $data = [
             'result'        => null,
             'insert_id'     => null,
-            'affected_rows' => null
+            'affected_rows' => null,
         ];
 
         if (! $sql) {
@@ -149,7 +151,7 @@ class MySQL
 
         if ($logSlow and $this->app->getConfig('enable_slow_log', false)) {
             $slowTime = $this->app->getConfig('slow_time', 0.1);
-            $useTime  = microtime(true) - $sTime;
+            $useTime = microtime(true) - $sTime;
 
             if ($useTime > $slowTime) {
                 $message = 'MySQL Sync [' . number_format($useTime, 5) . '] : ' . $sql;

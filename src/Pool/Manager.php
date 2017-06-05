@@ -6,6 +6,7 @@ use Flower\Contract\Pool;
 
 /**
  * Class Manager
+ *
  * @package Flower\Pool
  */
 class Manager
@@ -21,7 +22,7 @@ class Manager
     protected $alias = [];
 
     /**
-     * @param Pool $pool
+     * @param Pool  $pool
      * @param array $alias
      */
     public function register(Pool $pool, array $alias = [])

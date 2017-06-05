@@ -18,9 +18,10 @@ trait Construct
     protected $server;
 
     /**
-     * Register constructor.
+     * constructor.
+     *
      * @param Application $app
-     * @param Server $server
+     * @param Server      $server
      */
     public function __construct(Application $app, Server $server)
     {

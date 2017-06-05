@@ -7,6 +7,7 @@ use Swoole\Http\Response;
 
 /**
  * Class Controller
+ *
  * @package Flower\Core
  */
 abstract class Controller extends Base
@@ -38,7 +39,7 @@ abstract class Controller extends Base
     /**
      * 设置连接标识符
      *
-     * @param $fd
+     * @param int $fd
      */
     public function setFd(int $fd)
     {
@@ -46,12 +47,12 @@ abstract class Controller extends Base
     }
 
     /**
-     * @param Request $request
+     * @param Request  $request
      * @param Response $response
      */
     public function setHttp(Request $request, Response $response)
     {
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $response;
     }
 
@@ -85,8 +86,8 @@ abstract class Controller extends Base
     /**
      * 批量发送消息，用于大数据量 (TCP ONLY)
      *
-     * @param $data
-     * @param bool $isEnd
+     * @param mixed $data
+     * @param bool  $isEnd
      */
     protected function batchSend($data, bool $isEnd = false)
     {
@@ -103,7 +104,7 @@ abstract class Controller extends Base
      * @param mixed $data
      * @param int   $code
      */
-    protected function response($data, $code = 200)
+    protected function response($data, int $code = 200)
     {
         if (! is_string($data)) {
             $data = json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -120,17 +121,14 @@ abstract class Controller extends Base
      */
     protected function logRunInfo()
     {
-        $this->app->logRunInfo(
-            $this->code == 200,
-            (float) bcsub(microtime(true), $this->startTime, 7)
-        );
+        $this->app->logRunInfo($this->code == 200, (float)bcsub(microtime(true), $this->startTime, 7));
     }
 
     /**
      * 获取输入参数 (HTTP ONLY)
      *
      * @param  string $name
-     * @param  null   $default
+     * @param  mixed  $default
      * @return null
      */
     protected function input(string $name, $default = null)

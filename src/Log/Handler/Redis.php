@@ -4,6 +4,11 @@ namespace Flower\Log\Handler;
 
 use Flower\Log\Handler;
 
+/**
+ * Class Redis
+ *
+ * @package Flower\Log\Handler
+ */
 class Redis extends Handler
 {
     public function write(array $data)

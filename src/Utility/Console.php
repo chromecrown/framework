@@ -10,7 +10,7 @@ class Console
      * @param  string $title
      * @return void
      */
-    public static function setProcessTitle($title = '')
+    public static function setProcessTitle(string $title = '')
     {
         static $host, $port, $appName = null;
 
@@ -20,12 +20,12 @@ class Console
 
         // 获取服务名
         if ($appName == null) {
-            $host    = app('config')->get('tcp_server_ip', '127.0.0.1');
-            $port    = app('config')->get('tcp_server_port', '9501');
+            $host = app('config')->get('tcp_server_ip', '127.0.0.1');
+            $port = app('config')->get('tcp_server_port', '9501');
             $appName = app('server')->getServerName();
         }
 
-        $setTitle  = $appName. "[{$host}:{$port}]";
+        $setTitle = $appName . "[{$host}:{$port}]";
         $setTitle .= $title ? '|' : '';
         $setTitle .= $title;
 
@@ -39,9 +39,9 @@ class Console
     /**
      * 获取当前用户
      *
-     * @return mixed
+     * @return string
      */
-    public static function getCurrentUser()
+    public static function getCurrentUser(): string
     {
         return posix_getpwuid(posix_getuid())['name'];
     }
@@ -66,9 +66,9 @@ class Console
 
     /**
      * @param string $string
-     * @param null $color
+     * @param string $color
      */
-    public static function debug(string $string, $color = null)
+    public static function debug(string $string, string $color = null)
     {
         if (! DEBUG_MODEL) {
             return;
@@ -82,17 +82,17 @@ class Console
             }
         }
 
-        self::write($string. "\n", $color);
+        self::write($string . "\n", $color);
     }
 
     /**
      * 控制台输出
      * 例：^^ color text $$ normal text.....
      *
-     * @param string  $string
-     * @param null    $color
+     * @param string $string
+     * @param string $color
      */
-    public static function write(string $string, $color = null)
+    public static function write(string $string, string $color = null)
     {
         parseColor:
         $prefix = $suffix = '';
@@ -112,9 +112,9 @@ class Console
                     $prefix = "\033[43;37;1m";
                     break;
                 default:
-                    $color  = ucfirst($color);
-                    $string = "^^[{$color}]$$ ". $string;
-                    $color  = 'blue';
+                    $color = ucfirst($color);
+                    $string = "^^[{$color}]$$ " . $string;
+                    $color = 'blue';
                     goto parseColor;
                     break;
             }
@@ -126,7 +126,7 @@ class Console
             if (strpos($string, '^^') === false) {
                 $hasEof = mb_substr($string, -1, 1) === "\n";
                 $string = rtrim($string, "\n");
-                $string = '^^'. $string. '$$';
+                $string = '^^' . $string . '$$';
                 if ($hasEof) {
                     $string .= "\n";
                 }
@@ -147,10 +147,10 @@ class Console
     /**
      * 替换输出
      *
-     * @param $message
-     * @param null    $forceClearLines
+     * @param string $message
+     * @param int    $forceClearLines
      */
-    public static function writeReplace($message, $forceClearLines = null)
+    public static function writeReplace(string $message, int $forceClearLines = null)
     {
         static $lastLines = 0;
 
@@ -193,6 +193,6 @@ class Console
 
         $lastLines = $lineCount;
 
-        echo $message. "\n";
+        echo $message . "\n";
     }
 }

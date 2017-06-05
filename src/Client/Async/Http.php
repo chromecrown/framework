@@ -7,6 +7,7 @@ use Swoole\Http\Client as SwooleHttpClient;
 
 /**
  * Class Http
+ *
  * @package Flower\Client\Async
  */
 class Http implements Coroutine
@@ -23,12 +24,13 @@ class Http implements Coroutine
     private $callback;
 
     /**
-     * @var SwooleClient
+     * @var SwooleHttpClient
      */
     private $connect;
 
     /**
      * Tcp constructor.
+     *
      * @param array $config
      */
     public function __construct(array $config)
@@ -40,7 +42,7 @@ class Http implements Coroutine
 
     /**
      * @param string $url
-     * @param array $data
+     * @param array  $data
      * @return \Generator
      */
     public function post(string $url, array $data)
@@ -50,7 +52,7 @@ class Http implements Coroutine
 
     /**
      * @param string $url
-     * @param array $data
+     * @param array  $data
      * @return \Generator
      */
     public function get(string $url, array $data)
@@ -60,14 +62,14 @@ class Http implements Coroutine
 
     /**
      * @param string $url
-     * @param array $data
+     * @param array  $data
      * @param string $method
      * @return \Generator
      */
     public function request(string $url, array $data, string $method = 'get')
     {
-        $this->url    = $url;
-        $this->data   = $data;
+        $this->url = $url;
+        $this->data = $data;
         $this->method = strtolower($method);
 
         return yield $this;
@@ -98,7 +100,7 @@ class Http implements Coroutine
                 'status' => $client->statusCode,
                 'header' => $client->headers ?? [],
                 'body'   => $client->body ?? null,
-                'cookie' => $client->set_cookie_headers ?? []
+                'cookie' => $client->set_cookie_headers ?? [],
             ]);
 
             if ($client->isConnected()) {
@@ -138,12 +140,12 @@ class Http implements Coroutine
     }
 
     /**
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array  $arguments
      * @return $this
      * @throws \Exception
      */
-    public function __call($name, $arguments)
+    public function __call(string $name, array $arguments)
     {
         if (! in_array($name, ['setHeaders', 'setCookies', 'setData', 'addFile'])) {
             throw new \Exception('方法不存在');

@@ -8,6 +8,7 @@ use Flower\Utility\Console;
 
 /**
  * Class Redis
+ *
  * @package Flower\Client\Sync
  */
 class Redis
@@ -32,10 +33,11 @@ class Redis
 
     /**
      * Redis constructor.
+     *
      * @param Application $app
-     * @param string $pool
+     * @param string      $pool
      */
-    public function __construct(Application $app, $pool = 'default')
+    public function __construct(Application $app, string $pool = 'default')
     {
         $this->app = $app;
         $this->use($pool);
@@ -64,9 +66,10 @@ class Redis
      */
     private function connect()
     {
-        $config = $this->app['config']->get($this->type. '/'. $this->pool, null);
+        $config = $this->app['config']->get($this->type . '/' . $this->pool, null);
         if (! $config) {
             Log::error('Redis [Sync] config not found : ' . $this->pool);
+
             return;
         }
 
@@ -77,8 +80,8 @@ class Redis
         try {
             $redis = new \Redis();
 
-            // 异步redis套接字格式为:unix:/tmp/redis_6379.sock
-            // 同步redis套接字格式为:/tmp/redis_6379.sock
+            // 异步redis套接字格式为: unix:/tmp/redis_6379.sock
+            // 同步redis套接字格式为: /tmp/redis_6379.sock
             if (false === strpos($config['host'], 'unix:')) {
                 $result = $redis->connect($config['host'], $config['port'], $config['timeout'] ?? 0);
             } else {
@@ -86,14 +89,16 @@ class Redis
             }
 
             if (! $result) {
-                Log::error('Redis [Sync] connect fail，Pool：'. $this->pool);
+                Log::error('Redis [Sync] connect fail，Pool：' . $this->pool);
+
                 return;
             }
 
             if (isset($config['auth']) and $config['auth']) {
                 $result = $redis->auth($config['auth']);
                 if (! $result) {
-                    Log::error('Redis [Sync] auth fail，Pool：'. $this->pool);
+                    Log::error('Redis [Sync] auth fail，Pool：' . $this->pool);
+
                     return;
                 }
             }
@@ -101,13 +106,14 @@ class Redis
             if (isset($config['select']) and $config['select']) {
                 $result = $redis->select($config['select']);
                 if (! $result) {
-                    Log::error('Redis [Sync] select fail，Pool：'. $this->pool);
+                    Log::error('Redis [Sync] select fail，Pool：' . $this->pool);
+
                     return;
                 }
             }
-        }
-        catch (\Exception $e) {
-            Log::error('Redis [Sync] connect fail：'. $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Redis [Sync] connect fail：' . $e->getMessage());
+
             return;
         }
 
@@ -141,7 +147,12 @@ class Redis
 
             if ($useTime > $slowTime) {
                 $params  = substr(json_encode(array_values($arguments)), 1, -1);
-                $message = 'Redis Sync [' . number_format($useTime, 5) . '] : ' . $name . '(' . ($params ?: '...') . ')';
+                $message = 'Redis Sync ['
+                    . number_format($useTime, 5)
+                    . '] : '
+                    . $name
+                    . '(' . ($params ?: '...')
+                    . ')';
 
                 Log::info($message);
                 Console::debug($message, 'debug');

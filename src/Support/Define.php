@@ -4,6 +4,7 @@ namespace Flower\Support;
 
 /**
  * Class Define
+ *
  * @package Flower\Support
  */
 class Define

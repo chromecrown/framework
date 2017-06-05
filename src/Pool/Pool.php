@@ -7,6 +7,7 @@ use Flower\Contract\Pool as IPool;
 
 /**
  * Class Pool
+ *
  * @package Flower\Pool
  */
 abstract class Pool implements IPool
@@ -78,12 +79,13 @@ abstract class Pool implements IPool
 
     /**
      * Pool constructor.
+     *
      * @param string $name
-     * @param array $config
+     * @param array  $config
      */
     public function __construct(string $name = '', array $config = [])
     {
-        $name   and $this->setName($name);
+        $name and $this->setName($name);
         $config and $this->setConfig($config);
 
         $this->gcLevel = app('config')->get('gc_level', 1);
@@ -99,8 +101,8 @@ abstract class Pool implements IPool
      */
     public function init()
     {
-        $this->pool      = new \SplQueue();
-        $this->commands  = new \SplQueue();
+        $this->pool = new \SplQueue();
+        $this->commands = new \SplQueue();
         $this->callbacks = [];
 
         // 初始化连接
@@ -109,7 +111,7 @@ abstract class Pool implements IPool
                 $this->config['connection']['init'] = $this->config['connection']['max'];
             }
 
-            for ($i = 0; $i < $this->config['connection']['init']; $i ++) {
+            for ($i = 0; $i < $this->config['connection']['init']; $i++) {
                 $this->newConnection();
             }
         }
@@ -144,7 +146,7 @@ abstract class Pool implements IPool
         }
 
         $freeNum = $poolNum - $this->config['connection']['idle'];
-        for ($i = 0; $i < $freeNum; $i ++) {
+        for ($i = 0; $i < $freeNum; $i++) {
             if ($this->pool->isEmpty()) {
                 break;
             }
@@ -177,7 +179,7 @@ abstract class Pool implements IPool
                 return $client;
             }
 
-            $this->currConnect --;
+            $this->currConnect--;
             unset($client);
 
             return false;
@@ -187,14 +189,14 @@ abstract class Pool implements IPool
             return $client;
         }
 
-        $this->currConnect --;
+        $this->currConnect--;
         unset($client);
 
         return false;
     }
 
     /**
-     * @param $callback
+     * @param      $callback
      * @param bool $useTimeout
      * @return int
      */
@@ -216,13 +218,13 @@ abstract class Pool implements IPool
             );
         }
 
-        $this->token ++;
+        $this->token++;
 
         return $token;
     }
 
     /**
-     * @param int $token
+     * @param int   $token
      * @param mixed $data
      */
     protected function callback($token, $data)
@@ -252,12 +254,13 @@ abstract class Pool implements IPool
     protected function retry($data)
     {
         if ($data['retry'] >= $this->maxRetry) {
-            Log::info($this->getType(). ' : retry failure, '. $data['sql']);
+            Log::info($this->getType() . ' : retry failure, ' . $data['sql']);
             $this->callback($data['token'], $this->failure);
+
             return;
         }
 
-        $data['retry'] ++;
+        $data['retry']++;
 
         $this->commands->push($data);
         $this->newConnection();
@@ -302,7 +305,7 @@ abstract class Pool implements IPool
             $config['connection'] = [
                 'init' => 0,
                 'idle' => 10,
-                'max'  => 128
+                'max'  => 128,
             ];
         }
 
