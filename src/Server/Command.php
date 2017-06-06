@@ -25,8 +25,8 @@ class Command
      */
     public function run()
     {
+        $this->pidFile    = $this->server->getPidFile();
         $this->serverName = $this->server->getServerName();
-        $this->pidFile = $this->server->getPidFile();
 
         // 分析命令
         $command = $this->parseCommand();

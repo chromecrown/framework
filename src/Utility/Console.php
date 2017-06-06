@@ -41,7 +41,7 @@ class Console
      *
      * @return string
      */
-    public static function getCurrentUser(): string
+    public static function getCurrentUser()
     {
         return posix_getpwuid(posix_getuid())['name'];
     }

@@ -3,6 +3,11 @@
 use Flower\Core\Container;
 
 if (! function_exists('app')) {
+    /**
+     * @param null  $class
+     * @param array ...$arguments
+     * @return mixed
+     */
     function app($class = null, ...$arguments)
     {
         return Container::getInstance()->get($class ?: 'app', $arguments);

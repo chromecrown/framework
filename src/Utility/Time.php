@@ -14,7 +14,7 @@ class Time
      * @param bool $isLog
      * @return string
      */
-    public static function format(int $time, bool $isLog = true): string
+    public static function format(int $time, bool $isLog = true)
     {
         if (! is_numeric($time)) {
             return '';
@@ -62,7 +62,7 @@ class Time
     /**
      * @return float
      */
-    public static function millisecond(): float
+    public static function millisecond()
     {
         return (float)sprintf('%.0f', array_sum(array_map('floatval', explode(' ', microtime()))) * 1000);
     }
@@ -73,7 +73,7 @@ class Time
      * @param bool   $appendMillisecond
      * @return string
      */
-    public static function date(int $millisecond, string $format = 'Y-m-d H:i:s', bool $appendMillisecond = true): string
+    public static function date(int $millisecond, string $format = 'Y-m-d H:i:s', bool $appendMillisecond = true)
     {
         $date = date($format, substr($millisecond, 0, 10));
         if ($appendMillisecond) {

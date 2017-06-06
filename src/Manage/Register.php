@@ -21,7 +21,7 @@ class Register
     public function register(string $type = 'register')
     {
         $serverName = $this->server->getServerName();
-        $serverIp = $this->app['config']->get('server_ip', null);
+        $serverIp   = $this->app['config']->get('server_ip', null);
         $serverPort = $this->app['config']->get('tcp_server_port', '9501');
         $serverType = $this->app['config']->get('server_type', 1);
         $serverDesc = $this->app['config']->get('server_desc', '');
