@@ -536,9 +536,9 @@ class Application extends Container
     /**
      * 记录最大 QPS
      *
-     * @param int $worker
+     * @param $worker
      */
-    protected function logMaxQps(int $worker)
+    protected function logMaxQps($worker)
     {
         $worker->tick(
             1000,
