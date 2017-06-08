@@ -97,7 +97,7 @@ class Multi implements Coroutine
             return;
         }
 
-        unset($this->timer);
+        $this->timer = null;
 
         foreach ($this->request as $key) {
             if (! array_key_exists($key, $this->result)) {

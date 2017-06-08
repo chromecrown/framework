@@ -28,6 +28,11 @@ class Redis
     private $pool = 'default';
 
     /**
+     * @var string
+     */
+    private $bindId = null;
+
+    /**
      * Redis constructor.
      *
      * @param Application $app
@@ -45,6 +50,17 @@ class Redis
         $this->server = $server;
 
         $pool and $this->use($pool, $cacheKey);
+    }
+
+    /**
+     * @param string $bindId
+     * @return $this
+     */
+    public function bind(string $bindId)
+    {
+        $this->bindId = $bindId;
+
+        return $this;
     }
 
     /**
@@ -83,6 +99,7 @@ class Redis
         } else {
             $this->app['pool.manager']
                 ->get('redis', $this->pool)
+                ->bind($this->bindId)
                 ->call($callback ?: function () {}, $method, $arguments, $logSlow);
         }
     }
@@ -109,6 +126,8 @@ class Redis
             return $this->syncQuery($name, $arguments, true);
         }
 
-        return $this->app['pool.manager']->get('redis', $this->pool)->query($name, $arguments);
+        return $this->app['pool.manager']->get('redis', $this->pool)
+            ->bind($this->bindId)
+            ->query($name, $arguments);
     }
 }

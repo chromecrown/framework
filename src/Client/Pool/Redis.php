@@ -2,6 +2,7 @@
 
 namespace Flower\Client\Pool;
 
+use Ramsey\Uuid\Uuid;
 use Flower\Log\Log;
 use Flower\Pool\Pool;
 use Flower\Utility\Console;
@@ -21,6 +22,16 @@ class Redis extends Pool implements Coroutine
     protected $type = 'redis';
 
     /**
+     * @var array
+     */
+    private $bind = [];
+
+    /**
+     * @var string
+     */
+    private $bindId;
+
+    /**
      * @var string
      */
     private $method;
@@ -34,6 +45,19 @@ class Redis extends Pool implements Coroutine
      * @var boolean
      */
     private $enableLogSlow = null;
+
+    /**
+     * @param string $bindId
+     * @return $this
+     */
+    public function bind(string $bindId = null)
+    {
+        if ($bindId) {
+            $this->bindId = $bindId;
+        }
+
+        return $this;
+    }
 
     /**
      * @param callable $callback
@@ -64,10 +88,11 @@ class Redis extends Pool implements Coroutine
             'arguments' => $this->arguments,
             'token'     => $this->getToken($callback),
             'retry'     => 0,
+            'bind_id'   => $this->bindId,
             'log_slow'  => $this->enableLogSlow,
         ];
 
-        $this->method = $this->arguments = $this->enableLogSlow = null;
+        $this->method = $this->arguments = $this->bindId = $this->enableLogSlow = null;
 
         $this->execute($data);
     }
@@ -90,10 +115,8 @@ class Redis extends Pool implements Coroutine
      */
     public function execute(array $data)
     {
-        $client = $this->getConnection();
+        $client = $this->getClient($data);
         if (! $client) {
-            $this->retry($data);
-
             return;
         }
 
@@ -101,7 +124,25 @@ class Redis extends Pool implements Coroutine
 
         $sTime = microtime(true);
         $arguments[] = function ($client, $result) use (& $data, $sTime) {
-            $this->release($client);
+            $cmd = strtolower($data['name']);
+            if ($cmd === 'multi') {
+                $uuid = Uuid::uuid4()->toString();
+                $this->bind[$uuid] = $client;
+
+                $this->callback($data['token'], app('redis', $data['trace'], $this->getName())->bind($uuid));
+                return;
+            }
+
+            if ($cmd === 'exec') {
+                $this->releaseBind($data['bind_id']);
+            } else {
+                if ($data['bind_id']) {
+                    $this->callback($data['token'], null);
+                    return;
+                }
+
+                $this->release($client);
+            }
 
             $data = $this->parseResult($data, $result);
 
@@ -114,6 +155,49 @@ class Redis extends Pool implements Coroutine
         };
 
         $client->__call($data['name'], array_values($arguments));
+    }
+
+    /**
+     * @param $data
+     * @return bool|mixed|null
+     * @throws \Exception
+     */
+    private function getClient($data)
+    {
+        $client = null;
+        $bindId = $data['bind_id'] ?? null;
+
+        // 事物绑定
+        if ($bindId) {
+            $client = $this->bind[$bindId] ?? null;
+
+            if ($client == null) {
+                throw new \Exception('Redis 事物异常');
+            }
+        }
+
+        if ($client == null) {
+            $client = $this->getConnection();
+            if (! $client) {
+                $this->retry($data);
+                return false;
+            }
+        }
+
+        return $client;
+    }
+
+    /**
+     * @param $bindId
+     */
+    public function releaseBind($bindId)
+    {
+        $client = $this->bind[$bindId];
+        unset($this->bind[$bindId]);
+
+        if ($client != null) {
+            $this->release($client);
+        }
     }
 
     /**
@@ -327,7 +411,12 @@ class Redis extends Pool implements Coroutine
                     case 'hash':
                         $result = \Redis::REDIS_HASH;
                         break;
+                    case 'none':
+                        $result = null;
+                        break;
                 }
+
+                $data['result'] = $result;
                 break;
 
             default:

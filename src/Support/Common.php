@@ -10,7 +10,7 @@ if (! function_exists('app')) {
      */
     function app($class = null, ...$arguments)
     {
-        return Container::getInstance()->get($class ?: 'app', $arguments);
+        return Container::getInstance()->get($class ?: 'app', ...$arguments);
     }
 }
 

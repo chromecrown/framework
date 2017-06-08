@@ -78,7 +78,7 @@ class Task
                 if ($value instanceof ICoroutine) {
                     $this->stack->push($generator);
                     $value->send(function ($data) {
-                        if (! empty($data['exception'])) {
+                        if (is_array($data) and isset($data['exception'])) {
                             throw new \Exception($data['exception']);
                         } else {
                             $this->data = $data;

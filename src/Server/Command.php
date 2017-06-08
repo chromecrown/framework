@@ -197,16 +197,16 @@ class Command
     private function kill()
     {
         $title = "为保证安全，请手动执行\n";
-        $kill = "ps aux | grep %s | grep -v grep | awk '{print \$2}' | xargs kill -9\n";
+        $kill = "ps aux | grep '%s' | grep -v grep | awk '{print \$2}' | xargs kill -9\n";
 
         if (PHP_OS == 'Darwin') {
             $title .= sprintf($kill, $_SERVER['argv'][0]);
         } else {
-            $port = $_SERVER['argv'][1] ?? $this->getServerPort();
+            $port = $_SERVER['argv'][2] ?? $this->getServerPort();
             ! is_array($port) and ($port = [$port]);
 
             foreach ($port as $v) {
-                $title .= sprintf($kill, $this->serverName . '\[.+:' . $v);
+                $title .= sprintf($kill, $this->serverName . '\[.*:' . $v);
             }
         }
 

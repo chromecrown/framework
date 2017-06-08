@@ -13,7 +13,14 @@ use Flower\Utility\Console;
  */
 class MySQL
 {
+    /**
+     * @var string
+     */
     private $type = 'mysql';
+
+    /**
+     * @var string
+     */
     private $pool = 'default';
 
     /**
