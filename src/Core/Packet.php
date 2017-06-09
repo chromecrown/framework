@@ -33,8 +33,8 @@ class Packet
     {
         $serverConfig = $config->get('server_config', []);
 
-        $this->setSplitEof($packageEof ?: ($serverConfig['split_eof'] ?? '#\r#\n#'));
-        $this->setPackageEof($splitEof ?: ($serverConfig['package_eof'] ?? '#\r\n\r\n'));
+        $this->setSplitEof($packageEof ?: ($serverConfig['split_eof'] ?? "#\r#\n#"));
+        $this->setPackageEof($splitEof ?: ($serverConfig['package_eof'] ?? "#\r\n\r\n"));
         unset($serverConfig);
     }
 
