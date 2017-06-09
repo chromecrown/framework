@@ -108,7 +108,10 @@ class Multi implements Coroutine
         // timeout callback
         ($this->callback)($this->result);
 
-        unset($this->result, $this->counter, $this->callback, $this->request);
+        $this->result   = [];
+        $this->request  = [];
+        $this->counter  = 0;
+        $this->callback = null;
     }
 
     /**
