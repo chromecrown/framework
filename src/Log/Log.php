@@ -2,96 +2,152 @@
 
 namespace Flower\Log;
 
-use Flower\Utility\Time;
-use Flower\Core\Application;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Log
  *
- * @package Flower\Core
+ * @package Flower\Log
  */
 class Log
 {
     /**
-     * @var array
+     * @var LoggerInterface
      */
-    private static $logLevel = ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'];
+    private static $logger = null;
 
     /**
-     * @var Application
+     * @param LoggerInterface $logger
      */
-    private $app;
+    public static function setLogger(LoggerInterface $logger)
+    {
+        self::$logger = $logger;
+    }
 
     /**
-     * @var string
+     * @return LoggerInterface
      */
-    private $appName;
+    public static function getLogger()
+    {
+        if (null === self::$logger) {
+            self::$logger = app('log');
+        }
+
+        return self::$logger;
+    }
 
     /**
-     * @var bool
-     */
-    private $logHandler;
-
-    /**
-     * Log constructor.
+     * System is unusable.
      *
-     * @param Application $app
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
      */
-    public function __construct(Application $app)
+    public static function emergency($message, array $context = array())
     {
-        $this->app = $app;
-        $this->appName = $app['server']->getServerName();
-        $this->host = $app['config']->get('server_ip', '127.0.0.1') . '_' . $app['config']->get('tcp_server_port',
-                '9501');
-
-        $this->logHandler = $app['config']->get('log_handler', 'file');
+        self::getLogger()->emergency($message, $context);
     }
 
     /**
-     * @param string       $level
-     * @param string|array $message
-     * @param array        $context
-     * @param string|null  $logName
+     * Action must be taken immediately.
+     *
+     * Example: Entire website down, database unavailable, etc. This should
+     * trigger the SMS alerts and wake you up.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
      */
-    public function log(string $level, $message, array $context = [], string $logName = null)
+    public static function alert($message, array $context = array())
     {
-        $logName = $logName ?: date('Ym/YmdH') . '.log';
-        if (strpos($logName, '.') === false) {
-            $logName .= '.log';
-        }
-
-        $request = $client = $clientHost = '';
-        $context = $context ? (is_array($context) ? $context : [$context]) : [];
-
-        $data = [
-            'time'         => Time::millisecond(),
-            'level'        => $level,
-            'service'      => $this->appName,
-            'service_host' => $this->host,
-            'client'       => $client,
-            'client_host'  => $clientHost,
-            'request'      => $request,
-            'message'      => $message,
-            'context'      => $context,
-            'name'         => $logName,
-        ];
-
-        $this->app->get('log.' . $this->logHandler)->write($data);
-
-        unset($data, $logName, $message, $context, $level);
+        self::getLogger()->alert($message, $context);
     }
 
     /**
-     * @param $level
-     * @param $params
+     * Critical conditions.
+     *
+     * Example: Application component unavailable, unexpected exception.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
      */
-    public static function __callStatic($level, $params)
+    public static function critical($message, array $context = array())
     {
-        $level = strtolower($level);
-        if (! in_array($level, self::$logLevel)) {
-            throw new \UnexpectedValueException("Log level [{$level}] does not exist!");
-        }
+        self::getLogger()->critical($message, $context);
+    }
 
-        app('log')->log($level, ...$params);
+    /**
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
+     */
+    public static function error($message, array $context = array())
+    {
+        self::getLogger()->error($message, $context);
+    }
+
+    /**
+     * Exceptional occurrences that are not errors.
+     *
+     * Example: Use of deprecated APIs, poor use of an API, undesirable things
+     * that are not necessarily wrong.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
+     */
+    public static function warning($message, array $context = array())
+    {
+        self::getLogger()->warning($message, $context);
+    }
+
+    /**
+     * Normal but significant events.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
+     */
+    public static function notice($message, array $context = array())
+    {
+        self::getLogger()->notice($message, $context);
+    }
+
+    /**
+     * Interesting events.
+     *
+     * Example: User logs in, SQL logs.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
+     */
+    public static function info($message, array $context = array())
+    {
+        self::getLogger()->info($message, $context);
+    }
+
+    /**
+     * Detailed debug information.
+     *
+     * @param string $message
+     * @param array  $context
+     *
+     * @return void
+     */
+    public static function debug($message, array $context = array())
+    {
+        self::getLogger()->debug($message, $context);
     }
 }

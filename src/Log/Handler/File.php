@@ -2,7 +2,8 @@
 
 namespace Flower\Log\Handler;
 
-use Flower\Log\Handler;
+use Flower\Contract\LogHandler;
+use Flower\Support\Construct;
 use Flower\Utility\Time;
 use Flower\Utility\File as FileTool;
 
@@ -11,22 +12,24 @@ use Flower\Utility\File as FileTool;
  *
  * @package Flower\Log\Handler
  */
-class File extends Handler
+class File implements LogHandler
 {
+    use Construct;
+
     /**
      * @param array $data
      */
     public function write(array $data)
     {
         $file = storage_path('logs/' . $data['level'] . '/' . $data['name']);
-        $dir = dirname($file);
+        $dir  = dirname($file);
         if (! is_dir($dir)) {
             @mkdir($dir, 0777, true);
         }
 
         $message = $this->getFormatString($data);
 
-        $flag = ($this->app['server']->getServer()->taskworker ?? false) ? 'writeSync' : 'write';
+        $flag = ($this->server->getServer()->taskworker ?? false) ? 'writeSync' : 'write';
 
         FileTool::$flag($file, $message, FILE_APPEND);
         unset($data, $message);
@@ -38,7 +41,7 @@ class File extends Handler
      */
     private function getFormatString(& $data)
     {
-        $time = Time::date($data['time']);
+        $time  = Time::date($data['time']);
         $level = strtoupper($data['level']);
 
         $message = (is_array($data['message']) or is_object($data['message']))
@@ -48,7 +51,7 @@ class File extends Handler
 
         $context = json_encode($data['context'], JSON_UNESCAPED_UNICODE);
 
-        $string = "[{$time}]";
+        $string  = "[{$time}]";
         $string .= " [{$level}]";
         $string .= " [{$message}]";
         if ($data['client']) {

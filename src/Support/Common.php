@@ -1,6 +1,6 @@
 <?php
 
-use Flower\Core\Container;
+use Flower\Container\Container;
 
 if (! function_exists('app')) {
     /**

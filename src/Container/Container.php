@@ -1,13 +1,16 @@
 <?php
 
-namespace Flower\Core;
+namespace Flower\Container;
+
+use ArrayAccess;
+use Psr\Container\ContainerInterface;
 
 /**
  * Class Container
  *
  * @package Flower\Core
  */
-class Container implements \ArrayAccess
+class Container implements ArrayAccess, ContainerInterface
 {
     /**
      * 唯一实例
@@ -38,20 +41,19 @@ class Container implements \ArrayAccess
     protected $shared = [];
 
     /**
-     * 获取服务
-     *
-     * @param  string $name
-     * @param  array  $arguments
-     * @return object|null
+     * @param string $name
+     * @param array  ...$arguments
+     * @return mixed
+     * @throws NotFoundException
      */
-    public function get(string $name, ...$arguments)
+    public function get($name, ...$arguments)
     {
         if (isset($this->shared[$name])) {
             return $this->shared[$name];
         }
 
         if (! isset($this->register[$name])) {
-            throw new \InvalidArgumentException('services not found: ' . $name);
+            throw new NotFoundException('services not found: ' . $name);
         }
 
         $instance = $this->make($this->register[$name]['class'], $arguments);
@@ -70,7 +72,7 @@ class Container implements \ArrayAccess
      * @param string $name
      * @param array  $arguments
      * @return mixed
-     * @throws \Exception
+     * @throws ContainerException
      */
     public function make(string $name, array $arguments = [])
     {
@@ -110,7 +112,7 @@ class Container implements \ArrayAccess
 
                 $alias = $this->alias[$v] ?? null;
                 if (! $alias) {
-                    throw new \Exception('services not found: ' . $v);
+                    throw new ContainerException('services not found: ' . $v);
                 }
 
                 array_unshift($arguments, $this->get($alias));
@@ -161,7 +163,7 @@ class Container implements \ArrayAccess
      * @param string $name
      * @return bool
      */
-    public function hasBind(string $name)
+    public function has($name)
     {
         return isset($this->register[$name]);
     }
@@ -187,7 +189,7 @@ class Container implements \ArrayAccess
      * @param  bool            $shared
      * @return void
      */
-    public function bind(string $name, $class, bool $shared = false)
+    public function register(string $name, $class, bool $shared = false)
     {
         $isClosure = $class instanceof \Closure;
 
@@ -253,7 +255,7 @@ class Container implements \ArrayAccess
      */
     public function offsetExists($key)
     {
-        return $this->hasBind($key);
+        return $this->has($key);
     }
 
     /**
@@ -268,7 +270,7 @@ class Container implements \ArrayAccess
             };
         }
 
-        $this->bind($key, $val);
+        $this->register($key, $val);
     }
 
     /**

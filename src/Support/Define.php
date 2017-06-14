@@ -52,7 +52,7 @@ class Define
         'dispatcher.tcp'      => [\Flower\Dispatcher\Tcp::class, false],
         'dispatcher.http'     => [\Flower\Dispatcher\Http::class, false],
         'dispatcher.task'     => [\Flower\Dispatcher\Task::class, false],
-        'log'                 => [\Flower\Log\Log::class, true],
+        'log'                 => [\Flower\Log\Logger::class, true],
         'log.file'            => [\Flower\Log\Handler\File::class, true],
         'log.redis'           => [\Flower\Log\Handler\Redis::class, true],
     ];

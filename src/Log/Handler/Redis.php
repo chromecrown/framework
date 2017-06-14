@@ -2,15 +2,18 @@
 
 namespace Flower\Log\Handler;
 
-use Flower\Log\Handler;
+use Flower\Contract\LogHandler;
+use Flower\Support\Construct;
 
 /**
  * Class Redis
  *
  * @package Flower\Log\Handler
  */
-class Redis extends Handler
+class Redis implements LogHandler
 {
+    use Construct;
+
     public function write(array $data)
     {
         try {

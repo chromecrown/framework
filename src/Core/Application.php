@@ -6,6 +6,7 @@ use Flower\Log\Log;
 use Flower\Server\Server;
 use Flower\Utility\Console;
 use Flower\Support\Define;
+use Flower\Container\Container;
 use Flower\Support\ServiceProvider;
 use Swoole\Process as SwooleProcess;
 use Swoole\Server as SwooleServer;
@@ -59,9 +60,9 @@ class Application extends Container
         self::setInstance($this);
 
         // 绑定到容器
-        $this->bind('app', $this);
+        $this->register('app', $this);
         $this->alias('app', 'Flower\Core\Application');
-        $this->registerBindings();
+        $this->registerBaseComponents();
 
         // 如果没有设置 server_ip，则获取当前服务器IP （服务器第一块网卡）
         if (! $this['config']->get('server_ip', '')) {
@@ -90,7 +91,7 @@ class Application extends Container
      * @param string $provider
      * @throws \Exception
      */
-    public function register(string $provider)
+    public function registerServiceProvider(string $provider)
     {
         // 实例化服务
         $provider = $this->make($provider);
@@ -115,16 +116,16 @@ class Application extends Container
     /**
      * 把框架组件注册到容器
      *
-     * register bindings
+     * register base components
      */
-    private function registerBindings()
+    private function registerBaseComponents()
     {
         foreach (Define::BINDINGS as $k => $v) {
             if (! is_array($v)) {
                 $v = [$v, true];
             }
 
-            $this->bind($k, $v[0], $v[1]);
+            $this->register($k, $v[0], $v[1]);
         }
     }
 
