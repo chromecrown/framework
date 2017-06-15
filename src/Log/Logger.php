@@ -3,9 +3,7 @@
 namespace Flower\Log;
 
 use Flower\Core\Application;
-use Psr\Container\ContainerInterface;
 use Psr\Log\AbstractLogger;
-use Flower\Contract\LogHandler;
 use Flower\Utility\Time;
 
 /**
@@ -26,7 +24,7 @@ class Logger extends AbstractLogger
     private $logName;
 
     /**
-     * @var LogHandler
+     * @var LogHandlerInterface
      */
     private $logHandler;
 

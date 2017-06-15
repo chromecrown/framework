@@ -1,18 +1,17 @@
 <?php
 
-namespace Flower\Log\Handler;
+namespace Flower\Log;
 
-use Flower\Contract\LogHandler;
 use Flower\Support\Construct;
 use Flower\Utility\Time;
 use Flower\Utility\File as FileTool;
 
 /**
- * Class File
+ * Class FileHandler
  *
- * @package Flower\Log\Handler
+ * @package Flower\Log
  */
-class File implements LogHandler
+class FileHandler implements LogHandlerInterface
 {
     use Construct;
 

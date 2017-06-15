@@ -5,7 +5,6 @@ namespace Flower\Database;
 use Flower\Client\Redis;
 use Flower\Utility\Console;
 use Flower\Core\Application;
-use Flower\Utility\MessagePack;
 
 /**
  * Class QueryBuilderCache
@@ -14,20 +13,20 @@ use Flower\Utility\MessagePack;
  */
 class QueryBuilderCache extends QueryBuilder
 {
-    private $primaryKey = ':qc:%s:primary:%s';  // data:table:primary:primaryValue
+    private $primaryKey = ':qc:%s:primary:%s'; // data:table:primary:primaryValue
     private $uniqueKey = ':qc:%s:unique:%s';   // data:table:unique:uniqueName:uniqueValue
-    private $uniqueKeyCombine = '&&';           // data:table:unique:uniqueName:uniqueValue
+    private $uniqueKeyCombine = '&&';          // data:table:unique:uniqueName:uniqueValue
 
     private $cacheKey = null;
 
     /**
      * QueryBuilderCache constructor.
      *
-     * @param Application $app
-     * @param Model       $model
-     * @param null        $queryType
+     * @param Application    $app
+     * @param ModelInterface $model
+     * @param null           $queryType
      */
-    public function __construct(Application $app, Model $model, $queryType = null)
+    public function __construct(Application $app, ModelInterface $model, $queryType = null)
     {
         parent::__construct($app, $model, $queryType);
 

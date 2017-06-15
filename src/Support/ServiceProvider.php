@@ -25,4 +25,6 @@ abstract class ServiceProvider
     {
         $this->app = $app;
     }
+
+    abstract function handler();
 }

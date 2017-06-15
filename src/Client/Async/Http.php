@@ -2,7 +2,7 @@
 
 namespace Flower\Client\Async;
 
-use Flower\Contract\Coroutine;
+use Flower\Coroutine\CoroutineInterface;
 use Swoole\Http\Client as SwooleHttpClient;
 
 /**
@@ -10,7 +10,7 @@ use Swoole\Http\Client as SwooleHttpClient;
  *
  * @package Flower\Client\Async
  */
-class Http implements Coroutine
+class Http implements CoroutineInterface
 {
     private $timer;
     private $timeout;
@@ -96,12 +96,15 @@ class Http implements Coroutine
 
         $arguments[] = function (SwooleHttpClient $client) {
             $this->clearTick();
-            ($this->callback)([
-                'status' => $client->statusCode,
-                'header' => $client->headers ?? [],
-                'body'   => $client->body ?? null,
-                'cookie' => $client->set_cookie_headers ?? [],
-            ]);
+
+            if ($this->callback) {
+                ($this->callback)([
+                    'status' => $client->statusCode,
+                    'header' => $client->headers ?? [],
+                    'body'   => $client->body ?? null,
+                    'cookie' => $client->set_cookie_headers ?? [],
+                ]);
+            }
 
             if ($client->isConnected()) {
                 $client->close();
@@ -121,7 +124,11 @@ class Http implements Coroutine
         $this->timer = swoole_timer_after(
             floatval($this->timeout) * 1000,
             function () {
-                ($this->callback)(null);
+                $callback = $this->callback;
+
+                $this->callback = null;
+
+                $callback(null);
             }
         );
     }

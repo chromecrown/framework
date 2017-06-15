@@ -3,14 +3,13 @@
 namespace Flower\Pool;
 
 use Flower\Log\Log;
-use Flower\Contract\Pool as IPool;
 
 /**
  * Class Pool
  *
  * @package Flower\Pool
  */
-abstract class Pool implements IPool
+abstract class Pool implements PoolInterface
 {
     /**
      * @var \SplQueue

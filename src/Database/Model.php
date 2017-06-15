@@ -6,7 +6,6 @@ use Ramsey\Uuid\Uuid;
 use Flower\Core\Base;
 use Flower\Core\Application;
 use Flower\Server\Server;
-use Flower\Contract\Model as IModel;
 
 /**
  * Class Model
@@ -43,7 +42,7 @@ use Flower\Contract\Model as IModel;
  * @method QueryBuilder increment($field, $number, $where = [])
  * @method QueryBuilder decrement($field, $number, $where = [])
  */
-class Model extends Base implements IModel
+class Model extends Base implements ModelInterface
 {
     /**
      * 连接池
@@ -385,7 +384,7 @@ class Model extends Base implements IModel
     /**
      * @param $name
      * @param $arguments
-     * @return IModel
+     * @return ModelInterface
      */
     public static function __callStatic(string $name, array $arguments)
     {

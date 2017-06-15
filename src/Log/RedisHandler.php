@@ -1,16 +1,15 @@
 <?php
 
-namespace Flower\Log\Handler;
+namespace Flower\Log;
 
-use Flower\Contract\LogHandler;
 use Flower\Support\Construct;
 
 /**
- * Class Redis
+ * Class RedisHandler
  *
- * @package Flower\Log\Handler
+ * @package Flower\Log
  */
-class Redis implements LogHandler
+class RedisHandler implements LogHandlerInterface
 {
     use Construct;
 

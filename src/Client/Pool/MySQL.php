@@ -5,7 +5,7 @@ namespace Flower\Client\Pool;
 use Flower\Log\Log;
 use Flower\Pool\Pool;
 use Flower\Utility\Console;
-use Flower\Contract\Coroutine;
+use Flower\Coroutine\CoroutineInterface;
 use Swoole\MySQL as SwooleMySQL;
 
 /**
@@ -13,7 +13,7 @@ use Swoole\MySQL as SwooleMySQL;
  *
  * @package Flower\Client\Pool
  */
-class MySQL extends Pool implements Coroutine
+class MySQL extends Pool implements CoroutineInterface
 {
     protected $type = 'mysql';
     protected $failure = [
@@ -269,6 +269,6 @@ class MySQL extends Pool implements Coroutine
         $message = 'MySQL Async [' . number_format($useTime, 5) . '] : ' . $sql;
 
         Log::info($message);
-        Console::debug($message, 'debug');
+        Console::debug($message, 'blue');
     }
 }

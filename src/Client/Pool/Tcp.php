@@ -5,7 +5,7 @@ namespace Flower\Client\Pool;
 use Flower\Log\Log;
 use Flower\Pool\Pool;
 use Flower\Core\Packet;
-use Flower\Contract\Coroutine;
+use Flower\Coroutine\CoroutineInterface;
 use Flower\Core\Application;
 use Flower\Client\Tcp as TcpClient;
 
@@ -14,7 +14,7 @@ use Flower\Client\Tcp as TcpClient;
  *
  * @package Flower\Client\Pool
  */
-class Tcp extends Pool implements Coroutine
+class Tcp extends Pool implements CoroutineInterface
 {
     /**
      * @var Application

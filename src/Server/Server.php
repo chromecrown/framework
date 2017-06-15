@@ -298,13 +298,8 @@ class Server
             return;
         }
 
-        if (! isset($request->get)) {
-            $request->get = [];
-        }
-
-        if (! isset($request->post)) {
-            $request->post = [];
-        }
+        $request->get  = $request->get ?? [];
+        $request->post = $request->post ?? [];
 
         // merge
         $request->ip = $this->getClientIp($request->server);

@@ -1,8 +1,8 @@
 <?php
 
-namespace Flower\Contract;
+namespace Flower\Pool;
 
-interface Pool
+interface PoolInterface
 {
     function connect();
 

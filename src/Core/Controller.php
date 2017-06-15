@@ -101,8 +101,9 @@ abstract class Controller extends Base
     /**
      * 发送消息 (HTTP ONLY)
      *
-     * @param mixed $data
-     * @param int   $code
+     * @param     $data
+     * @param int $code
+     * @return Response
      */
     protected function response($data, int $code = 200)
     {
@@ -113,7 +114,9 @@ abstract class Controller extends Base
         $this->logRunInfo();
 
         $this->response->status($code);
-        $this->response->end($data);
+        $this->response->write($data);
+
+        return $this->response;
     }
 
     /**

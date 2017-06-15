@@ -34,12 +34,14 @@ class Scheduler
     }
 
     /**
-     * @param \Generator $routine
+     * @param \Closure|\Generator $routine
      * @return $this
      */
-    public function newTask(\Generator $routine)
+    public function newTask($routine)
     {
-        $this->scheduler($this->app->get('co.task')->setCoroutine($routine));
+        $this->scheduler(
+            $this->app->get('co.task')->setCoroutine($routine instanceof \Closure ? $routine() : $routine)
+        );
 
         return $this;
     }

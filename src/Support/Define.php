@@ -32,6 +32,7 @@ class Define
         'client.tcp.sync'     => [\Flower\Client\Sync\Tcp::class, false],
         'client.tcp.async'    => [\Flower\Client\Async\Tcp::class, false],
         'client.http.async'   => [\Flower\Client\Async\Http::class, false],
+        'client.file.async'   => [\Flower\Client\Async\File::class, false],
         'config'              => [\Flower\Core\Config::class, true],
         'lock'                => [\Flower\Core\Lock::class, false],
         'packet'              => [\Flower\Core\Packet::class, true],
@@ -53,7 +54,7 @@ class Define
         'dispatcher.http'     => [\Flower\Dispatcher\Http::class, false],
         'dispatcher.task'     => [\Flower\Dispatcher\Task::class, false],
         'log'                 => [\Flower\Log\Logger::class, true],
-        'log.file'            => [\Flower\Log\Handler\File::class, true],
-        'log.redis'           => [\Flower\Log\Handler\Redis::class, true],
+        'log.file'            => [\Flower\Log\FileHandler::class, true],
+        'middleware'          => [\Flower\Middleware\Middleware::class, false],
     ];
 }

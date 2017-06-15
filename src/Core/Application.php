@@ -46,6 +46,11 @@ class Application extends Container
     protected $registerProviders = [];
 
     /**
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
      * Application constructor.
      */
     public function __construct()
@@ -111,6 +116,27 @@ class Application extends Container
         if (method_exists($provider, 'register')) {
             $provider->register();
         }
+    }
+
+    /**
+     * @param string $middleware
+     * @throws \Exception
+     */
+    public function registerMiddleware(string $middleware)
+    {
+        if (! class_exists($middleware)) {
+            throw new \Exception('Middleware not found.');
+        }
+
+        $this->middleware[] = $middleware;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMiddleware()
+    {
+        return $this->middleware;
     }
 
     /**

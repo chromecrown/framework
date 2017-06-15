@@ -36,11 +36,15 @@ class Http extends Base
 
         Console::debug('HTTP ' . $this->getRequestString($controller, $method), 'blue');
 
-        $generator = $object->$method();
+        $middleware = array_merge([
+            function (Request $request, Response $response) use ($object, $method) {
+                return yield $object->$method();
+            }
+        ], $this->app->getMiddleware());
 
-        if ($generator instanceof \Generator) {
-            $this->app->get('co.scheduler')->newTask($generator)->run();
-        }
+        $this->app->get('co.scheduler')->newTask(
+            $this->app->get('middleware')->add($middleware)->run($request, $response)
+        )->run();
     }
 
     /**

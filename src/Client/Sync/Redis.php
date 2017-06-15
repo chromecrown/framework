@@ -155,7 +155,7 @@ class Redis
                     . ')';
 
                 Log::info($message);
-                Console::debug($message, 'debug');
+                Console::debug($message, 'blue');
 
                 unset($params, $message);
             }

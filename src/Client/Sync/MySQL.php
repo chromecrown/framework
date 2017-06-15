@@ -164,7 +164,7 @@ class MySQL
                 $message = 'MySQL Sync [' . number_format($useTime, 5) . '] : ' . $sql;
 
                 Log::info($message);
-                Console::debug($message, 'debug');
+                Console::debug($message, 'blue');
             }
         }
         unset($sql, $result);

@@ -6,7 +6,7 @@ use Ramsey\Uuid\Uuid;
 use Flower\Log\Log;
 use Flower\Pool\Pool;
 use Flower\Utility\Console;
-use Flower\Contract\Coroutine;
+use Flower\Coroutine\CoroutineInterface;
 use Swoole\Redis as SwooleRedis;
 
 /**
@@ -14,7 +14,7 @@ use Swoole\Redis as SwooleRedis;
  *
  * @package Flower\Client\Pool
  */
-class Redis extends Pool implements Coroutine
+class Redis extends Pool implements CoroutineInterface
 {
     /**
      * @var string
@@ -450,6 +450,6 @@ class Redis extends Pool implements Coroutine
             . ')';
 
         Log::info($message);
-        Console::debug($message, 'debug');
+        Console::debug($message, 'blue');
     }
 }

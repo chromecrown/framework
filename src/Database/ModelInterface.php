@@ -1,8 +1,8 @@
 <?php
 
-namespace Flower\Contract;
+namespace Flower\Database;
 
-interface Model
+interface ModelInterface
 {
     function use ($pool);
 

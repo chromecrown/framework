@@ -2,8 +2,6 @@
 
 namespace Flower\Coroutine;
 
-use Flower\Contract\Coroutine as ICoroutine;
-
 /**
  * Class Task
  *
@@ -12,12 +10,12 @@ use Flower\Contract\Coroutine as ICoroutine;
 class Task
 {
     /**
-     * @var null
+     * @var mixed
      */
     private $data = null;
 
     /**
-     * @var null|\SplStack
+     * @var \SplStack
      */
     private $stack = null;
 
@@ -66,7 +64,6 @@ class Task
 
                 $value = $generator->current();
 
-                // 是迭代器就入栈
                 if ($value instanceof \Generator) {
                     $this->stack->push($generator);
                     $generator = $value;
@@ -74,21 +71,16 @@ class Task
                     continue;
                 }
 
-                // 异步操作
-                if ($value instanceof ICoroutine) {
+                // async
+                if ($value instanceof CoroutineInterface) {
                     $this->stack->push($generator);
                     $value->send(function ($data) {
-                        if (is_array($data) and isset($data['exception'])) {
-                            throw new \Exception($data['exception']);
-                        } else {
-                            $this->data = $data;
+                        $this->data = $data;
 
-                            $generator = $this->stack->pop();
-                            $generator->send($data);
+                        $generator = $this->stack->pop();
+                        $generator->send($data);
 
-                            // 返回了就继续
-                            $this->run($generator);
-                        }
+                        $this->run($generator);
                     });
 
                     return;
@@ -111,7 +103,6 @@ class Task
                     return;
                 }
 
-                // 栈没空就继续返回
                 $generator = $this->stack->pop();
                 $generator->send($this->data);
 

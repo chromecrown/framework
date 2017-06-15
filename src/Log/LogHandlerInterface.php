@@ -1,8 +1,8 @@
 <?php
 
-namespace Flower\Contract;
+namespace Flower\Log;
 
-interface LogHandler
+interface LogHandlerInterface
 {
     public function write(array $data);
 }

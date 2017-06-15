@@ -3,7 +3,6 @@
 namespace Flower\Database;
 
 use Flower\Core\Application;
-use Flower\Contract\Model as IModel;
 
 /**
  * Class QueryBuilder
@@ -64,11 +63,11 @@ class QueryBuilder
     /**
      * QueryBuilder constructor.
      *
-     * @param Application $app
-     * @param IModel      $model
-     * @param string      $queryType
+     * @param Application    $app
+     * @param ModelInterface $model
+     * @param string         $queryType
      */
-    public function __construct(Application $app, IModel $model, string $queryType = null)
+    public function __construct(Application $app, ModelInterface $model, string $queryType = null)
     {
         $this->app = $app;
         $this->model = $model;
@@ -81,7 +80,7 @@ class QueryBuilder
     /**
      * @param string $queryType
      */
-    public function setQueryType(string $queryType)
+    public function setQueryType(string $queryType = null)
     {
         if ($queryType) {
             $this->{$queryType} = true;

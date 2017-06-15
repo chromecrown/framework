@@ -2,8 +2,6 @@
 
 namespace Flower\Pool;
 
-use Flower\Contract\Pool;
-
 /**
  * Class Manager
  *
@@ -22,10 +20,10 @@ class Manager
     protected $alias = [];
 
     /**
-     * @param Pool  $pool
-     * @param array $alias
+     * @param PoolInterface $pool
+     * @param array         $alias
      */
-    public function register(Pool $pool, array $alias = [])
+    public function register(PoolInterface $pool, array $alias = [])
     {
         $type = $pool->getType();
         $name = $pool->getName();

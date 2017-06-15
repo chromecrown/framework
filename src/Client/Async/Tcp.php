@@ -5,7 +5,7 @@ namespace Flower\Client\Async;
 use Flower\Log\Log;
 use Flower\Core\Packet;
 use Flower\Core\Application;
-use Flower\Contract\Coroutine;
+use Flower\Coroutine\CoroutineInterface;
 use Flower\Client\Tcp as TcpClient;
 
 /**
@@ -13,7 +13,7 @@ use Flower\Client\Tcp as TcpClient;
  *
  * @package App\Library
  */
-class Tcp implements Coroutine
+class Tcp implements CoroutineInterface
 {
     /**
      * @var Application
@@ -137,11 +137,13 @@ class Tcp implements Coroutine
         $this->startTick($client);
         $client->send($request, function (Tcp $client, $result) {
             $this->clearTick();
-            ($this->callback)(
-                $this->format
+            if ($this->callback) {
+                $result = $this->format
                     ? $this->packet->decode($result, $this->set['package_eof'])
-                    : $result
-            );
+                    : $result;
+
+                ($this->callback)($result);
+            }
         });
     }
 

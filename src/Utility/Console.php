@@ -112,8 +112,6 @@ class Console
                     $prefix = "\033[43;37;1m";
                     break;
                 default:
-                    $color = ucfirst($color);
-                    $string = "^^[{$color}]$$ " . $string;
                     $color = 'blue';
                     goto parseColor;
                     break;

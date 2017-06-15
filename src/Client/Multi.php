@@ -3,14 +3,14 @@
 namespace Flower\Client;
 
 use Flower\Core\Application;
-use Flower\Contract\Coroutine;
+use Flower\Coroutine\CoroutineInterface;
 
 /**
  * Class Multi
  *
  * @package Flower\Client
  */
-class Multi implements Coroutine
+class Multi implements CoroutineInterface
 {
     /**
      * @var \Flower\Coroutine\Scheduler
