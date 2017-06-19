@@ -24,11 +24,6 @@ class Middleware
     private $middleware = [];
 
     /**
-     * @var array
-     */
-    private $resolved = [];
-
-    /**
      * Middleware constructor.
      *
      * @param Application $app
@@ -66,12 +61,10 @@ class Middleware
 
         $resolved = $this->resolve(0);
 
+        /**
+         * @var Response $response
+         */
         $response = yield $resolved($request, $response);
-
-        if (! $response instanceof Response) {
-            throw new MiddlewareException('Middleware return value must instanceof Swoole\Http\Response');
-        }
-
         $response->end();
     }
 
@@ -82,23 +75,24 @@ class Middleware
     private function resolve(int $index)
     {
         return function (Request $request, Response $response) use ($index) {
-            if (! isset($this->resolved[$index])) {
-                $item = $this->middleware[$index];
-
-                $this->resolved[$index] = $item instanceof \Closure
-                    ? $item
-                    : $this->app->make($item);
-            }
-
-            $middleware = $this->resolved[$index];
+            $middleware = $this->middleware[$index];
+            $middleware = $middleware instanceof \Closure
+                ? $middleware
+                : $this->app->make($middleware);
 
             if ($middleware instanceof MiddlewareInterface) {
                 $next = $this->resolve($index + 1);
 
-                return yield $middleware->handler($request, $response, $next);
+                $res = yield $middleware->handler($request, $response, $next);
+            } else {
+                $res = yield $middleware($request, $response);
             }
 
-            return yield $middleware($request, $response);
+            if (! ($res instanceof Response)) {
+                throw new MiddlewareException('Controller,Middleware return value must instanceof Swoole\Http\Response');
+            }
+
+            return $res;
         };
     }
 }

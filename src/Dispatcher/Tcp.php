@@ -81,7 +81,7 @@ class Tcp extends Base
 
         $object->setFd($fd);
 
-        Console::debug('TCP ' . $this->getRequestString($request, $method, $data['args']), 'blue');
+        Console::debug(' TCP ' . $this->getRequestString($request, $method, $data['args']), 'blue');
 
         $generator = $object->$method(...($data['args'] ?: []));
         unset($data);
@@ -107,7 +107,7 @@ class Tcp extends Base
             $request = join('\\', array_map('ucfirst', explode('/', $request)));
         }
 
-        $namespace = '\App\Controller\Tcp\\';
+        $namespace = '\App\Tcp\\';
 
         if (class_exists($namespace . $request)) {
             return $namespace . $request;

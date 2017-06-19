@@ -92,7 +92,11 @@ class Task
                     continue;
                 }
 
-                $this->data = $generator->getReturn();
+                try {
+                    $this->data = $generator->getReturn();
+                } catch (\Exception $e) {
+                    $this->data = null;
+                }
 
                 if ($this->stack->isEmpty()) {
                     if ($this->coroutine->valid()) {

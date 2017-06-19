@@ -60,7 +60,7 @@ class Http extends Base
             $uri = 'Index';
         }
 
-        $namespace = '\App\Controller\Http\\';
+        $namespace = '\App\Http\Controller\\';
 
         $uri = array_map('trim', explode('/', $uri));
 

@@ -132,7 +132,7 @@ class Server
 
             $this->startHttpServer($httpServerIp, (int)$httpServerPort);
 
-            Console::write("Start http server, por t: {$httpServerPort}");
+            Console::write("Start http server, port: {$httpServerPort}");
         }
 
         // 启用 TCP 服务
