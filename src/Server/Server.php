@@ -298,44 +298,15 @@ class Server
             return;
         }
 
-        $request->get  = $request->get ?? [];
-        $request->post = $request->post ?? [];
-
-        // merge
-        $request->ip = $this->getClientIp($request->server);
-        $request->request = array_merge($request->get, $request->post);
-
         try {
-            $this->app->get('dispatcher.http')->dispatch($request, $response);
+            $this->app->get('dispatcher.http')->dispatch(
+                $this->app->get('request', $request),
+                $response
+            );
         } catch (\Exception $e) {
-            $response->status(500);
+            $response->status($e->getCode() ?: 500);
             $response->end('Server Error : ' . $e->getMessage());
         }
-    }
-
-    /**
-     * @param array $server
-     * @return string
-     */
-    public function getClientIp(array &$server)
-    {
-        if (isset($server['x-real-ip']) and strcasecmp($server['x-real-ip'], 'unknown')) {
-            return $server['x-real-ip'];
-        }
-
-        if (isset($server['client_ip']) and strcasecmp($server['client_ip'], 'unknown')) {
-            return $server['client_ip'];
-        }
-
-        if (isset($server['x_forwarded_for']) and strcasecmp($server['x_forwarded_for'], 'unknown')) {
-            return $server['x_forwarded_for'];
-        }
-
-        if (isset($server['remote_addr'])) {
-            return $server['remote_addr'];
-        }
-
-        return '';
     }
 
     /**

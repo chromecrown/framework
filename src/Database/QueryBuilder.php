@@ -6,6 +6,7 @@ use Flower\Core\Application;
 
 /**
  * Class QueryBuilder
+ * Based on https://github.com/jstayton/Miner
  *
  * @package Flower\Database
  */

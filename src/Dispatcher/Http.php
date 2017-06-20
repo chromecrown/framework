@@ -2,10 +2,11 @@
 
 namespace Flower\Dispatcher;
 
+use Flower\Http\Request;
+use Flower\Http\Response;
 use Flower\Support\Define;
 use Flower\Utility\Console;
-use Swoole\Http\Request;
-use Swoole\Http\Response;
+use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
  * Class Http
@@ -15,47 +16,142 @@ use Swoole\Http\Response;
 class Http extends Base
 {
     /**
+     * @var Request
+     */
+    private $request;
+
+    /**
+     * @var Response
+     */
+    private $response;
+
+    /**
+     * @var SwooleHttpResponse
+     */
+    private $swooleHttpResponse;
+
+    /**
      * @param Request  $request
-     * @param Response $response
+     * @param SwooleHttpResponse $response
+     *
      * @throws \Exception
      */
-    public function dispatch(Request $request, Response $response)
+    public function dispatch(Request $request, SwooleHttpResponse $response)
     {
-        list($controller, $method) = $this->parseRequest($request);
+        $this->request  = $request;
+        $this->response = $this->app->get('response');
+        $this->swooleHttpResponse = $response;
 
+        $this->response->withHeader('Server', 'flower ' . Define::VERSION);
+        $this->response->withHeader('Content-Type', 'application/json;charset=utf-8');
+
+        if ($this->app['config']->get('enable_route', false)) {
+            $result = $this->app['route']->parse(
+                $this->request->getUri(),
+                $this->request->getMethod()
+            );
+
+            if (! $result) {
+                throw new \Exception('Http Request Not Found.', 404);
+            }
+
+            list($class, $params, $middleware) = $result;
+            unset($result);
+
+            $middleware and array_walk($middleware, function ($value, $key) use (&$middleware) {
+                $middleware[$key] = $this->app->getMiddleware($value);
+            });
+
+            if ($class instanceof \Closure) {
+                $middleware = array_merge([
+                    function (Request $request, Response $response) use ($class, $params) {
+                        array_unshift($params, $request, $response);
+
+                        Console::debug('HTTP Closure ' . $request->getUri(), 'blue');
+
+                        $startTime = time();
+
+                        /**
+                         * @var Response $response
+                         */
+                        $response = yield $class(...$params);
+
+                        // log run info
+                        $this->app->logRunInfo(
+                            $response->getStatusCode() == 200,
+                            (float)bcsub(microtime(true), $startTime, 7)
+                        );
+
+                        return $response;
+                    }
+                ], $middleware);
+
+                $this->dispatchRun($middleware);
+
+                return;
+            }
+
+            list($controller, $method) = $class;
+            $controller = '\App\Http\Controller\\'. $controller;
+        } else {
+            list($controller, $method) = $this->parseRequest($request->getUri());
+
+            $params     = [];
+            $middleware = $this->app->getMiddleware();
+        }
+
+        $this->dispatchWithControllerName($controller, $method, $params, $middleware);
+    }
+
+    /**
+     * @param string $controller
+     * @param string $method
+     * @param array  $params
+     * @param array  $middleware
+     * @throws \Exception
+     */
+    private function dispatchWithControllerName(string $controller, string $method, array $params, array $middleware)
+    {
         $object = $this->app->make($controller);
 
         // 请求的对象木有找到
         if (! method_exists($object, $method)) {
-            throw new \Exception('Http Request Not Found.');
+            throw new \Exception('Http Request Not Found.', 404);
         }
 
-        $object->setHttp($request, $response);
-        $response->header('Server', 'flower ' . Define::VERSION);
-        $response->header('Content-Type', 'application/json;charset=utf-8');
+        $object->setHttp($this->request, $this->response);
 
         Console::debug('HTTP ' . $this->getRequestString($controller, $method), 'blue');
 
         $middleware = array_merge([
-            function (Request $request, Response $response) use ($object, $method) {
-                return yield $object->$method();
+            function (Request $request, Response $response) use ($object, $method, $params) {
+                return yield $object->$method(...$params);
             }
-        ], $this->app->getMiddleware());
+        ], $middleware);
 
+        $this->dispatchRun($middleware);
+    }
+
+    /**
+     * @param $middleware
+     */
+    private function dispatchRun(array $middleware)
+    {
         $this->app->get('co.scheduler')->newTask(
-            $this->app->get('middleware')->add($middleware)->run($request, $response)
+            $this->app->get('middleware')
+                ->add($middleware)
+                ->run($this->request, $this->response, $this->swooleHttpResponse)
         )->run();
     }
 
     /**
-     * @param Request $request
+     * @param string $uri
+     *
      * @return array
      * @throws \Exception
      */
-    protected function parseRequest(Request $request)
+    protected function parseRequest(string $uri)
     {
-        $uri = trim($request->server['request_uri'] ?? '', '/');
-
         if ($uri == '' or $uri == '/') {
             $uri = 'Index';
         }

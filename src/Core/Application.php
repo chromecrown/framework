@@ -119,23 +119,31 @@ class Application extends Container
     }
 
     /**
+     * @param string $name
      * @param string $middleware
+     *
      * @throws \Exception
      */
-    public function registerMiddleware(string $middleware)
+    public function registerMiddleware(string $name, string $middleware)
     {
         if (! class_exists($middleware)) {
             throw new \Exception('Middleware not found.');
         }
 
-        $this->middleware[] = $middleware;
+        $this->middleware[$name] = $middleware;
     }
 
     /**
-     * @return array
+     * @param null $name
+     *
+     * @return array|mixed|null
      */
-    public function getMiddleware()
+    public function getMiddleware($name = null)
     {
+        if ($name) {
+            return $this->middleware[$name] ?? null;
+        }
+
         return $this->middleware;
     }
 

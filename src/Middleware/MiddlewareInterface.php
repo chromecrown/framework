@@ -2,8 +2,8 @@
 
 namespace Flower\Middleware;
 
-use Swoole\Http\Request;
-use Swoole\Http\Response;
+use Flower\Http\Request;
+use Flower\Http\Response;
 
 interface MiddlewareInterface
 {

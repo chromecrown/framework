@@ -56,5 +56,8 @@ class Define
         'log'                 => [\Flower\Log\Logger::class, true],
         'log.file'            => [\Flower\Log\FileHandler::class, true],
         'middleware'          => [\Flower\Middleware\Middleware::class, false],
+        'route'               => [\Flower\Http\Route::class, true],
+        'request'             => [\Flower\Http\Request::class, false],
+        'response'            => [\Flower\Http\Response::class, false],
     ];
 }

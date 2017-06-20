@@ -2,9 +2,10 @@
 
 namespace Flower\Middleware;
 
-use Swoole\Http\Request;
-use Swoole\Http\Response;
+use Flower\Http\Request;
+use Flower\Http\Response;
 use Flower\Core\Application;
+use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
  * Class Middleware
@@ -51,11 +52,11 @@ class Middleware
     }
 
     /**
-     * @param Request  $request
-     * @param Response $response
-     * @throws MiddlewareException
+     * @param Request            $request
+     * @param Response           $response
+     * @param SwooleHttpResponse $swooleHttpResponse
      */
-    public function run(Request $request, Response $response)
+    public function run(Request $request, Response $response, SwooleHttpResponse $swooleHttpResponse)
     {
         $this->middleware = array_reverse($this->middleware);
 
@@ -65,7 +66,14 @@ class Middleware
          * @var Response $response
          */
         $response = yield $resolved($request, $response);
-        $response->end();
+
+        $headers = $response->getHeaders();
+        $headers and array_walk($headers, function ($value, $key) use ($swooleHttpResponse) {
+            $swooleHttpResponse->header($key, $value);
+        });
+
+        $swooleHttpResponse->status($response->getStatusCode());
+        $swooleHttpResponse->end($response->getContent());
     }
 
     /**
@@ -89,7 +97,7 @@ class Middleware
             }
 
             if (! ($res instanceof Response)) {
-                throw new MiddlewareException('Controller,Middleware return value must instanceof Swoole\Http\Response');
+                throw new MiddlewareException('Controller,Middleware return value must instanceof Flower\Http\Response', 500);
             }
 
             return $res;

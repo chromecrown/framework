@@ -2,8 +2,8 @@
 
 namespace Flower\Core;
 
-use Swoole\Http\Request;
-use Swoole\Http\Response;
+use Flower\Http\Request;
+use Flower\Http\Response;
 
 /**
  * Class Controller
@@ -113,8 +113,8 @@ abstract class Controller extends Base
 
         $this->logRunInfo();
 
-        $this->response->status($code);
-        $this->response->write($data);
+        $this->response->withStatus($code);
+        $this->response->withContent($data);
 
         return $this->response;
     }
@@ -136,7 +136,7 @@ abstract class Controller extends Base
      */
     protected function input(string $name, $default = null)
     {
-        return $this->request->request[$name] ?? $default;
+        return $this->request->getRequest($name, $default);
     }
 
     /**
