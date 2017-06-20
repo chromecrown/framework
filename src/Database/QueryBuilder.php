@@ -836,11 +836,39 @@ class QueryBuilder
     }
 
     /**
+     * @param     $page
+     * @param int $pageSize
+     *
+     * @return array
+     */
+    public function paginate($page, int $pageSize = 20)
+    {
+        $count = yield (clone $this)->count();
+
+        $pageSize = max(1, $pageSize);
+        $pageNum  = (int)ceil($count/$pageSize);
+        $page     = max(1, (int)$page) - 1;
+
+        $data = $page >= $pageNum
+            ? []
+            : yield $this->limit($pageSize, $page * $pageSize)->get();
+
+        return [
+            'count'   => $count,
+            'page'    => $page,
+            'pageNum' => $pageNum,
+            'data'    => $data
+        ];
+    }
+
+    /**
      * @param null $field
      * @return int
      */
     public function count($field = null)
     {
+        $this->select = [];
+
         $field = $field ?: 1;
 
         return (yield $this->select($this->app->get('expression', "count({$field}) as count"))->pluck('count')) ?: 0;

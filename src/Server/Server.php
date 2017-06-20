@@ -305,7 +305,7 @@ class Server
             );
         } catch (\Exception $e) {
             $response->status($e->getCode() ?: 500);
-            $response->end('Server Error : ' . $e->getMessage());
+            $response->end($e->getMessage());
         }
     }
 

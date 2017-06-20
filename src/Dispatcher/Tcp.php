@@ -2,6 +2,7 @@
 
 namespace Flower\Dispatcher;
 
+use Flower\Core\Controller;
 use Flower\Log\Log;
 use Flower\Utility\Console;
 use Swoole\Server;
@@ -79,7 +80,10 @@ class Tcp extends Base
             throw new \Exception('Tcp Request Not Found:' . $request . ':' . $method);
         }
 
-        $object->setFd($fd);
+        /**
+         * @var Controller $object
+         */
+        $object->withFd($fd);
 
         Console::debug(' TCP ' . $this->getRequestString($request, $method, $data['args']), 'blue');
 

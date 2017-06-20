@@ -143,7 +143,7 @@ class Message
      */
     public function withContent($content)
     {
-        $this->content .= $content;
+        $this->content = $content;
 
         return $this;
     }

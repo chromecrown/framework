@@ -12,35 +12,35 @@ use Flower\Server\Server;
  *
  * @package Flower\Database
  *
- * @method QueryBuilder bind($uuid)
- * @method QueryBuilder select($column, $alias = null)
- * @method QueryBuilder where($column, $value = null, $operator = '=', $connector = 'AND')
- * @method QueryBuilder from($table, $alias = null)
- * @method QueryBuilder orWhere($column, $value = null, $operator = '=')
- * @method QueryBuilder whereIn($column, array $values, $connector = 'AND')
- * @method QueryBuilder whereNotIn($column, array $values, $connector = 'AND')
- * @method QueryBuilder orderBy($column, $order = 'ASC')
- * @method QueryBuilder groupBy($group = null)
- * @method QueryBuilder limit(integer $limit, integer $offset = 0)
- * @method QueryBuilder offset($offset)
- * @method QueryBuilder distinct()
- * @method QueryBuilder option(string $option)
- * @method QueryBuilder values(array $values)
- * @method QueryBuilder set($column, $value = null)
- * @method QueryBuilder getStatement()
- * @method QueryBuilder getDeleteStatement()
- * @method QueryBuilder getUpdateStatement()
- * @method QueryBuilder getInsertStatement()
- * @method QueryBuilder getSelectStatement()
- * @method QueryBuilder insert($value = [])
- * @method QueryBuilder delete()
- * @method QueryBuilder get()
- * @method QueryBuilder count($field = null)
- * @method QueryBuilder pluck($field)
- * @method QueryBuilder first()
- * @method QueryBuilder update($set = [])
- * @method QueryBuilder increment($field, $number, $where = [])
- * @method QueryBuilder decrement($field, $number, $where = [])
+ * @method static QueryBuilder bind($uuid)
+ * @method static QueryBuilder select($column, $alias = null)
+ * @method static QueryBuilder where($column, $value = null, $operator = '=', $connector = 'AND')
+ * @method static QueryBuilder from($table, $alias = null)
+ * @method static QueryBuilder orWhere($column, $value = null, $operator = '=')
+ * @method static QueryBuilder whereIn($column, array $values, $connector = 'AND')
+ * @method static QueryBuilder whereNotIn($column, array $values, $connector = 'AND')
+ * @method static QueryBuilder orderBy($column, $order = 'ASC')
+ * @method static QueryBuilder groupBy($group = null)
+ * @method static QueryBuilder limit(integer $limit, integer $offset = 0)
+ * @method static QueryBuilder offset($offset)
+ * @method static QueryBuilder distinct()
+ * @method static QueryBuilder option(string $option)
+ * @method static QueryBuilder values(array $values)
+ * @method static QueryBuilder set($column, $value = null)
+ * @method static QueryBuilder getStatement()
+ * @method static QueryBuilder getDeleteStatement()
+ * @method static QueryBuilder getUpdateStatement()
+ * @method static QueryBuilder getInsertStatement()
+ * @method static QueryBuilder getSelectStatement()
+ * @method static QueryBuilder insert($value = [])
+ * @method static QueryBuilder delete()
+ * @method static QueryBuilder get()
+ * @method static QueryBuilder count($field = null)
+ * @method static QueryBuilder pluck($field)
+ * @method static QueryBuilder first()
+ * @method static QueryBuilder update($set = [])
+ * @method static QueryBuilder increment($field, $number, $where = [])
+ * @method static QueryBuilder decrement($field, $number, $where = [])
  */
 class Model extends Base implements ModelInterface
 {
@@ -370,7 +370,7 @@ class Model extends Base implements ModelInterface
     public function __call($name, $arguments)
     {
         if (method_exists($this, $name)) {
-            return $this->$name(... $arguments);
+            return $this->$name(...$arguments);
         }
 
         $object = $this->getQueryBuilder(null);
@@ -378,7 +378,7 @@ class Model extends Base implements ModelInterface
             throw new \Exception('Model method not found : ' . $name);
         }
 
-        return $object->$name(... $arguments);
+        return $object->$name(...$arguments);
     }
 
     /**
@@ -388,6 +388,6 @@ class Model extends Base implements ModelInterface
      */
     public static function __callStatic(string $name, array $arguments)
     {
-        return app()->make(get_called_class())->$name($arguments);
+        return app()->make(get_called_class())->$name(...$arguments);
     }
 }

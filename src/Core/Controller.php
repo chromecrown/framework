@@ -41,7 +41,7 @@ abstract class Controller extends Base
      *
      * @param int $fd
      */
-    public function setFd(int $fd)
+    public function withFd(int $fd)
     {
         $this->fd = $fd;
     }
@@ -50,7 +50,7 @@ abstract class Controller extends Base
      * @param Request  $request
      * @param Response $response
      */
-    public function setHttp(Request $request, Response $response)
+    public function withHttp(Request $request, Response $response)
     {
         $this->request = $request;
         $this->response = $response;
@@ -60,7 +60,7 @@ abstract class Controller extends Base
      * @param int $code
      * @return $this
      */
-    protected function setStatus(int $code = 200)
+    protected function withStatus(int $code = 200)
     {
         $this->code = $code;
 
@@ -101,20 +101,22 @@ abstract class Controller extends Base
     /**
      * 发送消息 (HTTP ONLY)
      *
-     * @param     $data
-     * @param int $code
+     * @param        $data
+     * @param string $msg
+     * @param int    $code
+     *
      * @return Response
      */
-    protected function response($data, int $code = 200)
+    protected function response($data = null, $msg = '', $code = 1)
     {
-        if (! is_string($data)) {
-            $data = json_encode($data, JSON_UNESCAPED_UNICODE);
-        }
-
         $this->logRunInfo();
 
-        $this->response->withStatus($code);
-        $this->response->withContent($data);
+        $this->response->withStatus($this->code);
+        $this->response->withContent(json_encode([
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data
+        ], JSON_UNESCAPED_UNICODE));
 
         return $this->response;
     }

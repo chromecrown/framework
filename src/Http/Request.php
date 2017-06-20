@@ -22,9 +22,24 @@ class Request extends Message
     private $serverParams;
 
     /**
+     * @var array
+     */
+    private $customParams;
+
+    /**
      * @var string
      */
     private $method;
+
+    /**
+     * @var string
+     */
+    private $requestController;
+
+    /**
+     * @var string
+     */
+    private $requestMethod;
 
     /**
      * @var string
@@ -80,6 +95,70 @@ class Request extends Message
             'HTTP_CONNECTION'      => $request->header['connection'] ?? '',
             'HTTP_CACHE_CONTROL'   => $request->header['cache-control'] ?? '',
         ]);
+    }
+
+    /**
+     * @param      $name
+     * @param null $default
+     *
+     * @return mixed|null
+     */
+    public function getParam($name, $default = null)
+    {
+        return $this->customParams[$name] ?? $default;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     *
+     * @return $this
+     */
+    public function withParam($name, $value)
+    {
+        $this->customParams[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestController()
+    {
+        return $this->requestController;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return $this
+     */
+    public function withRequestController($name)
+    {
+        $this->requestController = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestMethod()
+    {
+        return $this->requestMethod;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return $this
+     */
+    public function withRequestMethod($name)
+    {
+        $this->requestMethod = $name;
+
+        return $this;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Flower\Dispatcher;
 
+use Flower\Core\Controller;
 use Flower\Http\Request;
 use Flower\Http\Response;
 use Flower\Support\Define;
@@ -100,6 +101,9 @@ class Http extends Base
             $middleware = $this->app->getMiddleware();
         }
 
+        $this->request->withRequestController($controller);
+        $this->request->withRequestMethod($method);
+
         $this->dispatchWithControllerName($controller, $method, $params, $middleware);
     }
 
@@ -119,7 +123,10 @@ class Http extends Base
             throw new \Exception('Http Request Not Found.', 404);
         }
 
-        $object->setHttp($this->request, $this->response);
+        /**
+         * @var Controller $object
+         */
+        $object->withHttp($this->request, $this->response);
 
         Console::debug('HTTP ' . $this->getRequestString($controller, $method), 'blue');
 
@@ -156,11 +163,11 @@ class Http extends Base
             $uri = 'Index';
         }
 
-        $namespace = '\App\Http\Controller\\';
-
-        $uri = array_map('trim', explode('/', $uri));
+        $uri = array_map('trim', explode('/', ltrim($uri, '/')));
 
         $controller = ucfirst($uri[0]);
+
+        $namespace = '\App\Http\Controller\\';
 
         if (class_exists($namespace . $controller)) {
             $method = $uri[1] ?? 'index';
@@ -169,7 +176,7 @@ class Http extends Base
         }
 
         if (! isset($uri[1])) {
-            throw new \Exception('Http Request Not Found.');
+            throw new \Exception('Http Request Not Found.', 404);
         }
 
         $namespace .= $controller . '\\';
@@ -181,6 +188,6 @@ class Http extends Base
             return [$namespace . $controller, $method];
         }
 
-        throw new \Exception('Http Request Not Found.');
+        throw new \Exception('Http Request Not Found.', 404);
     }
 }
