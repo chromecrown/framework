@@ -47,18 +47,20 @@ class MySQL extends Pool implements CoroutineInterface
      */
     public function send(callable $callback)
     {
+        $this->sql = trim($this->sql);
+
         $sqlError = false;
         if (! $this->sql) {
             $sqlError = true;
 
             Log::error('SQL 不能为空');
         } else {
-            $sqlFormat = strtoupper(trim($this->sql));
-            if (substr($sqlFormat, 0, 6) !== 'INSERT') {
-                if (strpos($sqlFormat, 'WHERE') === false and strpos($sqlFormat, 'LIMIT') === false) {
+            $sqlType = strtoupper(substr($this->sql, 0, 6));
+            if (! in_array($sqlType, ['SELECT', 'INSERT'])) {
+                if (stripos($this->sql, ' WHERE ') === false and stripos($this->sql, ' LIMIT ') === false) {
                     $sqlError = true;
 
-                    Log::error('SQL 不能没有 WHERE | LIMIT 条件, SQL: ' . $this->sql);
+                    Log::error('UPDATE AND DELETE 不能没有 WHERE | LIMIT 条件, SQL: ' . $this->sql);
                 }
 
                 unset($sqlFormat);
