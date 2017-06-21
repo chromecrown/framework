@@ -113,8 +113,8 @@ class Application extends Container
         $this->registerProviders[$providerName] = true;
 
         // 执行注册方法
-        if (method_exists($provider, 'register')) {
-            $provider->register();
+        if (method_exists($provider, 'handler')) {
+            $provider->handler();
         }
     }
 
