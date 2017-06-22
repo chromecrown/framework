@@ -74,9 +74,6 @@ class Application extends Container
             $this['config']->set('server_ip', current(swoole_get_local_ip()));
         }
 
-        // 定义一个空值常量
-        define('nil', 'nil', true);
-
         // 设置是否DEBUG
         define('DEBUG_MODEL', $this['config']->get('debug_model', false));
 

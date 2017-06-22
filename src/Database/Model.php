@@ -332,7 +332,7 @@ class Model extends Base implements ModelInterface
             $result = (yield $this->query('begin', $uuid))['result'];
         }
 
-        if (! $result or $result === nil) {
+        if (! $result) {
             return false;
         }
 
@@ -347,7 +347,7 @@ class Model extends Base implements ModelInterface
     {
         $result = (yield $this->query('commit', $uuid))['result'];
 
-        return (! $result or $result === nil) ? false : true;
+        return $result ? true : false;
     }
 
     /**
@@ -358,7 +358,7 @@ class Model extends Base implements ModelInterface
     {
         $result = (yield $this->query('rollback', $uuid))['result'];
 
-        return (! $result or $result === nil) ? false : true;
+        return $result ? true : false;
     }
 
     /**

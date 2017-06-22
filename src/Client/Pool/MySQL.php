@@ -19,7 +19,7 @@ class MySQL extends Pool implements CoroutineInterface
     protected $failure = [
         'affected_rows' => null,
         'insert_id'     => null,
-        'result'        => nil,
+        'result'        => null,
     ];
 
     private $bind = [];
@@ -47,8 +47,6 @@ class MySQL extends Pool implements CoroutineInterface
      */
     public function send(callable $callback)
     {
-        $this->sql = trim($this->sql);
-
         $sqlError = false;
         if (! $this->sql) {
             $sqlError = true;
@@ -60,7 +58,7 @@ class MySQL extends Pool implements CoroutineInterface
                 if (stripos($this->sql, ' WHERE ') === false and stripos($this->sql, ' LIMIT ') === false) {
                     $sqlError = true;
 
-                    Log::error('UPDATE AND DELETE 不能没有 WHERE | LIMIT 条件, SQL: ' . $this->sql);
+                    Log::error('UPDATE, DELETE 不能没有 WHERE | LIMIT 条件. SQL: ' . $this->sql);
                 }
 
                 unset($sqlFormat);
@@ -120,36 +118,29 @@ class MySQL extends Pool implements CoroutineInterface
         $client->query(
             $data['sql'],
             function ($client, $result) use ($data, $sTime) {
-                $sql = $data['sql'];
-                $bindId = $data['bind_id'] ?? null;
-
                 if ($result === false) {
+                    $result = [];
                     Log::error('MySQL 查询错误', [$client->error, $data]);
-                    $data['result']['error'] = "[sql]: {$sql} [error]: {$client->error}";
                 }
-                unset($data['sql'], $data['bind_id']);
 
+                $bindId = $data['bind_id'] ?? null;
                 if ($bindId) {
                     // 结束事务
-                    if ($sql == 'commit' or $sql == 'rollback') {
+                    if ($data['sql'] == 'commit' or $data['sql'] == 'rollback') {
                         $this->releaseBind($bindId);
                     }
                 } else {
                     $this->release($client);
                 }
 
-                $data['result']['result'] = $result;
-                $data['result']['affected_rows'] = $client->affected_rows;
-                $data['result']['insert_id'] = $client->insert_id;
-
-                if (isset($data['result']['error'])) {
-                    $data['result']['result'] = nil;
-                }
-
-                $this->callback($data['token'], $data['result']);
+                $this->callback($data['token'], [
+                    'result'        => $result,
+                    'insert_id'     => $client->insert_id,
+                    'affected_rows' => $client->affected_rows,
+                ]);
 
                 if (app()->getConfig('enable_slow_log', false)) {
-                    $this->logSlow($sql, $sTime);
+                    $this->logSlow($data['sql'], $sTime);
                 }
                 unset($data);
             }
@@ -251,7 +242,7 @@ class MySQL extends Pool implements CoroutineInterface
      */
     private function reset()
     {
-        $this->sql = null;
+        $this->sql    = null;
         $this->bindId = null;
     }
 
@@ -271,6 +262,9 @@ class MySQL extends Pool implements CoroutineInterface
         $message = 'MySQL Async [' . number_format($useTime, 5) . '] : ' . $sql;
 
         Log::info($message);
-        Console::debug($message, 'blue');
+
+        if (DEBUG_MODEL) {
+            Console::debug($message, 'blue');
+        }
     }
 }

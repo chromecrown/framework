@@ -32,7 +32,9 @@ class Task extends Base
 
                 $queryString = $this->getRequestString($request, $method, $data['param']);
 
-                Console::debug('TASK ' . $queryString, 'blue');
+                if (DEBUG_MODEL) {
+                    Console::debug('TASK ' . $queryString, 'blue');
+                }
 
                 $lockKey = '';
                 $lockInstance = null;
@@ -42,7 +44,9 @@ class Task extends Base
 
                     $lockKey = md5($request . $method . $this->app['packet']->pack($data['param']));
                     if (yield $lockInstance->lock($lockKey)) {
-                        Console::debug("TASK {$queryString} (already locked)", 'blue');
+                        if (DEBUG_MODEL) {
+                            Console::debug("TASK {$queryString} (already locked)", 'blue');
+                        }
 
                         return;
                     }

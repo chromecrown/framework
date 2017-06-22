@@ -512,7 +512,7 @@ class QueryBuilder
             $statement .= 'FROM ';
         }
 
-        $statement .= $this->from['table'];
+        $statement .= '`'. $this->from['table']. '`';
         if ($this->from['alias']) {
             $statement .= ' AS ' . $this->from['alias'];
         }
@@ -577,7 +577,7 @@ class QueryBuilder
                         $value = $this->quote($criterion['value']);
                         break;
                 }
-                $statement .= $criterion['column'] . ' ' . $criterion['operator'] . ' ' . $value;
+                $statement .= '`'. $criterion['column'] . '` ' . $criterion['operator'] . ' ' . $value;
             }
         }
 

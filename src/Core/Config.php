@@ -55,7 +55,10 @@ class Config
 
                 $message = "Config file not found. file: {$file}";
                 Log::error($message);
-                Console::debug($message, 'red');
+
+                if (DEBUG_MODEL) {
+                    Console::debug($message, 'red');
+                }
                 unset($message);
 
                 $this->config[$file] = [];

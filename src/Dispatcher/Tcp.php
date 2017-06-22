@@ -56,7 +56,10 @@ class Tcp extends Base
             $request = json_encode($data, JSON_UNESCAPED_UNICODE);
 
             Log::error('Dispatch : ' . $message, $data);
-            Console::debug("Exception: {$message}, {$request}", 'red');
+
+            if (DEBUG_MODEL) {
+                Console::debug("Tcp dispatcher exception: {$message}, {$request}", 'red');
+            }
 
             // 挂了，返回错误信息
             $this->server->send($fd, $message, 500);
@@ -85,7 +88,9 @@ class Tcp extends Base
          */
         $object->withFd($fd);
 
-        Console::debug(' TCP ' . $this->getRequestString($request, $method, $data['args']), 'blue');
+        if (DEBUG_MODEL) {
+            Console::debug(' TCP ' . $this->getRequestString($request, $method, $data['args']), 'blue');
+        }
 
         $generator = $object->$method(...($data['args'] ?: []));
         unset($data);

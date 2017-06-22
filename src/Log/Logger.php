@@ -3,6 +3,7 @@
 namespace Flower\Log;
 
 use Flower\Core\Application;
+use Flower\Utility\Console;
 use Psr\Log\AbstractLogger;
 use Flower\Utility\Time;
 
@@ -57,7 +58,6 @@ class Logger extends AbstractLogger
             $logName .= '.log';
         }
 
-        $request = $client = $clientHost = '';
         $context = $context ? (is_array($context) ? $context : [$context]) : [];
 
         $this->logHandler->write([
@@ -65,13 +65,14 @@ class Logger extends AbstractLogger
             'level'        => $level,
             'service'      => $this->appName,
             'service_host' => $this->host,
-            'client'       => $client,
-            'client_host'  => $clientHost,
-            'request'      => $request,
             'message'      => $message,
             'context'      => $context,
             'name'         => $logName,
         ]);
+
+        if (DEBUG_MODEL) {
+            Console::debug($message. " ". json_encode($context, JSON_UNESCAPED_UNICODE));
+        }
 
         unset($logName, $message, $context, $level);
     }

@@ -101,7 +101,7 @@ class Multi implements CoroutineInterface
 
         foreach ($this->request as $key) {
             if (! array_key_exists($key, $this->result)) {
-                $this->result[$key] = nil;
+                $this->result[$key] = null;
             }
         }
 

@@ -450,6 +450,9 @@ class Redis extends Pool implements CoroutineInterface
             . ')';
 
         Log::info($message);
-        Console::debug($message, 'blue');
+
+        if (DEBUG_MODEL) {
+            Console::debug($message, 'blue');
+        }
     }
 }

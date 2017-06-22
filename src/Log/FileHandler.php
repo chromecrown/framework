@@ -53,10 +53,6 @@ class FileHandler implements LogHandlerInterface
         $string  = "[{$time}]";
         $string .= " [{$level}]";
         $string .= " [{$message}]";
-        if ($data['client']) {
-            $string .= " [{$data['client']} ({$data['client_host']})]";
-            $string .= " [{$data['request']}]";
-        }
         $string .= " [{$context}]";
         $string .= "\n";
 

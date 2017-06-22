@@ -68,7 +68,9 @@ class Http extends Base
                     function (Request $request, Response $response) use ($class, $params) {
                         array_unshift($params, $request, $response);
 
-                        Console::debug('HTTP Closure ' . $request->getUri(), 'blue');
+                        if (DEBUG_MODEL) {
+                            Console::debug('HTTP Closure ' . $request->getUri(), 'blue');
+                        }
 
                         $startTime = time();
 
@@ -128,7 +130,9 @@ class Http extends Base
          */
         $object->withHttp($this->request, $this->response);
 
-        Console::debug('HTTP ' . $this->getRequestString($controller, $method), 'blue');
+        if (DEBUG_MODEL) {
+            Console::debug('HTTP ' . $this->getRequestString($controller, $method), 'blue');
+        }
 
         $middleware = array_merge([
             function (Request $request, Response $response) use ($object, $method, $params) {

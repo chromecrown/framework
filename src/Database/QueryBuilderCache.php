@@ -44,15 +44,12 @@ class QueryBuilderCache extends QueryBuilder
     private function getFromCache()
     {
         // 走数据库
-        if (! $this->canUseCache()) {
-            Console::debug("Can't Cache Sql : " . $this->getStatement(), 'red');
-
-            $result = yield $this->getFromDatabase(false);
-            if ($result === nil) {
-                $result = [];
+        if (! $this->isUseCache()) {
+            if (DEBUG_MODEL) {
+                Console::debug("Can't Cache Sql : " . $this->getStatement(), 'red');
             }
 
-            return $result;
+            return yield $this->getFromDatabase(false);
         }
 
         $result = yield $this->getRedis()->get($this->cacheKey);
@@ -61,12 +58,15 @@ class QueryBuilderCache extends QueryBuilder
         if (! $result) {
             $result = yield $this->getFromDatabase(true);
 
-            if (! $result or $result === nil) {
+            if (! $result) {
                 return [];
             }
 
-            yield $this->getRedis()->setex($this->cacheKey, $this->model->getCacheTime(),
-                $this->app['packet']->pack($result));
+            yield $this->getRedis()->setex(
+                $this->cacheKey,
+                $this->model->getCacheTime(),
+                $this->app['packet']->pack($result)
+            );
         } else {
             $result = $this->app['packet']->unpack($result);
         }
@@ -100,7 +100,7 @@ class QueryBuilderCache extends QueryBuilder
         $this->cacheKey = [];
 
         // 数据不存在或者查询失败，则从 where 条件中生成 cacheKey
-        if (! $result or $result === nil) {
+        if (! $result) {
             $cacheKey = $this->getCacheKey();
             if ($cacheKey) {
                 $this->cacheKey[] = $cacheKey;
@@ -293,7 +293,7 @@ class QueryBuilderCache extends QueryBuilder
      *
      * @return bool
      */
-    private function canUseCache()
+    private function isUseCache()
     {
         // hasRaw
         foreach ($this->select as $alias => $column) {
