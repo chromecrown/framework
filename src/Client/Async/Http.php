@@ -2,77 +2,94 @@
 
 namespace Flower\Client\Async;
 
-use Flower\Coroutine\CoroutineInterface;
 use Swoole\Http\Client as SwooleHttpClient;
 
 /**
  * Class Http
  *
  * @package Flower\Client\Async
+ *
+ * @method HTTP set(array $set)
+ * @method HTTP setHeaders(array $headers)
+ * @method HTTP setCookies(array $cookies)
+ * @method HTTP addFile(string $path, string $name, string $filename = null, string $mimeType = null, int $offset = 0, int $length)
  */
-class Http implements CoroutineInterface
+class Http extends Base
 {
-    private $timer;
-    private $timeout;
+    /**
+     * @var string
+     */
     private $url;
-    private $data;
-    private $method;
 
     /**
-     * @var callable
+     * @var array|string
      */
-    private $callback;
+    private $data;
+
+    /**
+     * @var string
+     */
+    private $method;
 
     /**
      * @var SwooleHttpClient
      */
-    private $connect;
+    private $client;
 
     /**
-     * Tcp constructor.
+     * Http constructor.
      *
      * @param array $config
      */
     public function __construct(array $config)
     {
         $this->timeout = $config['timeout'] ?? 10;
-        $this->connect = new SwooleHttpClient($config['host'], $config['port']);
+        $this->client  = new SwooleHttpClient($config['host'], $config['port']);
         unset($config);
     }
 
     /**
-     * @param string $url
-     * @param array  $data
+     * @param string       $url
+     * @param array|string $data
+     * @param string       $method
      * @return \Generator
      */
-    public function post(string $url, array $data)
+    public function request(string $url, $data, string $method = 'get')
     {
-        return $this->request($url, $data, 'post');
+        $this->url  = $url;
+        $this->data = $data;
+
+        $this->setMethod($method);
+
+        return yield $this;
     }
 
     /**
-     * @param string $url
-     * @param array  $data
-     * @return \Generator
+     * @param callable     $callback
+     * @param string       $url
+     * @param array|string $data
+     * @param string       $method
      */
-    public function get(string $url, array $data)
-    {
-        return $this->request($url, $data, 'get');
-    }
-
-    /**
-     * @param string $url
-     * @param array  $data
-     * @param string $method
-     * @return \Generator
-     */
-    public function request(string $url, array $data, string $method = 'get')
+    public function call(callable $callback, string $url, $data, string $method = 'get')
     {
         $this->url = $url;
         $this->data = $data;
+
+        $this->setMethod($method);
+
+        $this->send($callback);
+    }
+
+    /**
+     * @param string $method
+     *
+     * @return $this
+     */
+    public function setMethod(string $method)
+    {
         $this->method = strtolower($method);
 
-        return yield $this;
+        return $this;
     }
 
     /**
@@ -81,20 +98,11 @@ class Http implements CoroutineInterface
     public function send(callable $callback)
     {
         $this->callback = $callback;
+        unset($callback);
 
         $this->startTick();
 
-        $arguments = [];
-        if ($this->method == 'get') {
-            if ($this->data) {
-                $this->url .= (strpos($this->url, '?') === false) ? '?' : '&';
-                $this->url .= http_build_query($this->data);
-            }
-        } else {
-            $arguments[] = $this->data;
-        }
-
-        $arguments[] = function (SwooleHttpClient $client) {
+        $callback = function (SwooleHttpClient $client) {
             $this->clearTick();
 
             if ($this->callback) {
@@ -111,39 +119,32 @@ class Http implements CoroutineInterface
             }
         };
 
-        array_unshift($arguments, $this->url);
-
-        $this->connect->{$this->method}(...$arguments);
-    }
-
-    /**
-     * 超时计时器
-     */
-    private function startTick()
-    {
-        $this->timer = swoole_timer_after(
-            floatval($this->timeout) * 1000,
-            function () {
-                $callback = $this->callback;
-
-                $this->callback = null;
-
-                $callback(null);
+        if (! in_array($this->method, ['get', 'post'])) {
+            $this->client->setMethod(strtoupper($this->method));
+            if ($this->data) {
+                $this->client->setData($this->data);
             }
-        );
-    }
 
-    /**
-     * clear tick
-     */
-    private function clearTick()
-    {
-        if ($this->timer) {
-            swoole_timer_clear($this->timer);
+            $this->client->execute($this->url, $callback);
+
+            return;
         }
 
-        // reset
-        $this->timer = null;
+        $arguments = [];
+        if ($this->method == 'get') {
+            if ($this->data) {
+                $this->url .= (strpos($this->url, '?') === false) ? '?' : '&';
+                $this->url .= http_build_query($this->data);
+            }
+        } else {
+            $arguments[] = $this->data;
+        }
+
+        $arguments[] = $callback;
+
+        array_unshift($arguments, $this->url);
+
+        $this->client->{$this->method}(...$arguments);
     }
 
     /**
@@ -154,11 +155,11 @@ class Http implements CoroutineInterface
      */
     public function __call(string $name, array $arguments)
     {
-        if (! in_array($name, ['setHeaders', 'setCookies', 'setData', 'addFile'])) {
-            throw new \Exception('方法不存在');
+        if (! in_array($name, ['set', 'setHeaders', 'setCookies', 'addFile'])) {
+            throw new \Exception('HttpClient 方法不存在: '. $name);
         }
 
-        $this->connect->$name(...$arguments);
+        $this->client->$name(...$arguments);
 
         return $this;
     }

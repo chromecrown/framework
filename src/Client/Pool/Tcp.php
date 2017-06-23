@@ -29,7 +29,7 @@ class Tcp extends Pool implements CoroutineInterface
     /**
      * @var array
      */
-    private $request;
+    private $data;
 
     /**
      * @var boolean
@@ -77,13 +77,13 @@ class Tcp extends Pool implements CoroutineInterface
 
     /**
      * @param callable $callback
-     * @param string   $request
+     * @param mixed    $data
      * @param bool     $format
      */
-    public function call(callable $callback, string $request, bool $format = true)
+    public function call(callable $callback, $data, bool $format = true)
     {
-        $this->request = $request;
-        $this->format = $format;
+        $this->data = $data;
+        $this->format  = $format;
 
         $this->send($callback);
     }
@@ -95,7 +95,7 @@ class Tcp extends Pool implements CoroutineInterface
      */
     public function request($data, bool $format = true)
     {
-        $this->request = $data;
+        $this->data = $data;
         $this->format = $format;
 
         return yield $this;
@@ -107,8 +107,8 @@ class Tcp extends Pool implements CoroutineInterface
     public function send(callable $callback)
     {
         $request = $this->format
-            ? $this->packet->encode($this->packet->format($this->request), $this->set['package_eof'])
-            : $this->request;
+            ? $this->packet->encode($this->packet->format($this->data), $this->set['package_eof'])
+            : $this->data;
 
         $data = [
             'request' => $request,
@@ -117,7 +117,7 @@ class Tcp extends Pool implements CoroutineInterface
             'format'  => $this->format,
         ];
 
-        $this->request = $this->format = null;
+        $this->data = $this->format = null;
 
         $this->execute($data);
     }

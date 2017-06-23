@@ -33,6 +33,7 @@ class Define
         'client.tcp.async'    => [\Flower\Client\Async\Tcp::class, false],
         'client.http.async'   => [\Flower\Client\Async\Http::class, false],
         'client.file.async'   => [\Flower\Client\Async\File::class, false],
+        'client.dns.async'    => [\Flower\Client\Async\Dns::class, false],
         'config'              => [\Flower\Core\Config::class, true],
         'lock'                => [\Flower\Core\Lock::class, false],
         'packet'              => [\Flower\Core\Packet::class, true],

@@ -5,7 +5,6 @@ namespace Flower\Client\Async;
 use Flower\Log\Log;
 use Flower\Core\Packet;
 use Flower\Core\Application;
-use Flower\Coroutine\CoroutineInterface;
 use Flower\Client\Tcp as TcpClient;
 
 /**
@@ -13,7 +12,7 @@ use Flower\Client\Tcp as TcpClient;
  *
  * @package App\Library
  */
-class Tcp implements CoroutineInterface
+class Tcp extends Base
 {
     /**
      * @var Application
@@ -24,16 +23,6 @@ class Tcp implements CoroutineInterface
      * @var Packet
      */
     private $packet;
-
-    /**
-     * @var integer
-     */
-    private $timer;
-
-    /**
-     * @var callable
-     */
-    private $callback;
 
     /**
      * @var mixed
@@ -81,7 +70,7 @@ class Tcp implements CoroutineInterface
 
     /**
      * @param callable $callback
-     * @param          $data
+     * @param mixed    $data
      * @param bool     $format
      */
     public function call(callable $callback, $data, bool $format = true)
@@ -135,7 +124,7 @@ class Tcp implements CoroutineInterface
             : $this->request;
 
         $this->startTick($client);
-        $client->send($request, function (Tcp $client, $result) {
+        $client->send($request, function (TcpClient $client, $result) {
             $this->clearTick();
             if ($this->callback) {
                 $result = $this->format
@@ -176,7 +165,7 @@ class Tcp implements CoroutineInterface
     /**
      * @param TcpClient $client
      */
-    private function startTick(TcpClient $client)
+    protected function startTick($client = null)
     {
         $this->timer = swoole_timer_after(
             floatval($this->config['timeout']) * 1000,
@@ -185,18 +174,5 @@ class Tcp implements CoroutineInterface
                 $this->failure('Tcp timeout', -2);
             }
         );
-    }
-
-    /**
-     * clear tick
-     */
-    private function clearTick()
-    {
-        if ($this->timer) {
-            swoole_timer_clear($this->timer);
-        }
-
-        // reset
-        $this->timer = null;
     }
 }

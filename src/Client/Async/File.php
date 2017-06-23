@@ -2,26 +2,18 @@
 
 namespace Flower\Client\Async;
 
-use Flower\Coroutine\CoroutineInterface;
 use Flower\Utility\File as AsyncFile;
 
 /**
  * Class File
  * @package Flower\Client\Async
  */
-class File implements CoroutineInterface
+class File extends Base
 {
-    private $timer;
-    private $timeout;
     private $file;
     private $data;
     private $flag;
     private $method;
-
-    /**
-     * @var callable
-     */
-    private $callback;
 
     /**
      * @param int $timeout
@@ -81,32 +73,6 @@ class File implements CoroutineInterface
                 ($this->callback)($filename);
             });
         }
-    }
-
-    /**
-     * 超时计时器
-     */
-    private function startTick()
-    {
-        $this->timer = swoole_timer_after(
-            floatval($this->timeout ?: 3) * 1000,
-            function () {
-                ($this->callback)(null);
-            }
-        );
-    }
-
-    /**
-     * clear tick
-     */
-    private function clearTick()
-    {
-        if ($this->timer) {
-            swoole_timer_clear($this->timer);
-        }
-
-        // reset
-        $this->timer = null;
     }
 }
 

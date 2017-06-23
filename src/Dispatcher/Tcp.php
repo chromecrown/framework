@@ -5,7 +5,7 @@ namespace Flower\Dispatcher;
 use Flower\Core\Controller;
 use Flower\Log\Log;
 use Flower\Utility\Console;
-use Swoole\Server;
+use Swoole\Server as SwooleServer;
 
 /**
  * Class Tcp
@@ -15,12 +15,12 @@ use Swoole\Server;
 class Tcp extends Base
 {
     /**
-     * @param Server $server
-     * @param        $fd
-     * @param        $fromId
-     * @param        $data
+     * @param SwooleServer $server
+     * @param int          $fd
+     * @param int          $fromId
+     * @param string       $data
      */
-    public function dispatch(Server $server, $fd, $fromId, $data)
+    public function dispatch(SwooleServer $server, int $fd, int $fromId, string $data)
     {
         try {
             // 解包消息
@@ -55,7 +55,7 @@ class Tcp extends Base
             $message = $e->getMessage();
             $request = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-            Log::error('Dispatch : ' . $message, $data);
+            Log::error('Dispatcher : ' . $message, $data);
 
             if (DEBUG_MODEL) {
                 Console::debug("Tcp dispatcher exception: {$message}, {$request}", 'red');
@@ -68,10 +68,10 @@ class Tcp extends Base
 
     /**
      * @param  array $data
-     * @param  null  $fd
+     * @param  int   $fd
      * @throws \Exception
      */
-    public function api(array $data, $fd = null)
+    public function api(array $data, int $fd = null)
     {
         $request = $this->parseRequest($data['request'] ?: null);
         $method = $data['method'] ?? 'index';
@@ -128,7 +128,7 @@ class Tcp extends Base
     /**
      * @return array
      */
-    private function status()
+    protected function status()
     {
         $status = $this->server->getServer()->stats();
         unset($status['worker_request_count']);

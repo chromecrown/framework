@@ -44,6 +44,11 @@ class Request extends Message
     /**
      * @var string
      */
+    private $remoteIp;
+
+    /**
+     * @var string
+     */
     private $uri;
 
     /**
@@ -74,6 +79,8 @@ class Request extends Message
             }
         }
 
+        $this->withRemoteIp($request->server['remote_addr']);
+
         $this->withServerParams([
             'REQUEST_METHOD'       => $request->server['request_method'],
             'REQUEST_URI'          => $request->server['request_uri'],
@@ -95,6 +102,34 @@ class Request extends Message
             'HTTP_CONNECTION'      => $request->header['connection'] ?? '',
             'HTTP_CACHE_CONTROL'   => $request->header['cache-control'] ?? '',
         ]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemoteIp()
+    {
+        return $this->remoteIp;
+    }
+
+    /**
+     * @param string $ip
+     *
+     * @return $this
+     */
+    public function withRemoteIp(string $ip)
+    {
+        $this->remoteIp = $ip;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParams()
+    {
+        return array_merge($this->queryParams, $this->bodyParams);
     }
 
     /**
