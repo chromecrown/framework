@@ -53,10 +53,10 @@ class Container implements ArrayAccess, ContainerInterface
         }
 
         if (! isset($this->register[$name])) {
-            throw new NotFoundException('services not found: ' . $name);
+            throw new NotFoundException('service not found: ' . $name);
         }
 
-        $instance = $this->make($this->register[$name]['class'], $arguments);
+        $instance = $this->make($this->register[$name]['class'], array_values($arguments));
         unset($arguments);
 
         if ($instance and $this->register[$name]['shared'] == true) {
@@ -112,7 +112,7 @@ class Container implements ArrayAccess, ContainerInterface
 
                 $alias = $this->alias[$v] ?? null;
                 if (! $alias) {
-                    throw new ContainerException('services not found: ' . $v);
+                    throw new ContainerException('service not found: ' . $v);
                 }
 
                 array_unshift($arguments, $this->get($alias));

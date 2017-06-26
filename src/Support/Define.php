@@ -27,7 +27,7 @@ class Define
         'client.redis.sync'   => [\Flower\Client\Sync\Redis::class, false],
         'client.mysql.pool'   => [\Flower\Client\Pool\MySQL::class, false],
         'client.mysql.sync'   => [\Flower\Client\Sync\MySQL::class, false],
-        'client.tcp'          => [\Flower\Client\Async\Tcp::class, false],
+        'client.tcp'          => [\Flower\Client\Tcp::class, false],
         'client.tcp.pool'     => [\Flower\Client\pool\Tcp::class, false],
         'client.tcp.sync'     => [\Flower\Client\Sync\Tcp::class, false],
         'client.tcp.async'    => [\Flower\Client\Async\Tcp::class, false],

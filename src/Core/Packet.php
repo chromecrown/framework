@@ -89,11 +89,11 @@ class Packet
     }
 
     /**
-     * @param array $data
+     * @param mixed $data
      * @param int   $code
      * @return array
      */
-    public function format(array $data = [], int $code = 200)
+    public function format($data = null, int $code = 200)
     {
         return [
             "code" => $code,

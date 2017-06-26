@@ -172,7 +172,7 @@ class Application extends Container
 
         // 启用 Tcp 服务器并且启用了服务中心，则向服务中心注册
         if ($this['config']->get('enable_tcp_server', false)
-            and $this['config']->get('enable_services_center', false)
+            and $this['config']->get('enable_service_center', false)
         ) {
             $server->setHook(Define::HOOK_SERVER_START, [$this, 'onServerStart']);
             $server->setHook(Define::HOOK_SERVER_STOP, [$this, 'onServerStop']);

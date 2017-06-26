@@ -33,10 +33,6 @@ class Tcp
      */
     public function on(string $action, $callback)
     {
-        if ($this->client) {
-            return;
-        }
-
         $action = strtolower($action);
 
         if (! in_array($action, ['connect', 'receive', 'close', 'error'])) {

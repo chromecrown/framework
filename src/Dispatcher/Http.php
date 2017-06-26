@@ -77,7 +77,7 @@ class Http extends Base
                         /**
                          * @var Response $response
                          */
-                        $response = yield $class(...$params);
+                        $response = yield $class(...array_values($params));
 
                         // log run info
                         $this->app->logRunInfo(
@@ -136,7 +136,7 @@ class Http extends Base
 
         $middleware = array_merge([
             function (Request $request, Response $response) use ($object, $method, $params) {
-                return yield $object->$method(...$params);
+                return yield $object->$method(...array_values($params));
             }
         ], $middleware);
 

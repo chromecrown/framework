@@ -73,6 +73,6 @@ class Tcp
 
         }
 
-        return $format ? $this->packet->decode($result, $this->set['package_eof']) : $result;
+        return ($result and $format) ? $this->packet->decode($result, $this->set['package_eof']) : $result;
     }
 }

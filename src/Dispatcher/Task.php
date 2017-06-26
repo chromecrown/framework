@@ -53,7 +53,7 @@ class Task extends Base
                 }
 
                 try {
-                    $generator = $object->$method(...$data['param']);
+                    $generator = $object->$method(...array_values($data['param']));
                     unset($data);
 
                     if ($generator instanceof \Generator) {

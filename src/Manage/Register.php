@@ -23,7 +23,7 @@ class Register
         $serverName = $this->server->getServerName();
         $serverIp   = $this->app['config']->get('server_ip', null);
         $serverPort = $this->app['config']->get('tcp_server_port', '9501');
-        $serverType = $this->app['config']->get('server_type', 1);
+        $serverType = $this->app['config']->get('server_type', 'tcp');
         $serverDesc = $this->app['config']->get('server_desc', '');
 
         return $this->send($type, [

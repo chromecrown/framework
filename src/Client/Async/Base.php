@@ -52,6 +52,18 @@ abstract class Base implements CoroutineInterface
         // reset
         $this->timer = null;
     }
+
+    /**
+     * @param int $timeout
+     *
+     * @return $this
+     */
+    public function setTimeout(int $timeout)
+    {
+        $this->timeout = $timeout * 1000;
+
+        return $this;
+    }
 }
 
 

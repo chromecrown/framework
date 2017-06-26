@@ -54,6 +54,9 @@ class Scheduler
         $this->taskQueue->enqueue($task);
     }
 
+    /**
+     * run
+     */
     public function run()
     {
         if ($this->taskQueue->isEmpty()) {
@@ -61,7 +64,11 @@ class Scheduler
         }
 
         while (! $this->taskQueue->isEmpty()) {
+            /**
+             * @var Task $task
+             */
             $task = $this->taskQueue->dequeue();
+
             $task->run($task->getCoroutine());
         }
     }

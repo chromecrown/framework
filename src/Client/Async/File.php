@@ -16,14 +16,6 @@ class File extends Base
     private $method;
 
     /**
-     * @param int $timeout
-     */
-    public function setTimeout(int $timeout)
-    {
-        $this->timeout = $timeout;
-    }
-
-    /**
      * @param string $file
      * @return \Generator
      */

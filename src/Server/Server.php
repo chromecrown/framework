@@ -482,7 +482,7 @@ class Server
      * @param string $name
      * @param array  ...$arguments
      */
-    public function hook(string $name, ... $arguments)
+    public function hook(string $name, ...$arguments)
     {
         if (! isset($this->hook[$name])) {
             return;

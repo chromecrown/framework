@@ -2,32 +2,23 @@
 
 namespace Flower\Client;
 
+use Flower\Client\Async\Base;
 use Flower\Core\Application;
-use Flower\Coroutine\CoroutineInterface;
 
 /**
  * Class Multi
  *
  * @package Flower\Client
  */
-class Multi implements CoroutineInterface
+class Multi extends Base
 {
     /**
      * @var \Flower\Coroutine\Scheduler
      */
     private $scheduler = null;
 
-    /**
-     * @var callable
-     */
-    private $callback;
-
     private $request  = [];
     private $result   = [];
-    private $counter  = 0;
-
-    private $timer;
-    private $timeout;
 
     /**
      * Multi constructor.
@@ -45,14 +36,13 @@ class Multi implements CoroutineInterface
      */
     public function add(string $key, \Generator $generator)
     {
-        $this->counter++;
         $this->request[] = $key;
 
         $this->scheduler->newTask(
             (function () use ($key, $generator) {
                 $this->result[$key] = yield $generator;
 
-                if (count($this->result) == $this->counter) {
+                if (count($this->result) == count($this->request)) {
                     $this->callback();
                 }
             })()
@@ -60,14 +50,18 @@ class Multi implements CoroutineInterface
     }
 
     /**
-     * @param $timeout
-     * @return $this
+     * 超时计时器
+     *
+     * @param null $client
      */
-    public function setTimeout($timeout)
+    protected function startTick($client = null)
     {
-        $this->timeout = $timeout * 1000;
-
-        return $this;
+        $this->timer = swoole_timer_after(
+            floatval($this->timeout ?: 3) * 1000,
+            function () {
+                $this->callback();
+            }
+        );
     }
 
     /**
@@ -77,13 +71,7 @@ class Multi implements CoroutineInterface
     {
         $this->callback = $callback;
 
-        // timeout tick
-        $this->timer = swoole_timer_after(
-            $this->timeout ?: 3000,
-            function () {
-                $this->callback();
-            }
-        );
+        $this->startTick();
 
         $this->scheduler->run();
     }
@@ -93,11 +81,14 @@ class Multi implements CoroutineInterface
      */
     public function callback()
     {
-        if (! $this->timer) {
+        $this->clearTick();
+
+        if (! $this->callback) {
             return;
         }
 
-        $this->timer = null;
+        $callback = $this->callback;
+        $this->callback = null;
 
         foreach ($this->request as $key) {
             if (! array_key_exists($key, $this->result)) {
@@ -105,20 +96,9 @@ class Multi implements CoroutineInterface
             }
         }
 
-        // timeout callback
-        ($this->callback)($this->result);
+        $callback($this->result);
 
         $this->result   = [];
         $this->request  = [];
-        $this->counter  = 0;
-        $this->callback = null;
-    }
-
-    /**
-     * Multi destructor.
-     */
-    public function __destruct()
-    {
-        unset($this->schedule, $this->callback, $this->result, $this->counter);
     }
 }

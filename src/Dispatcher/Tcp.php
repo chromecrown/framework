@@ -92,7 +92,7 @@ class Tcp extends Base
             Console::debug(' TCP ' . $this->getRequestString($request, $method, $data['args']), 'blue');
         }
 
-        $generator = $object->$method(...($data['args'] ?: []));
+        $generator = $object->$method(...array_values($data['args'] ?: []));
         unset($data);
 
         if ($generator instanceof \Generator) {

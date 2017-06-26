@@ -27,7 +27,7 @@ class Tcp extends Base
     /**
      * @var mixed
      */
-    private $request;
+    private $data;
 
     /**
      * @var boolean
@@ -75,7 +75,7 @@ class Tcp extends Base
      */
     public function call(callable $callback, $data, bool $format = true)
     {
-        $this->request = $data;
+        $this->data = $data;
         $this->format = $format;
 
         $this->send($callback);
@@ -88,7 +88,7 @@ class Tcp extends Base
      */
     public function request($data, bool $format = true)
     {
-        $this->request = $data;
+        $this->data = $data;
         $this->format = $format;
 
         return yield $this;
@@ -101,9 +101,14 @@ class Tcp extends Base
     {
         $this->callback = $callback;
 
+        /**
+         * @var TcpClient $client
+         */
         $client = $this->app->get('client.tcp');
+
         $client->on('close', [$this, 'close']);
         $client->on('connect', [$this, 'connect']);
+
         $client->connect($this->config['host'], $this->config['port'], $this->set, $this->config['timeout'] ?? 3);
     }
 
@@ -120,10 +125,11 @@ class Tcp extends Base
         }
 
         $request = $this->format
-            ? $this->packet->encode($this->request, $this->set['package_eof'])
-            : $this->request;
+            ? $this->packet->encode($this->data, $this->set['package_eof'])
+            : $this->data;
 
         $this->startTick($client);
+
         $client->send($request, function (TcpClient $client, $result) {
             $this->clearTick();
             if ($this->callback) {
