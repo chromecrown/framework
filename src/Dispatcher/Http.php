@@ -59,9 +59,12 @@ class Http extends Base
             list($class, $params, $middleware) = $result;
             unset($result);
 
-            $middleware and array_walk($middleware, function ($value, $key) use (&$middleware) {
-                $middleware[$key] = $this->app->getMiddleware($value);
-            });
+            if ($middleware) {
+                foreach ($middleware as &$value) {
+                    $value = $this->app->getMiddleware($value);
+                }
+                unset($value);
+            }
 
             if ($class instanceof \Closure) {
                 $middleware = array_merge([

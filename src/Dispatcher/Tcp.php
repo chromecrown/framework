@@ -139,8 +139,9 @@ class Tcp extends Base
         $status['total'] = [
             'success'  => $total ? $total['success'] : 0,
             'failure'  => $total ? $total['failure'] : 0,
-            'avg_time' => ($total['success'] or $total['failure']) ? bcdiv($total['time'],
-                ($total['success'] + $total['failure']), 7) : 0,
+            'avg_time' => ($total['success'] or $total['failure'])
+                ? bcdiv($total['time'], ($total['success'] + $total['failure']), 7)
+                : 0,
         ];
         unset($total);
 
