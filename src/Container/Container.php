@@ -69,12 +69,12 @@ class Container implements ArrayAccess, ContainerInterface
     /**
      * 实例化一个资源
      *
-     * @param string $name
-     * @param array  $arguments
+     * @param string|\Closure $name
+     * @param array           $arguments
      * @return mixed
      * @throws ContainerException
      */
-    public function make(string $name, array $arguments = [])
+    public function make($name, array $arguments = [])
     {
         // 是否匿名函数
         $isClosure = ($name instanceof \Closure) ? true : false;
