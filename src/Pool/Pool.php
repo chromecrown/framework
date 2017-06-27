@@ -253,7 +253,7 @@ abstract class Pool implements PoolInterface
     protected function retry($data)
     {
         if ($data['retry'] >= $this->maxRetry) {
-            Log::info($this->getType() . ' : retry failure, ' . $data['sql']);
+            Log::info($this->getType() . ' : retry failure');
             $this->callback($data['token'], $this->failure);
 
             return;

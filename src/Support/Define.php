@@ -28,7 +28,7 @@ class Define
         'client.mysql.pool'   => [\Wpt\Framework\Client\Pool\MySQL::class, false],
         'client.mysql.sync'   => [\Wpt\Framework\Client\Sync\MySQL::class, false],
         'client.tcp'          => [\Wpt\Framework\Client\Tcp::class, false],
-        'client.tcp.pool'     => [\Wpt\Framework\Client\pool\Tcp::class, false],
+        'client.tcp.pool'     => [\Wpt\Framework\Client\Pool\Tcp::class, false],
         'client.tcp.sync'     => [\Wpt\Framework\Client\Sync\Tcp::class, false],
         'client.tcp.async'    => [\Wpt\Framework\Client\Async\Tcp::class, false],
         'client.http.async'   => [\Wpt\Framework\Client\Async\Http::class, false],

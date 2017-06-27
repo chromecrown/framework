@@ -15,6 +15,11 @@ use Swoole\Server as SwooleServer;
 class Tcp extends Base
 {
     /**
+     * @var int
+     */
+    protected $fd;
+
+    /**
      * @param SwooleServer $server
      * @param int          $fd
      * @param int          $fromId
@@ -22,6 +27,8 @@ class Tcp extends Base
      */
     public function dispatch(SwooleServer $server, int $fd, int $fromId, string $data)
     {
+        $this->fd = $fd;
+
         try {
             // 解包消息
             $data = $this->app['packet']->decode($data);
