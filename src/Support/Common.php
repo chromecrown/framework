@@ -1,6 +1,6 @@
 <?php
 
-use Flower\Container\Container;
+use Wpt\Framework\Container\Container;
 
 if (! function_exists('app')) {
     /**
@@ -16,7 +16,7 @@ if (! function_exists('app')) {
 
 if (! function_exists('config')) {
     /**
-     * @return \Flower\Core\Config
+     * @return \Wpt\Framework\Core\Config
      */
     function config()
     {
@@ -26,7 +26,7 @@ if (! function_exists('config')) {
 
 if (! function_exists('multi')) {
     /**
-     * @return \Flower\Client\Multi
+     * @return \Wpt\Framework\Client\Multi
      */
     function multi()
     {
@@ -36,7 +36,7 @@ if (! function_exists('multi')) {
 
 if (! function_exists('redis')) {
     /**
-     * @return \Flower\Client\Redis
+     * @return \Wpt\Framework\Client\Redis
      */
     function redis()
     {

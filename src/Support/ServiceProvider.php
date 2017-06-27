@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Support;
+namespace Wpt\Framework\Support;
 
-use Flower\Core\Application;
+use Wpt\Framework\Core\Application;
 
 /**
  * Class ServiceProvider
  *
- * @package Flower\Support
+ * @package Wpt\Framework\Support
  */
 abstract class ServiceProvider
 {

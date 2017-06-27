@@ -1,12 +1,12 @@
 <?php
 
-namespace Flower\Server;
+namespace Wpt\Framework\Server;
 
-use Flower\Log\Log;
-use Flower\Utility\File;
-use Flower\Support\Define;
-use Flower\Utility\Console;
-use Flower\Core\Application;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Utility\File;
+use Wpt\Framework\Support\Define;
+use Wpt\Framework\Utility\Console;
+use Wpt\Framework\Core\Application;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Server as SwooleServer;
@@ -15,7 +15,7 @@ use Swoole\Http\Server as SwooleHttpServer;
 /**
  * Class Server
  *
- * @package Flower\Server
+ * @package Wpt\Framework\Server
  */
 class Server
 {
@@ -98,7 +98,7 @@ class Server
         $this->app = $app;
 
         // 获取当前服务名
-        $this->serverName = ucfirst($this->app['config']->get('server_name', 'Flower'));
+        $this->serverName = ucfirst($this->app['config']->get('server_name', 'Wpt\Framework'));
 
         // set config
         $this->config = array_merge($this->config, $this->app['config']->get('server_config', []));

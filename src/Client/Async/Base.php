@@ -1,12 +1,12 @@
 <?php
 
-namespace Flower\Client\Async;
+namespace Wpt\Framework\Client\Async;
 
-use Flower\Coroutine\CoroutineInterface;
+use Wpt\Framework\Coroutine\CoroutineInterface;
 
 /**
  * Class Base
- * @package Flower\Client\Async
+ * @package Wpt\Framework\Client\Async
  */
 abstract class Base implements CoroutineInterface
 {

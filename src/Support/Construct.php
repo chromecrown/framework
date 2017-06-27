@@ -1,9 +1,9 @@
 <?php
 
-namespace Flower\Support;
+namespace Wpt\Framework\Support;
 
-use Flower\Server\Server;
-use Flower\Core\Application;
+use Wpt\Framework\Server\Server;
+use Wpt\Framework\Core\Application;
 
 trait Construct
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Flower\Support;
+namespace Wpt\Framework\Support;
 
 /**
  * Class Define
  *
- * @package Flower\Support
+ * @package Wpt\Framework\Support
  */
 class Define
 {
@@ -21,44 +21,44 @@ class Define
     const HOOK_SERVER_STOP  = 'server_stop';
 
     const BINDINGS = [
-        'redis'               => [\Flower\Client\Redis::class, false],
-        'multi'               => [\Flower\Client\Multi::class, false],
-        'client.redis.pool'   => [\Flower\Client\Pool\Redis::class, false],
-        'client.redis.sync'   => [\Flower\Client\Sync\Redis::class, false],
-        'client.mysql.pool'   => [\Flower\Client\Pool\MySQL::class, false],
-        'client.mysql.sync'   => [\Flower\Client\Sync\MySQL::class, false],
-        'client.tcp'          => [\Flower\Client\Tcp::class, false],
-        'client.tcp.pool'     => [\Flower\Client\pool\Tcp::class, false],
-        'client.tcp.sync'     => [\Flower\Client\Sync\Tcp::class, false],
-        'client.tcp.async'    => [\Flower\Client\Async\Tcp::class, false],
-        'client.http.async'   => [\Flower\Client\Async\Http::class, false],
-        'client.file.async'   => [\Flower\Client\Async\File::class, false],
-        'client.dns.async'    => [\Flower\Client\Async\Dns::class, false],
-        'config'              => [\Flower\Core\Config::class, true],
-        'lock'                => [\Flower\Core\Lock::class, false],
-        'packet'              => [\Flower\Core\Packet::class, true],
-        'co.scheduler'        => [\Flower\Coroutine\Scheduler::class, false],
-        'co.task'             => [\Flower\Coroutine\Task::class, false],
-        'model'               => [\Flower\Database\Model::class, false],
-        'expression'          => [\Flower\Database\Expression::class, false],
-        'query.builder'       => [\Flower\Database\QueryBuilder::class, false],
-        'query.builder.cache' => [\Flower\Database\QueryBuilderCache::class, false],
-        'pool.manager'        => [\Flower\Pool\Manager::class, true],
-        'command'             => [\Flower\Server\Command::class, false],
-        'server'              => [\Flower\Server\Server::class, true],
-        'file'                => [\Flower\Utility\File::class, false],
-        'time'                => [\Flower\Utility\Time::class, false],
-        'console'             => [\Flower\Utility\Console::class, false],
-        'manage.register'     => [\Flower\Manage\Register::class, false],
-        'manage.service'      => [\Flower\Manage\Service::class, false],
-        'dispatcher.tcp'      => [\Flower\Dispatcher\Tcp::class, false],
-        'dispatcher.http'     => [\Flower\Dispatcher\Http::class, false],
-        'dispatcher.task'     => [\Flower\Dispatcher\Task::class, false],
-        'log'                 => [\Flower\Log\Logger::class, true],
-        'log.file'            => [\Flower\Log\FileHandler::class, true],
-        'middleware'          => [\Flower\Middleware\Middleware::class, false],
-        'route'               => [\Flower\Http\Route::class, true],
-        'request'             => [\Flower\Http\Request::class, false],
-        'response'            => [\Flower\Http\Response::class, false],
+        'redis'               => [\Wpt\Framework\Client\Redis::class, false],
+        'multi'               => [\Wpt\Framework\Client\Multi::class, false],
+        'client.redis.pool'   => [\Wpt\Framework\Client\Pool\Redis::class, false],
+        'client.redis.sync'   => [\Wpt\Framework\Client\Sync\Redis::class, false],
+        'client.mysql.pool'   => [\Wpt\Framework\Client\Pool\MySQL::class, false],
+        'client.mysql.sync'   => [\Wpt\Framework\Client\Sync\MySQL::class, false],
+        'client.tcp'          => [\Wpt\Framework\Client\Tcp::class, false],
+        'client.tcp.pool'     => [\Wpt\Framework\Client\pool\Tcp::class, false],
+        'client.tcp.sync'     => [\Wpt\Framework\Client\Sync\Tcp::class, false],
+        'client.tcp.async'    => [\Wpt\Framework\Client\Async\Tcp::class, false],
+        'client.http.async'   => [\Wpt\Framework\Client\Async\Http::class, false],
+        'client.file.async'   => [\Wpt\Framework\Client\Async\File::class, false],
+        'client.dns.async'    => [\Wpt\Framework\Client\Async\Dns::class, false],
+        'config'              => [\Wpt\Framework\Core\Config::class, true],
+        'lock'                => [\Wpt\Framework\Core\Lock::class, false],
+        'packet'              => [\Wpt\Framework\Core\Packet::class, true],
+        'co.scheduler'        => [\Wpt\Framework\Coroutine\Scheduler::class, false],
+        'co.task'             => [\Wpt\Framework\Coroutine\Task::class, false],
+        'model'               => [\Wpt\Framework\Database\Model::class, false],
+        'expression'          => [\Wpt\Framework\Database\Expression::class, false],
+        'query.builder'       => [\Wpt\Framework\Database\QueryBuilder::class, false],
+        'query.builder.cache' => [\Wpt\Framework\Database\QueryBuilderCache::class, false],
+        'pool.manager'        => [\Wpt\Framework\Pool\Manager::class, true],
+        'command'             => [\Wpt\Framework\Server\Command::class, false],
+        'server'              => [\Wpt\Framework\Server\Server::class, true],
+        'file'                => [\Wpt\Framework\Utility\File::class, false],
+        'time'                => [\Wpt\Framework\Utility\Time::class, false],
+        'console'             => [\Wpt\Framework\Utility\Console::class, false],
+        'manage.register'     => [\Wpt\Framework\Manage\Register::class, false],
+        'manage.service'      => [\Wpt\Framework\Manage\Service::class, false],
+        'dispatcher.tcp'      => [\Wpt\Framework\Dispatcher\Tcp::class, false],
+        'dispatcher.http'     => [\Wpt\Framework\Dispatcher\Http::class, false],
+        'dispatcher.task'     => [\Wpt\Framework\Dispatcher\Task::class, false],
+        'log'                 => [\Wpt\Framework\Log\Logger::class, true],
+        'log.file'            => [\Wpt\Framework\Log\FileHandler::class, true],
+        'middleware'          => [\Wpt\Framework\Middleware\Middleware::class, false],
+        'route'               => [\Wpt\Framework\Http\Route::class, true],
+        'request'             => [\Wpt\Framework\Http\Request::class, false],
+        'response'            => [\Wpt\Framework\Http\Response::class, false],
     ];
 }
