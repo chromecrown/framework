@@ -1,12 +1,12 @@
 <?php
 
-namespace Flower\Http;
+namespace Wpt\Framework\Http;
 
 /**
  * Class Route
  * Based on https://github.com/noahbuscher/Macaw
  *
- * @package Flower\Http
+ * @package Wpt\Framework\Http
  *
  * @method Route get($uri, $callback, $middleware = [])
  * @method Route post($uri, $callback, $middleware = [])

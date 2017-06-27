@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Coroutine;
+namespace Wpt\Framework\Coroutine;
 
-use Flower\Core\Application;
+use Wpt\Framework\Core\Application;
 
 /**
  * Class Scheduler
  *
- * @package Flower\Coroutine
+ * @package Wpt\Framework\Coroutine
  */
 class Scheduler
 {

@@ -1,14 +1,14 @@
 <?php
 
-namespace Flower\Core;
+namespace Wpt\Framework\Core;
 
-use Flower\Log\Log;
-use Flower\Core\Application;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Core\Application;
 
 /**
  * Class Packet
  *
- * @package Flower\Packet
+ * @package Wpt\Framework\Packet
  */
 class Packet
 {

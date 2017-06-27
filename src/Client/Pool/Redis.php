@@ -1,18 +1,18 @@
 <?php
 
-namespace Flower\Client\Pool;
+namespace Wpt\Framework\Client\Pool;
 
 use Ramsey\Uuid\Uuid;
-use Flower\Log\Log;
-use Flower\Pool\Pool;
-use Flower\Utility\Console;
-use Flower\Coroutine\CoroutineInterface;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Pool\Pool;
+use Wpt\Framework\Utility\Console;
+use Wpt\Framework\Coroutine\CoroutineInterface;
 use Swoole\Redis as SwooleRedis;
 
 /**
  * Class Redis
  *
- * @package Flower\Client\Pool
+ * @package Wpt\Framework\Client\Pool
  */
 class Redis extends Pool implements CoroutineInterface
 {

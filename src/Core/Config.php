@@ -1,14 +1,14 @@
 <?php
 
-namespace Flower\Core;
+namespace Wpt\Framework\Core;
 
-use Flower\Log\Log;
-use Flower\Utility\Console;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Utility\Console;
 
 /**
  * Class Config
  *
- * @package Flower\Core
+ * @package Wpt\Framework\Core
  */
 class Config
 {

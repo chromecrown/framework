@@ -1,15 +1,15 @@
 <?php
 
-namespace Flower\Client\Sync;
+namespace Wpt\Framework\Client\Sync;
 
-use Flower\Core\Application;
-use Flower\Log\Log;
-use Flower\Utility\Console;
+use Wpt\Framework\Core\Application;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Utility\Console;
 
 /**
  * Class MySQL
  *
- * @package Flower\Client\Sync
+ * @package Wpt\Framework\Client\Sync
  */
 class MySQL
 {

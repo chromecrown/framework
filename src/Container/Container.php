@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Container;
+namespace Wpt\Framework\Container;
 
 use ArrayAccess;
 use Psr\Container\ContainerInterface;
@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 /**
  * Class Container
  *
- * @package Flower\Core
+ * @package Wpt\Framework\Core
  */
 class Container implements ArrayAccess, ContainerInterface
 {

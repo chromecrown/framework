@@ -1,14 +1,14 @@
 <?php
 
-namespace Flower\Core;
+namespace Wpt\Framework\Core;
 
-use Flower\Http\Request;
-use Flower\Http\Response;
+use Wpt\Framework\Http\Request;
+use Wpt\Framework\Http\Response;
 
 /**
  * Class Controller
  *
- * @package Flower\Core
+ * @package Wpt\Framework\Core
  */
 abstract class Controller extends Base
 {

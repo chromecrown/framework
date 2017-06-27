@@ -1,11 +1,11 @@
 <?php
 
-namespace Flower\Utility;
+namespace Wpt\Framework\Utility;
 
 /**
  * Class File
  *
- * @package Flower\Utility
+ * @package Wpt\Framework\Utility
  */
 class File
 {

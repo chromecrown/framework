@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Http;
+namespace Wpt\Framework\Http;
 
 use Swoole\Http\Request as SwooleHttpRequest;
 

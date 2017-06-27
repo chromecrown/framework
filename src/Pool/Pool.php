@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Pool;
+namespace Wpt\Framework\Pool;
 
-use Flower\Log\Log;
+use Wpt\Framework\Log\Log;
 
 /**
  * Class Pool
  *
- * @package Flower\Pool
+ * @package Wpt\Framework\Pool
  */
 abstract class Pool implements PoolInterface
 {

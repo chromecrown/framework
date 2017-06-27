@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Log;
+namespace Wpt\Framework\Log;
 
-use Flower\Support\Construct;
+use Wpt\Framework\Support\Construct;
 
 /**
  * Class RedisHandler
  *
- * @package Flower\Log
+ * @package Wpt\Framework\Log
  */
 class RedisHandler implements LogHandlerInterface
 {

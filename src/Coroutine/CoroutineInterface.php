@@ -1,11 +1,11 @@
 <?php
 
-namespace Flower\Coroutine;
+namespace Wpt\Framework\Coroutine;
 
 /**
  * Interface CoroutineInterface
  *
- * @package Flower\Coroutine
+ * @package Wpt\Framework\Coroutine
  */
 interface CoroutineInterface
 {

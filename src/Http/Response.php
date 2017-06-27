@@ -1,10 +1,10 @@
 <?php
 
-namespace Flower\Http;
+namespace Wpt\Framework\Http;
 
 /**
  * Class Response
- * @package Flower\Http
+ * @package Wpt\Framework\Http
  */
 class Response extends Message
 {

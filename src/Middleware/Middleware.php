@@ -1,16 +1,16 @@
 <?php
 
-namespace Flower\Middleware;
+namespace Wpt\Framework\Middleware;
 
-use Flower\Http\Request;
-use Flower\Http\Response;
-use Flower\Core\Application;
+use Wpt\Framework\Http\Request;
+use Wpt\Framework\Http\Response;
+use Wpt\Framework\Core\Application;
 use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
  * Class Middleware
  *
- * @package Flower\Middleware
+ * @package Wpt\Framework\Middleware
  */
 class Middleware
 {
@@ -97,7 +97,7 @@ class Middleware
             }
 
             if (! ($res instanceof Response)) {
-                throw new MiddlewareException('Controller,Middleware return value must instanceof Flower\Http\Response', 500);
+                throw new MiddlewareException('Controller,Middleware return value must instanceof Wpt\Framework\Http\Response', 500);
             }
 
             return $res;

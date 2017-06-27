@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Log;
+namespace Wpt\Framework\Log;
 
 interface LogHandlerInterface
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Client;
+namespace Wpt\Framework\Client;
 
 use Swoole\Client as SwooleClient;
 
 /**
  * Class Tcp
  *
- * @package Flower\Client
+ * @package Wpt\Framework\Client
  */
 class Tcp
 {

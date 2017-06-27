@@ -1,11 +1,11 @@
 <?php
 
-namespace Flower\Database;
+namespace Wpt\Framework\Database;
 
 /**
  * Class Expression
  *
- * @package Flower\Database
+ * @package Wpt\Framework\Database
  */
 class Expression
 {

@@ -1,18 +1,18 @@
 <?php
 
-namespace Flower\Dispatcher;
+namespace Wpt\Framework\Dispatcher;
 
-use Flower\Core\Controller;
-use Flower\Http\Request;
-use Flower\Http\Response;
-use Flower\Support\Define;
-use Flower\Utility\Console;
+use Wpt\Framework\Core\Controller;
+use Wpt\Framework\Http\Request;
+use Wpt\Framework\Http\Response;
+use Wpt\Framework\Support\Define;
+use Wpt\Framework\Utility\Console;
 use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
  * Class Http
  *
- * @package Flower\Dispatcher
+ * @package Wpt\Framework\Dispatcher
  */
 class Http extends Base
 {

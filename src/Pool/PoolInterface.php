@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Pool;
+namespace Wpt\Framework\Pool;
 
 interface PoolInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Utility;
+namespace Wpt\Framework\Utility;
 
 class Console
 {

@@ -1,16 +1,16 @@
 <?php
 
-namespace Flower\Log;
+namespace Wpt\Framework\Log;
 
-use Flower\Core\Application;
-use Flower\Utility\Console;
+use Wpt\Framework\Core\Application;
+use Wpt\Framework\Utility\Console;
 use Psr\Log\AbstractLogger;
-use Flower\Utility\Time;
+use Wpt\Framework\Utility\Time;
 
 /**
  * Class Logger
  *
- * @package Flower\Core
+ * @package Wpt\Framework\Core
  */
 class Logger extends AbstractLogger
 {

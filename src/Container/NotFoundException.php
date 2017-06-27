@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Container;
+namespace Wpt\Framework\Container;
 
 use Psr\Container\NotFoundExceptionInterface;
 

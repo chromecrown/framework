@@ -1,8 +1,8 @@
 <?php
 
-namespace Flower\Dispatcher;
+namespace Wpt\Framework\Dispatcher;
 
-use Flower\Support\Construct;
+use Wpt\Framework\Support\Construct;
 
 abstract class Base
 {

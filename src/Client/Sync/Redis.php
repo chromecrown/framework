@@ -1,15 +1,15 @@
 <?php
 
-namespace Flower\Client\Sync;
+namespace Wpt\Framework\Client\Sync;
 
-use Flower\Log\Log;
-use Flower\Core\Application;
-use Flower\Utility\Console;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Core\Application;
+use Wpt\Framework\Utility\Console;
 
 /**
  * Class Redis
  *
- * @package Flower\Client\Sync
+ * @package Wpt\Framework\Client\Sync
  */
 class Redis
 {

@@ -1,15 +1,15 @@
 <?php
 
-namespace Flower\Log;
+namespace Wpt\Framework\Log;
 
-use Flower\Support\Construct;
-use Flower\Utility\Time;
-use Flower\Utility\File as FileTool;
+use Wpt\Framework\Support\Construct;
+use Wpt\Framework\Utility\Time;
+use Wpt\Framework\Utility\File as FileTool;
 
 /**
  * Class FileHandler
  *
- * @package Flower\Log
+ * @package Wpt\Framework\Log
  */
 class FileHandler implements LogHandlerInterface
 {

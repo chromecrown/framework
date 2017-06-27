@@ -1,14 +1,14 @@
 <?php
 
-namespace Flower\Database;
+namespace Wpt\Framework\Database;
 
-use Flower\Core\Application;
+use Wpt\Framework\Core\Application;
 
 /**
  * Class QueryBuilder
  * Based on https://github.com/jstayton/Miner
  *
- * @package Flower\Database
+ * @package Wpt\Framework\Database
  */
 class QueryBuilder
 {
@@ -47,7 +47,7 @@ class QueryBuilder
     protected $limit;
 
     /**
-     * @var string|\Flower\Client\Sync\MySQL|null
+     * @var string|\Wpt\Framework\Client\Sync\MySQL|null
      */
     protected $bindId = null;
 
@@ -89,7 +89,7 @@ class QueryBuilder
     }
 
     /**
-     * @param string|\Flower\Client\Sync\MySQL $uuid
+     * @param string|\Wpt\Framework\Client\Sync\MySQL $uuid
      * @return $this
      */
     public function bind($uuid)

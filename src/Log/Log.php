@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Log;
+namespace Wpt\Framework\Log;
 
 use Psr\Log\LoggerInterface;
 
 /**
  * Class Log
  *
- * @package Flower\Log
+ * @package Wpt\Framework\Log
  */
 class Log
 {

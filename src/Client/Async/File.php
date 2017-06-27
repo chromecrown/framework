@@ -1,12 +1,12 @@
 <?php
 
-namespace Flower\Client\Async;
+namespace Wpt\Framework\Client\Async;
 
-use Flower\Utility\File as AsyncFile;
+use Wpt\Framework\Utility\File as AsyncFile;
 
 /**
  * Class File
- * @package Flower\Client\Async
+ * @package Wpt\Framework\Client\Async
  */
 class File extends Base
 {

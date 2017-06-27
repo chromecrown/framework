@@ -1,18 +1,18 @@
 <?php
 
-namespace Flower\Client\Pool;
+namespace Wpt\Framework\Client\Pool;
 
-use Flower\Log\Log;
-use Flower\Pool\Pool;
-use Flower\Core\Packet;
-use Flower\Coroutine\CoroutineInterface;
-use Flower\Core\Application;
-use Flower\Client\Tcp as TcpClient;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Pool\Pool;
+use Wpt\Framework\Core\Packet;
+use Wpt\Framework\Coroutine\CoroutineInterface;
+use Wpt\Framework\Core\Application;
+use Wpt\Framework\Client\Tcp as TcpClient;
 
 /**
  * Class TcpPool
  *
- * @package Flower\Client\Pool
+ * @package Wpt\Framework\Client\Pool
  */
 class Tcp extends Pool implements CoroutineInterface
 {

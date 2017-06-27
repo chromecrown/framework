@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Middleware;
+namespace Wpt\Framework\Middleware;
 
 class MiddlewareException extends \Exception
 {

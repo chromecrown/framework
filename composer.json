@@ -1,5 +1,5 @@
 {
-  "name": "flower/framework",
+  "name": "weipaitang/framework",
   "type": "library",
   "description": "flower php api framework",
   "keywords": ["php", "framework", "flower", "api", "swoole"],
@@ -15,7 +15,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Flower\\": "src"
+      "Wpt\\Framework\\": "src"
     },
     "files": [
       "src/Support/Common.php"

@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Dispatcher;
+namespace Wpt\Framework\Dispatcher;
 
-use Flower\Utility\Console;
+use Wpt\Framework\Utility\Console;
 
 /**
  * Class Task
  *
- * @package Flower\Dispatcher
+ * @package Wpt\Framework\Dispatcher
  */
 class Task extends Base
 {

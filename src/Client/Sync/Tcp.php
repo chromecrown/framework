@@ -1,14 +1,14 @@
 <?php
 
-namespace Flower\Client\Sync;
+namespace Wpt\Framework\Client\Sync;
 
-use Flower\Core\Packet;
+use Wpt\Framework\Core\Packet;
 use Swoole\Client as SwooleClient;
 
 /**
  * Class Tcp
  *
- * @package Flower\Client\Sync
+ * @package Wpt\Framework\Client\Sync
  */
 class Tcp
 {

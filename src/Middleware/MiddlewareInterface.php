@@ -1,9 +1,9 @@
 <?php
 
-namespace Flower\Middleware;
+namespace Wpt\Framework\Middleware;
 
-use Flower\Http\Request;
-use Flower\Http\Response;
+use Wpt\Framework\Http\Request;
+use Wpt\Framework\Http\Response;
 
 interface MiddlewareInterface
 {

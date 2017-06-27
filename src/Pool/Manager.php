@@ -1,11 +1,11 @@
 <?php
 
-namespace Flower\Pool;
+namespace Wpt\Framework\Pool;
 
 /**
  * Class Manager
  *
- * @package Flower\Pool
+ * @package Wpt\Framework\Pool
  */
 class Manager
 {

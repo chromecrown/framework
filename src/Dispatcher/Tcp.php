@@ -1,16 +1,16 @@
 <?php
 
-namespace Flower\Dispatcher;
+namespace Wpt\Framework\Dispatcher;
 
-use Flower\Core\Controller;
-use Flower\Log\Log;
-use Flower\Utility\Console;
+use Wpt\Framework\Core\Controller;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Utility\Console;
 use Swoole\Server as SwooleServer;
 
 /**
  * Class Tcp
  *
- * @package Flower\Dispatcher
+ * @package Wpt\Framework\Dispatcher
  */
 class Tcp extends Base
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Flower\Client\Async;
+namespace Wpt\Framework\Client\Async;
 
 use Swoole\Async as SwooleAsync;
 
 /**
  * Class Dns
- * @package Flower\Client\Async
+ * @package Wpt\Framework\Client\Async
  */
 class Dns extends Base
 {

@@ -1,15 +1,15 @@
 <?php
 
-namespace Flower\Database;
+namespace Wpt\Framework\Database;
 
-use Flower\Client\Redis;
-use Flower\Utility\Console;
-use Flower\Core\Application;
+use Wpt\Framework\Client\Redis;
+use Wpt\Framework\Utility\Console;
+use Wpt\Framework\Core\Application;
 
 /**
  * Class QueryBuilderCache
  *
- * @package Flower\Database
+ * @package Wpt\Framework\Database
  */
 class QueryBuilderCache extends QueryBuilder
 {

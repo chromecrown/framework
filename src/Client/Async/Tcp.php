@@ -1,11 +1,11 @@
 <?php
 
-namespace Flower\Client\Async;
+namespace Wpt\Framework\Client\Async;
 
-use Flower\Log\Log;
-use Flower\Core\Packet;
-use Flower\Core\Application;
-use Flower\Client\Tcp as TcpClient;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Core\Packet;
+use Wpt\Framework\Core\Application;
+use Wpt\Framework\Client\Tcp as TcpClient;
 
 /**
  * Class TcpClient

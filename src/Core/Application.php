@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Core;
+namespace Wpt\Framework\Core;
 
-use Flower\Log\Log;
-use Flower\Server\Server;
-use Flower\Utility\Console;
-use Flower\Support\Define;
-use Flower\Container\Container;
-use Flower\Support\ServiceProvider;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Server\Server;
+use Wpt\Framework\Utility\Console;
+use Wpt\Framework\Support\Define;
+use Wpt\Framework\Container\Container;
+use Wpt\Framework\Support\ServiceProvider;
 use Swoole\Process as SwooleProcess;
 use Swoole\Server as SwooleServer;
 use Swoole\Table as SwooleTable;
@@ -15,7 +15,7 @@ use Swoole\Table as SwooleTable;
 /**
  * Class Application
  *
- * @package Flower\Core
+ * @package Wpt\Framework\Core
  */
 class Application extends Container
 {
@@ -66,7 +66,7 @@ class Application extends Container
 
         // 绑定到容器
         $this->register('app', $this);
-        $this->alias('app', 'Flower\Core\Application');
+        $this->alias('app', 'Wpt\Framework\Core\Application');
         $this->registerBaseComponents();
 
         // 如果没有设置 server_ip，则获取当前服务器IP （服务器第一块网卡）
@@ -99,7 +99,7 @@ class Application extends Container
         $provider = $this->make($provider);
 
         if (! ($provider instanceof ServiceProvider)) {
-            throw new \Exception('Provider must instanceof Flower\Support\ServiceProvider');
+            throw new \Exception('Provider must instanceof Wpt\Framework\Support\ServiceProvider');
         }
 
         $providerName = get_class($provider);

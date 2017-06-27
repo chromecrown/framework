@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Manage;
+namespace Wpt\Framework\Manage;
 
-use Flower\Support\Construct;
+use Wpt\Framework\Support\Construct;
 
 /**
  * Class Service
  *
- * @package Flower
+ * @package Wpt\Framework
  */
 class Service
 {

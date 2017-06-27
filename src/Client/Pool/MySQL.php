@@ -1,17 +1,17 @@
 <?php
 
-namespace Flower\Client\Pool;
+namespace Wpt\Framework\Client\Pool;
 
-use Flower\Log\Log;
-use Flower\Pool\Pool;
-use Flower\Utility\Console;
-use Flower\Coroutine\CoroutineInterface;
+use Wpt\Framework\Log\Log;
+use Wpt\Framework\Pool\Pool;
+use Wpt\Framework\Utility\Console;
+use Wpt\Framework\Coroutine\CoroutineInterface;
 use Swoole\MySQL as SwooleMySQL;
 
 /**
  * Class MySQL
  *
- * @package Flower\Client\Pool
+ * @package Wpt\Framework\Client\Pool
  */
 class MySQL extends Pool implements CoroutineInterface
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Flower\Coroutine;
+namespace Wpt\Framework\Coroutine;
 
 /**
  * Class Task
  *
- * @package Flower\Coroutine
+ * @package Wpt\Framework\Coroutine
  */
 class Task
 {

@@ -1,19 +1,19 @@
 <?php
 
-namespace Flower\Client;
+namespace Wpt\Framework\Client;
 
-use Flower\Client\Async\Base;
-use Flower\Core\Application;
+use Wpt\Framework\Client\Async\Base;
+use Wpt\Framework\Core\Application;
 
 /**
  * Class Multi
  *
- * @package Flower\Client
+ * @package Wpt\Framework\Client
  */
 class Multi extends Base
 {
     /**
-     * @var \Flower\Coroutine\Scheduler
+     * @var \Wpt\Framework\Coroutine\Scheduler
      */
     private $scheduler = null;
 

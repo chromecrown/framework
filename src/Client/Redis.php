@@ -1,14 +1,14 @@
 <?php
 
-namespace Flower\Client;
+namespace Wpt\Framework\Client;
 
-use Flower\Server\Server;
-use Flower\Core\Application;
+use Wpt\Framework\Server\Server;
+use Wpt\Framework\Core\Application;
 
 /**
  * Class Redis
  *
- * @package Flower\Client
+ * @package Wpt\Framework\Client
  */
 class Redis
 {

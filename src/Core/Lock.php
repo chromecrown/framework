@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Core;
+namespace Wpt\Framework\Core;
 
-use Flower\Client\Redis;
+use Wpt\Framework\Client\Redis;
 
 /**
  * Class Lock
  *
- * @package Flower\Utility
+ * @package Wpt\Framework\Utility
  */
 class Lock
 {

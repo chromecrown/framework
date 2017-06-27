@@ -1,14 +1,14 @@
 <?php
 
-namespace Flower\Manage;
+namespace Wpt\Framework\Manage;
 
-use Flower\Utility\Console;
-use Flower\Support\Construct;
+use Wpt\Framework\Utility\Console;
+use Wpt\Framework\Support\Construct;
 
 /**
  * Class Register
  *
- * @package Flower
+ * @package Wpt\Framework
  */
 class Register
 {

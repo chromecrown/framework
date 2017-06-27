@@ -1,15 +1,15 @@
 <?php
 
-namespace Flower\Core;
+namespace Wpt\Framework\Core;
 
-use Flower\Database\Model;
-use Flower\Server\Server;
+use Wpt\Framework\Database\Model;
+use Wpt\Framework\Server\Server;
 use Swoole\Process as SwooleProcess;
 
 /**
  * Class Base
  *
- * @package Flower\Core
+ * @package Wpt\Framework\Core
  */
 abstract class Base
 {
@@ -104,7 +104,7 @@ abstract class Base
      *
      * @param string $pool
      * @param string $cacheKey
-     * @return \Redis|\Flower\Client\Redis
+     * @return \Redis|\Wpt\Framework\Client\Redis
      */
     public function redis(string $pool = null, string $cacheKey = null)
     {
@@ -155,7 +155,7 @@ abstract class Base
     /**
      * 并行任务处理器
      *
-     * @return \Flower\Client\Multi
+     * @return \Wpt\Framework\Client\Multi
      */
     protected function multi()
     {

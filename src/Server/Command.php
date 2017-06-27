@@ -1,16 +1,16 @@
 <?php
 
-namespace Flower\Server;
+namespace Wpt\Framework\Server;
 
-use Flower\Utility\Time;
-use Flower\Support\Define;
-use Flower\Utility\Console;
-use Flower\Support\Construct;
+use Wpt\Framework\Utility\Time;
+use Wpt\Framework\Support\Define;
+use Wpt\Framework\Utility\Console;
+use Wpt\Framework\Support\Construct;
 
 /**
  * Class Command
  *
- * @package Flower\Server
+ * @package Wpt\Framework\Server
  */
 class Command
 {
@@ -258,9 +258,9 @@ class Command
             }, sys_getloadavg());
 
             $display = $firstSplitLine;
-            $display .= "Flower version: "
+            $display .= "Framework version: "
                 . Define::VERSION
-                . str_pad('', 24 - strlen(Define::VERSION))
+                . str_pad('', 21 - strlen(Define::VERSION))
                 . "PHP version: "
                 . PHP_VERSION
                 . "\n";

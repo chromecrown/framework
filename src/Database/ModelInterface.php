@@ -1,6 +1,6 @@
 <?php
 
-namespace Flower\Database;
+namespace Wpt\Framework\Database;
 
 interface ModelInterface
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Flower\Client\Async;
+namespace Wpt\Framework\Client\Async;
 
 use Swoole\Http\Client as SwooleHttpClient;
 
 /**
  * Class Http
  *
- * @package Flower\Client\Async
+ * @package Wpt\Framework\Client\Async
  *
  * @method HTTP set(array $set)
  * @method HTTP setHeaders(array $headers)

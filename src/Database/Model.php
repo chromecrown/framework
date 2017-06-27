@@ -1,16 +1,16 @@
 <?php
 
-namespace Flower\Database;
+namespace Wpt\Framework\Database;
 
 use Ramsey\Uuid\Uuid;
-use Flower\Core\Base;
-use Flower\Core\Application;
-use Flower\Server\Server;
+use Wpt\Framework\Core\Base;
+use Wpt\Framework\Core\Application;
+use Wpt\Framework\Server\Server;
 
 /**
  * Class Model
  *
- * @package Flower\Database
+ * @package Wpt\Framework\Database
  *
  * @method static QueryBuilder bind($uuid)
  * @method static QueryBuilder select($column, $alias = null)
@@ -187,7 +187,7 @@ class Model extends Base implements ModelInterface
      *
      * @param callable                              $callback
      * @param string|QueryBuilder                   $sql
-     * @param null|string|\Flower\Client\Sync\MySQL $bindId
+     * @param null|string|\Wpt\Framework\Client\Sync\MySQL $bindId
      * @param bool                                  $async
      */
     public function call(callable $callback, $sql, $bindId = null, $async = true)
@@ -207,7 +207,7 @@ class Model extends Base implements ModelInterface
      * 执行查询
      *
      * @param  string|QueryBuilder                   $sql
-     * @param  null|string|\Flower\Client\Sync\MySQL $bindId
+     * @param  null|string|\Wpt\Framework\Client\Sync\MySQL $bindId
      * @return array
      */
     public function query($sql, $bindId = null)
@@ -261,7 +261,7 @@ class Model extends Base implements ModelInterface
 
     /**
      * @param string                         $sql
-     * @param null|\Flower\Client\Sync\MySQL $bindId
+     * @param null|\Wpt\Framework\Client\Sync\MySQL $bindId
      * @return mixed
      */
     private function syncQuery(string $sql, $bindId)
@@ -320,7 +320,7 @@ class Model extends Base implements ModelInterface
     }
 
     /**
-     * @return bool|string|\Flower\Client\Sync\MySQL
+     * @return bool|string|\Wpt\Framework\Client\Sync\MySQL
      */
     public function begin()
     {
