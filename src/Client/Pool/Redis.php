@@ -129,7 +129,7 @@ class Redis extends Pool implements CoroutineInterface
                 $uuid = Uuid::uuid4()->toString();
                 $this->bind[$uuid] = $client;
 
-                $this->callback($data['token'], app('redis', $data['trace'], $this->getName())->bind($uuid));
+                $this->callback($data['token'], app('redis', $this->getName())->bind($uuid));
                 return;
             }
 
