@@ -46,7 +46,7 @@ class Http extends Base
         $this->response->withHeader('Server', 'flower ' . Define::VERSION);
         $this->response->withHeader('Content-Type', 'application/json;charset=utf-8');
 
-        if ($this->app['config']->get('enable_route', false)) {
+        if ($this->app['config']->get('enable_http_route', false)) {
             $result = $this->app['route']->parse(
                 $this->request->getUri(),
                 $this->request->getMethod()
