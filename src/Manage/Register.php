@@ -68,7 +68,7 @@ class Register
                 ],
             ])->request([
                 'type'    => 'api',
-                'request' => 'service',
+                'request' => 'server',
                 'method'  => $type,
                 'args'    => $data,
             ]);
