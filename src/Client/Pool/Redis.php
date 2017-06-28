@@ -24,27 +24,27 @@ class Redis extends Pool implements CoroutineInterface
     /**
      * @var array
      */
-    private $bind = [];
+    protected $bind = [];
 
     /**
      * @var string
      */
-    private $bindId;
+    protected $bindId;
 
     /**
      * @var string
      */
-    private $method;
+    protected $method;
 
     /**
      * @var mixed
      */
-    private $arguments;
+    protected $arguments;
 
     /**
      * @var boolean
      */
-    private $enableLogSlow = null;
+    protected $enableLogSlow = null;
 
     /**
      * @param string $bindId

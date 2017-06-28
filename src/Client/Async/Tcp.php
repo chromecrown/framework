@@ -2,10 +2,10 @@
 
 namespace Wpt\Framework\Client\Async;
 
-use Wpt\Framework\Log\Log;
 use Wpt\Framework\Core\Packet;
 use Wpt\Framework\Core\Application;
 use Wpt\Framework\Client\Tcp as TcpClient;
+use Wpt\Framework\Support\AsyncTcpTrait;
 
 /**
  * Class TcpClient
@@ -14,42 +14,12 @@ use Wpt\Framework\Client\Tcp as TcpClient;
  */
 class Tcp extends Base
 {
-    /**
-     * @var Application
-     */
-    private $app;
-
-    /**
-     * @var Packet
-     */
-    private $packet;
-
-    /**
-     * @var mixed
-     */
-    private $data;
-
-    /**
-     * @var boolean
-     */
-    private $format;
+    use AsyncTcpTrait;
 
     /**
      * @var array
      */
-    private $config;
-
-    /**
-     * @var array
-     */
-    private $set = [
-        'open_eof_check' => 1,
-        'open_eof_split' => 1,
-        'package_eof'    => "#\r\n\r\n",
-
-        'package_max_length' => 1024 * 1024 * 2,
-        'open_tcp_nodelay'   => 1,
-    ];
+    protected $config;
 
     /**
      * TcpClient constructor.
@@ -63,35 +33,9 @@ class Tcp extends Base
         $this->app    = $app;
         $this->packet = $packet;
 
-        $this->set    = array_merge($this->set, $config['set'] ?? []);
         $this->config = $config['config'];
+        $this->setSet($config['set'] ?? []);
         unset($config);
-    }
-
-    /**
-     * @param callable $callback
-     * @param mixed    $data
-     * @param bool     $format
-     */
-    public function call(callable $callback, $data, bool $format = true)
-    {
-        $this->data = $data;
-        $this->format = $format;
-
-        $this->send($callback);
-    }
-
-    /**
-     * @param      $data
-     * @param bool $format
-     * @return \Generator
-     */
-    public function request($data, bool $format = true)
-    {
-        $this->data = $data;
-        $this->format = $format;
-
-        return yield $this;
     }
 
     /**
@@ -133,23 +77,13 @@ class Tcp extends Base
         $client->send($request, function (TcpClient $client, $result) {
             $this->clearTick();
             if ($this->callback) {
-                $result = $this->format
-                    ? $this->packet->decode($result, $this->set['package_eof'])
-                    : $result;
+                if ($this->format) {
+                    list($result, ) = $this->parseResult($result);
+                }
 
                 ($this->callback)($result);
             }
         });
-    }
-
-    /**
-     * @param TcpClient $client
-     */
-    public function close(TcpClient $client)
-    {
-        if (isset($client->errCode)) {
-            Log::error($client->errCode);
-        }
     }
 
     /**

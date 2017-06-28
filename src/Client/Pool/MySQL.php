@@ -22,9 +22,9 @@ class MySQL extends Pool implements CoroutineInterface
         'result'        => null,
     ];
 
-    private $bind = [];
-    private $sql;
-    private $bindId;
+    protected $bind = [];
+    protected $sql;
+    protected $bindId;
 
     /**
      * @param callable $callback

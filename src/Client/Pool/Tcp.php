@@ -2,12 +2,12 @@
 
 namespace Wpt\Framework\Client\Pool;
 
-use Wpt\Framework\Log\Log;
 use Wpt\Framework\Pool\Pool;
 use Wpt\Framework\Core\Packet;
 use Wpt\Framework\Coroutine\CoroutineInterface;
 use Wpt\Framework\Core\Application;
 use Wpt\Framework\Client\Tcp as TcpClient;
+use Wpt\Framework\Support\AsyncTcpTrait;
 
 /**
  * Class TcpPool
@@ -16,42 +16,7 @@ use Wpt\Framework\Client\Tcp as TcpClient;
  */
 class Tcp extends Pool implements CoroutineInterface
 {
-    /**
-     * @var Application
-     */
-    private $app;
-
-    /**
-     * @var Packet
-     */
-    private $packet;
-
-    /**
-     * @var array
-     */
-    private $data;
-
-    /**
-     * @var boolean
-     */
-    private $format;
-
-    /**
-     * @var array
-     */
-    private $set = [
-        'open_eof_check' => 1,
-        'open_eof_split' => 1,
-        'package_eof'    => "#\r\n\r\n",
-
-        'package_max_length' => 1024 * 1024 * 2,
-        'open_tcp_nodelay'   => 1,
-    ];
-
-    /**
-     * @var string
-     */
-    private $splitEof = "#\r#\n#";
+    use AsyncTcpTrait;
 
     /**
      * Tcp constructor.
@@ -75,64 +40,9 @@ class Tcp extends Pool implements CoroutineInterface
 
         $this->setConfig($config['config']);
         $this->setSet($config['set'] ?? []);
-
         unset($config);
 
         parent::__construct();
-    }
-
-    /**
-     * @param array $set
-     *
-     * @return $this
-     */
-    public function setSet(array $set = [])
-    {
-        if ($set) {
-            $this->set = array_merge($this->set, $set);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $eof
-     *
-     * @return $this
-     */
-    public function setSplitEof(string $eof = '')
-    {
-        if ($eof) {
-            $this->splitEof = $eof;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param callable $callback
-     * @param mixed    $data
-     * @param bool     $format
-     */
-    public function call(callable $callback, $data, bool $format = true)
-    {
-        $this->data = $data;
-        $this->format  = $format;
-
-        $this->send($callback);
-    }
-
-    /**
-     * @param mixed $data
-     * @param bool  $format
-     * @return \Generator
-     */
-    public function request($data, bool $format = true)
-    {
-        $this->data = $data;
-        $this->format = $format;
-
-        return yield $this;
     }
 
     /**
@@ -184,39 +94,6 @@ class Tcp extends Pool implements CoroutineInterface
     }
 
     /**
-     * @param $data
-     *
-     * @return array
-     */
-    private function parseResult($data)
-    {
-        if (false === strpos($data, $this->splitEof)) {
-            return [
-                $this->packet->decode($data, $this->set['package_eof']),
-                true
-            ];
-        }
-
-        $data = $this->packet->decode(
-            str_replace($this->splitEof, '', $data),
-            $this->set['package_eof']
-        )['data'];
-
-        $isEnd = isset($data['_is_end_']);
-        unset($data['_is_end_']);
-
-        return [
-            [
-                'code'     => 200,
-                'data'     => $data,
-                'is_batch' => true,
-                'is_end'   => $isEnd
-            ],
-            $isEnd
-        ];
-    }
-
-    /**
      * connect tcp
      */
     public function connect()
@@ -243,17 +120,5 @@ class Tcp extends Pool implements CoroutineInterface
                 $this->release($client);
             }
         );
-    }
-
-    /**
-     * @param TcpClient $client
-     */
-    public function close(TcpClient $client)
-    {
-        if (isset($client->errCode)) {
-            if ($client->errCode > 0) {
-                Log::error('Tcp Connection closed, code: '. $client->errCode);
-            }
-        }
     }
 }
