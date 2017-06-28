@@ -220,8 +220,6 @@ class MySQL extends Pool implements CoroutineInterface
         }
 
         $client->isConnected = false;
-
-        $this->release($client);
     }
 
     /**

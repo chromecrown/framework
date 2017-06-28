@@ -70,10 +70,6 @@ class Logger extends AbstractLogger
             'name'         => $logName,
         ]);
 
-        if (DEBUG_MODEL) {
-            Console::debug($message. " ". json_encode($context, JSON_UNESCAPED_UNICODE));
-        }
-
         unset($logName, $message, $context, $level);
     }
 }

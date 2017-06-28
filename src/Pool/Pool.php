@@ -171,25 +171,26 @@ abstract class Pool implements PoolInterface
             $this->freeConnection();
         }
 
-        $client = $this->pool->shift();
+        do {
+            $client = $this->pool->shift();
 
-        if (method_exists($client, 'isConnected')) {
-            if ($client->isConnected()) {
-                return $client;
+            if (! $client) {
+                continue;
+            }
+
+            if (method_exists($client, 'isConnected')) {
+                if ($client->isConnected()) {
+                    return $client;
+                }
+            } else {
+                if ($client->isConnected) {
+                    return $client;
+                }
             }
 
             $this->currConnect--;
             unset($client);
-
-            return false;
-        }
-
-        if ($client->isConnected) {
-            return $client;
-        }
-
-        $this->currConnect--;
-        unset($client);
+        } while (! $this->pool->isEmpty());
 
         return false;
     }
@@ -225,15 +226,18 @@ abstract class Pool implements PoolInterface
     /**
      * @param int   $token
      * @param mixed $data
+     * @param bool  $isEnd
      */
-    protected function callback($token, $data)
+    protected function callback($token, $data, $isEnd = true)
     {
         if (! isset($this->callbacks[$token])) {
             return;
         }
 
         $callback = $this->callbacks[$token];
-        unset($this->callbacks[$token]);
+        if ($isEnd) {
+            unset($this->callbacks[$token]);
+        }
 
         if ($callback != null) {
             if (isset($this->timeTicks[$token])) {
@@ -297,6 +301,8 @@ abstract class Pool implements PoolInterface
 
     /**
      * @param array $config
+     *
+     * @return $this
      */
     public function setConfig(array $config)
     {
@@ -309,14 +315,20 @@ abstract class Pool implements PoolInterface
         }
 
         $this->config = $config;
+
+        return $this;
     }
 
     /**
      * @param string $name
+     *
+     * @return $this
      */
     public function setName(string $name)
     {
         $this->name = $name;
+
+        return $this;
     }
 
     /**

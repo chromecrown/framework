@@ -60,7 +60,7 @@ class Server
         'open_tcp_nodelay'  => 1,
         'open_cpu_affinity' => 1,
 
-        'heartbeat_idle_time'      => 30,
+        'heartbeat_idle_time'      => 300,
         'heartbeat_check_interval' => 30,
 
         'reactor_num'     => 96,
@@ -87,6 +87,11 @@ class Server
      * @var array
      */
     protected $allowClientIpList;
+
+    /**
+     * @var bool
+     */
+    protected $isEnableGateway;
 
     /**
      * Server constructor.
@@ -116,6 +121,9 @@ class Server
                 $this->allowClientIpList[$v] = true;
             }, $this->app['config']->get('allow_client_ip', ['127.0.0.1']));
         }
+
+        // is enable gateway
+        $this->isEnableGateway = $this->app['config']->get('enable_gateway', false);
     }
 
     /**
@@ -405,18 +413,28 @@ class Server
      * 批量发送 (在数据量大时应用)
      *
      * @param int   $fd
-     * @param mixed $data
+     * @param array $data
      * @param bool  $isEnd
      * @param int   $code
      */
-    public function batchSend(int $fd, $data, bool $isEnd = false, int $code = 200)
+    public function batchSend(int $fd, array $data, bool $isEnd = false, int $code = 200)
     {
         if (! $this->server->exist($fd)) {
             return;
         }
 
         $packet = $this->app->get('packet');
-        $data = $packet->encode($packet->format($data, $code), $packet->getSplitEof());
+
+        if ($this->isEnableGateway) {
+            if ($isEnd) {
+                $data['_is_end_'] = true;
+            }
+
+            $data  = $packet->getSplitEof(). $packet->pack($packet->format($data, $code));
+            $isEnd = true;
+        } else {
+            $data = $packet->encode($packet->format($data, $code), $packet->getSplitEof());
+        }
 
         if (mb_strlen($data) > 1024 * 1024) {
             $data = str_split($data, 1024 * 1024);

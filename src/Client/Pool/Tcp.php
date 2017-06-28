@@ -49,6 +49,11 @@ class Tcp extends Pool implements CoroutineInterface
     ];
 
     /**
+     * @var string
+     */
+    private $splitEof = "#\r#\n#";
+
+    /**
      * Tcp constructor.
      *
      * @param Application $app
@@ -59,20 +64,49 @@ class Tcp extends Pool implements CoroutineInterface
      */
     public function __construct(Application $app, Packet $packet, string $name, array $config = [])
     {
-        $this->type = 'tcp';
-        $this->name = $name;
-        $this->app = $app;
+        $this->type   = 'tcp';
+        $this->name   = $name;
+        $this->app    = $app;
         $this->packet = $packet;
 
         if (! isset($config['config'])) {
             throw new \Exception('Tcp connect config not found.');
         }
 
-        $this->config = $config['config'];
-        $this->set = array_merge($this->set, $config['set'] ?? []);
+        $this->setConfig($config['config']);
+        $this->setSet($config['set'] ?? []);
+
         unset($config);
 
         parent::__construct();
+    }
+
+    /**
+     * @param array $set
+     *
+     * @return $this
+     */
+    public function setSet(array $set = [])
+    {
+        if ($set) {
+            $this->set = array_merge($this->set, $set);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $eof
+     *
+     * @return $this
+     */
+    public function setSplitEof(string $eof = '')
+    {
+        if ($eof) {
+            $this->splitEof = $eof;
+        }
+
+        return $this;
     }
 
     /**
@@ -135,15 +169,51 @@ class Tcp extends Pool implements CoroutineInterface
         }
 
         $client->send($data['request'], function (TcpClient $client, $result) use (&$data) {
-            $this->release($client);
-
+            $isEnd = true;
             if ($data['format']) {
-                $result = $this->packet->decode($result, $this->set['package_eof']);
+                list($result, $isEnd) = $this->parseResult($result);
             }
 
-            $this->callback($data['token'], $result);
+            if ($isEnd) {
+                $this->release($client);
+            }
+
+            $this->callback($data['token'], $result, $isEnd);
             unset($data);
         });
+    }
+
+    /**
+     * @param $data
+     *
+     * @return array
+     */
+    private function parseResult($data)
+    {
+        if (false === strpos($data, $this->splitEof)) {
+            return [
+                $this->packet->decode($data, $this->set['package_eof']),
+                true
+            ];
+        }
+
+        $data = $this->packet->decode(
+            str_replace($this->splitEof, '', $data),
+            $this->set['package_eof']
+        )['data'];
+
+        $isEnd = isset($data['_is_end_']);
+        unset($data['_is_end_']);
+
+        return [
+            [
+                'code'     => 200,
+                'data'     => $data,
+                'is_batch' => true,
+                'is_end'   => $isEnd
+            ],
+            $isEnd
+        ];
     }
 
     /**
@@ -181,9 +251,9 @@ class Tcp extends Pool implements CoroutineInterface
     public function close(TcpClient $client)
     {
         if (isset($client->errCode)) {
-            Log::error($client->errCode);
+            if ($client->errCode > 0) {
+                Log::error('Tcp Connection closed, code: '. $client->errCode);
+            }
         }
-
-        $this->release($client);
     }
 }
