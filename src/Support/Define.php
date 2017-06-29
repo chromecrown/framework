@@ -9,7 +9,7 @@ namespace Wpt\Framework\Support;
  */
 class Define
 {
-    const VERSION = 'v1.0';
+    const VERSION = 'v1.1';
 
     const ON_TASK_FINISH    = 'on_task_finish';
     const ON_PIPE_MESSAGE   = 'on_pipe_message';

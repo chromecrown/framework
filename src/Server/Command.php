@@ -258,20 +258,24 @@ class Command
             }, sys_getloadavg());
 
             $display = $firstSplitLine;
+
+            $display .= "PHP version: "
+                . Define::VERSION
+                . str_pad('', 30 - PHP_VERSION)
+                . "Swoole version: "
+                . SWOOLE_VERSION
+                . "\n";
             $display .= "Framework version: "
                 . Define::VERSION
                 . str_pad('', 21 - strlen(Define::VERSION))
-                . "PHP version: "
-                . PHP_VERSION
+                . "Worker number: {$config['worker_num']} / {$config['task_worker_num']}"
                 . "\n";
 
             if ($status) {
                 $runTime = Time::format(time() - $status['start_time'] ?? 0, false);
-                $display .= "Start time: " . date('Y-m-d H:i:s', $status['start_time']) . "         Run {$runTime} \n";
+                $display .= "Run: {$runTime}\n";
             }
 
-            $display .= "Worker number: {$config['worker_num']}" . str_pad('', 25 - strlen($config['worker_num']));
-            $display .= "Task number: {$config['task_worker_num']}" . "\n";
             $display .= "Load average: " . implode(", ", $loadAvg) . "\n";
 
             if ($status) {
@@ -280,10 +284,9 @@ class Command
                 $display .= $statusSplitLine;
                 $display .= "Connection num: {$status['connection_num']}" . str_pad('',
                         24 - strlen($status['connection_num']));
-                $display .= "Accept count: {$status['accept_count']}\n";
-                $display .= "Close count: {$status['close_count']}" . str_pad('', 27 - strlen($status['close_count']));
                 $display .= "Tasking num: {$status['tasking_num']}\n";
-                $display .= "Total request: {$status['total']['success']}, {$status['total']['failure']} [{$status['total']['avg_time']}]\n";
+                $display .= "Avg request time: {$status['total']['avg_time']}\n";
+                $display .= "Total request: {$status['total']['success']}, {$status['total']['failure']}\n";
                 $display .= "Qps: {$status['qps']}\n";
             } else {
                 $display .= "get server status failure....\nretrying...{$retry}\n";
