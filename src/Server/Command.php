@@ -261,14 +261,15 @@ class Command
 
             $display .= "PHP version: "
                 . Define::VERSION
-                . str_pad('', 30 - PHP_VERSION)
+                . str_pad('', 30 - strlen(PHP_VERSION))
                 . "Swoole version: "
                 . SWOOLE_VERSION
                 . "\n";
+
             $display .= "Framework version: "
                 . Define::VERSION
                 . str_pad('', 21 - strlen(Define::VERSION))
-                . "Worker number: {$config['worker_num']} / {$config['task_worker_num']}"
+                . "Worker number: {$config['worker_num']}, {$config['task_worker_num']}"
                 . "\n";
 
             if ($status) {
