@@ -1,5 +1,5 @@
 {
-  "name": "weipaitang/framework",
+  "name": "flower/framework",
   "type": "library",
   "description": "flower php api framework",
   "keywords": ["php", "framework", "flower", "api", "swoole"],
@@ -8,17 +8,25 @@
     "php": ">=7.0.0",
     "ext-redis": "*",
     "ext-msgpack": "*",
-    "ext-swoole": ">=1.9.4",
-    "ramsey/uuid": ">=3.5.2",
-    "psr/container": "~1.0",
-    "psr/log": "~1.0"
+    "ext-swoole": "~1.9",
+    "weipaitang/container": "dev-master",
+    "weipaitang/coroutine": "dev-master",
+    "weipaitang/config": "dev-master",
+    "weipaitang/database": "dev-master",
+    "weipaitang/http": "dev-master",
+    "weipaitang/lock": "dev-master",
+    "weipaitang/middleware": "dev-master",
+    "weipaitang/log": "dev-master",
+    "weipaitang/pool": "dev-master",
+    "weipaitang/server": "dev-master",
+    "weipaitang/support": "dev-master"
   },
   "autoload": {
     "psr-4": {
-      "Wpt\\Framework\\": "src"
+      "Weipaitang\\Framework": "src"
     },
     "files": [
-      "src/Support/Common.php"
+      "helpers.php"
     ]
   }
 }
