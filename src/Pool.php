@@ -5,6 +5,12 @@ namespace Weipaitang\Framework;
 use Weipaitang\Config\Config;
 use Weipaitang\Container\ContainerInterface;
 
+/**
+ * Class Pool
+ * @package Weipaitang\Framework
+ *
+ * fixme
+ */
 class Pool
 {
     /**

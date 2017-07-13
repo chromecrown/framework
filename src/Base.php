@@ -155,7 +155,7 @@ abstract class Base
     /**
      * 并行任务处理器
      *
-     * @return \Weipaitang\Framework\Client\Multi
+     * @return \Weipaitang\Coroutine\Multi
      */
     protected function multi()
     {

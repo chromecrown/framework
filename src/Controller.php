@@ -4,6 +4,7 @@ namespace Weipaitang\Framework;
 
 use Weipaitang\Http\Request;
 use Weipaitang\Http\Response;
+use Swoole\Server as SwooleServer;
 
 /**
  * Class Controller
@@ -13,11 +14,14 @@ use Weipaitang\Http\Response;
 abstract class Controller extends Base
 {
     /**
-     * Tcp 连接标识符
-     *
-     * @var integer
+     * @var int
      */
     protected $fd;
+
+    /**
+     * @var int
+     */
+    protected $fromId;
 
     /**
      * @var Request
@@ -36,24 +40,55 @@ abstract class Controller extends Base
      */
     protected $code = 200;
 
+    public function withServer(SwooleServer $server)
+    {
+        $this->server = $server;
+
+        return $this;
+    }
+
     /**
-     * 设置连接标识符
-     *
      * @param int $fd
+     *
+     * @return $this
      */
     public function withFd(int $fd)
     {
         $this->fd = $fd;
+
+        return $this;
     }
 
     /**
-     * @param Request  $request
-     * @param Response $response
+     * @param int $fd
      */
-    public function withHttp(Request $request, Response $response)
+    public function withFromId(int $fd)
+    {
+        $this->fromId = $fd;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return $this
+     */
+    public function withRequest(Request $request)
     {
         $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * @param Response $response
+     *
+     * @return $this
+     */
+    public function withResponse(Response $response)
+    {
         $this->response = $response;
+
+        return $this;
     }
 
     /**
@@ -141,52 +176,50 @@ abstract class Controller extends Base
         return $this->request->getRequest($name, $default);
     }
 
-
-
-    /**
-     * for tcp
-     *
-     * @param int   $fd
-     * @param mixed $data
-     * @param int   $code
-     */
-    public function sendsss(int $fd, $data, int $code = 200)
-    {
-        if (! $this->server->exist($fd)) {
-            return;
-        }
-
-        $data = $this->packet->encode(
-            $this->packet->format($data, $code),
-            $this->serverSet['package_eof']
-        );
-
-        if (mb_strlen($data) > 1024 * 1024) {
-            $data = str_split($data, 1024 * 1024);
-        } else {
-            $data = [$data];
-        }
-
-        foreach ($data as $v) {
-            $this->server->send($fd, $v);
-        }
-    }
-
-    /**
-     * for udp
-     *
-     * @param string $host
-     * @param int    $port
-     * @param mixed  $data
-     * @param int    $code
-     */
-    public function sendto(string $host, int $port, $data, int $code = 200)
-    {
-        $this->server->sendto($host, $port, $this->packet->encode(
-            $this->packet->format($data, $code),
-            $this->serverSet['package_eof']
-        ));
-    }
+//    /**
+//     * for tcp
+//     *
+//     * @param int   $fd
+//     * @param mixed $data
+//     * @param int   $code
+//     */
+//    public function sendsss(int $fd, $data, int $code = 200)
+//    {
+//        if (! $this->server->exist($fd)) {
+//            return;
+//        }
+//
+//        $data = $this->packet->encode(
+//            $this->packet->format($data, $code),
+//            $this->serverSet['package_eof']
+//        );
+//
+//        if (mb_strlen($data) > 1024 * 1024) {
+//            $data = str_split($data, 1024 * 1024);
+//        } else {
+//            $data = [$data];
+//        }
+//
+//        foreach ($data as $v) {
+//            $this->server->send($fd, $v);
+//        }
+//    }
+//
+//    /**
+//     * for udp
+//     *
+//     * @param string $host
+//     * @param int    $port
+//     * @param mixed  $data
+//     * @param int    $code
+//     */
+//    public function sendto(string $host, int $port, $data, int $code = 200)
+//    {
+//        $this->server->sendto($host, $port, $this->packet->encode(
+//            $this->packet->format($data, $code),
+//            $this->serverSet['package_eof']
+//        ));
+//    }
 
     /**
      * 析构函数

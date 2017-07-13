@@ -8,6 +8,13 @@ use Swoole\Table as SwooleTable;
 /**
  * Class RunInfo
  * @package Weipaitang\Framework
+ *
+ * @method RunInfo get(string $name)
+ * @method RunInfo set(string $name, array $value)
+ * @method RunInfo del(string $name)
+ * @method RunInfo exist(string $name)
+ * @method RunInfo incr(string $name, string $key, int $number)
+ * @method RunInfo decr(string $name, string $key, int $number)
  */
 class RunInfo
 {
@@ -31,23 +38,15 @@ class RunInfo
     }
 
     /**
-     * @return SwooleTable
-     */
-    public function getRunTable()
-    {
-        return $this->table;
-    }
-
-    /**
      * 记录运行信息
      *
      * @param bool  $status
-     * @param float $runTime
+     * @param float $useTime
      */
-    public function logRunInfo(bool $status = true, float $runTime = 0.0)
+    public function logRunInfo(bool $status = true, float $useTime = 0.0)
     {
         $this->table->incr('total', $status ? 'success' : 'failure', 1);
-        $this->table->incr('total', 'time', $runTime);
+        $this->table->incr('total', 'time', $useTime);
 
         $this->table->incr('qps_' . \time(), 'success', 1);
     }
@@ -105,5 +104,20 @@ class RunInfo
                 ]);
             }
         );
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     *
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if (! in_array($name, ['get', 'set', 'exist', 'del', 'incr', 'decr'])) {
+            return null;
+        }
+
+        return $this->table->{$name}(...$arguments);
     }
 }

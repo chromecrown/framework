@@ -6,9 +6,7 @@ use Weipaitan\Framework\Protocol\Protocol;
 use Weipaitang\Config\Config;
 use Weipaitang\Config\SwooleTableHandler;
 use Weipaitang\Coroutine\Coroutine;
-use Weipaitang\Http\Request;
-use Weipaitang\Http\Response;
-use Weipaitang\Middleware\Middleware;
+use Weipaitang\Middleware\MiddlewareTrait;
 use Weipaitang\Packet\JsonHandler;
 use Weipaitang\Packet\MsgpackHandler;
 use Weipaitang\Packet\Packet;
@@ -24,17 +22,14 @@ use Swoole\Server as SwooleServer;
  */
 class Application extends Container
 {
-    /**
-     * 注册的服务列表
-     *
-     * @var array
-     */
-    protected $registerProviders = [];
+    use MiddlewareTrait;
+
+    const VERSION = '1.0';
 
     /**
      * @var array
      */
-    protected $middleware = [];
+    protected $registerProviders = [];
 
     /**
      * Application constructor.
@@ -115,8 +110,10 @@ class Application extends Container
     protected function registerServerCallback(Server $server)
     {
         $protocols = $server->getServerProtocols();
+        array_push($protocols, 'task');
+
         foreach ($protocols as $protocol) {
-            $protocol = 'Weipaitan\Framework\Protocol\\'. join('', array_map('ucwords',
+            $protocol = 'Weipaitan\Framework\Protocol\\'. join('', array_map('ucfirst',
                 explode('_', $protocol)
             ));
 
@@ -125,6 +122,7 @@ class Application extends Container
              */
             $protocol = new $protocol;
             $protocol->withServer($server);
+            $protocol->withContainer($this);
             $protocol->register();
         }
 
@@ -140,8 +138,6 @@ class Application extends Container
     }
 
     /**
-     * 当 Server 管道收到消息
-     *
      * @param SwooleServer $server
      * @param              $fromId
      * @param              $message
@@ -152,7 +148,7 @@ class Application extends Container
     }
 
     /**
-     * 向服务中心注册
+     * on server start
      */
     public function onServerStart()
     {
@@ -161,6 +157,7 @@ class Application extends Container
             return;
         }
 
+        // fixme new register
         $result = $this->get('manage.register')->register();
         if (! $result or $result['code'] !== 200) {
             Output::write("Register failure.");
@@ -171,7 +168,7 @@ class Application extends Container
     }
 
     /**
-     * 向服务中心反注册
+     * on server stop
      */
     public function onServerStop()
     {
@@ -180,6 +177,7 @@ class Application extends Container
             return;
         }
 
+        // fixme new register
         $result = $this->get('manage.register')->unregister();
         $status = (! $result or $result['code'] !== 200) ? 'failure' : 'success';
 
@@ -230,8 +228,6 @@ class Application extends Container
         $this->registerLogComponent();
         $this->registerDatabaseComponent();
         $this->registerCoroutineComponent();
-        $this->registerHttpComponent();
-        $this->registerMiddlewareComponent();
         $this->registerPacketComponent();
         $this->registerPoolComponent();
         $this->registerClientComponent();
@@ -266,17 +262,6 @@ class Application extends Container
     private function registerCoroutineComponent()
     {
         $this->register('coroutine', Coroutine::class);
-    }
-
-    private function registerHttpComponent()
-    {
-        $this->register('request', Request::class);
-        $this->register('response', Response::class);
-    }
-
-    private function registerMiddlewareComponent()
-    {
-        $this->register('middleware', Middleware::class);
     }
 
     private function registerPacketComponent()
@@ -341,35 +326,6 @@ class Application extends Container
         $this->registerProviders[$providerName] = true;
 
         $provider->handler();
-    }
-
-    /**
-     * @param string $name
-     * @param string $middleware
-     *
-     * @throws \Exception
-     */
-    public function withMiddleware(string $name, string $middleware)
-    {
-        if (! class_exists($middleware)) {
-            throw new \Exception('Middleware not found.');
-        }
-
-        $this->middleware[$name] = $middleware;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return mixed
-     */
-    public function getMiddleware($name = null)
-    {
-        if ($name) {
-            return $this->middleware[$name] ?? null;
-        }
-
-        return $this->middleware;
     }
 
     /**
