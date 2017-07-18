@@ -17,19 +17,18 @@ use Swoole\Server as SwooleServer;
 class Tcp extends Protocol
 {
     /**
+     * @var array
+     */
+    protected $register = [
+        Server::ON_CONNECT => 'onConnect',
+        Server::ON_RECEIVE => 'onReceive',
+        Server::ON_CLOSE   => 'onClose',
+    ];
+
+    /**
      * @var string
      */
     protected $type = 'Tcp';
-
-    /**
-     * @return void
-     */
-    public function register()
-    {
-        $this->server->withHook(Server::ON_CONNECT, [$this, 'onConnect']);
-        $this->server->withHook(Server::ON_RECEIVE, [$this, 'onReceive']);
-        $this->server->withHook(Server::ON_CLOSE,   [$this, 'onClose']);
-    }
 
     /**
      * @param SwooleServer $server

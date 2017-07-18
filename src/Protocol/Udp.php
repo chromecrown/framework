@@ -12,6 +12,13 @@ use Swoole\Server as SwooleServer;
 class Udp extends Tcp
 {
     /**
+     * @var array
+     */
+    protected $register = [
+        Server::ON_PACKET => 'onPacket'
+    ];
+
+    /**
      * @var string
      */
     protected $type = 'Udp';

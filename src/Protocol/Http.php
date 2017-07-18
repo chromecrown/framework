@@ -21,12 +21,11 @@ use Swoole\Http\Response as SwooleHttpResponse;
 class Http extends Protocol
 {
     /**
-     * @return void
+     * @var array
      */
-    public function register()
-    {
-        $this->server->withHook(Server::ON_REQUEST, [$this, 'onRequest']);
-    }
+    protected $register = [
+        Server::ON_REQUEST => 'onRequest'
+    ];
 
     /**
      * @param SwooleHttpRequest  $request

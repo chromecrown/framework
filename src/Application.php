@@ -22,14 +22,25 @@ use Swoole\Server as SwooleServer;
  */
 class Application extends Container
 {
+    /**
+     * middleware
+     */
     use MiddlewareTrait;
 
+    /**
+     * framework version
+     */
     const VERSION = '1.0';
 
     /**
      * @var array
      */
-    protected $registerProviders = [];
+    protected $registeredProviders = [];
+
+    /**
+     * @var array
+     */
+    protected $registeredHooks = [];
 
     /**
      * Application constructor.
@@ -37,7 +48,7 @@ class Application extends Container
     public function __construct()
     {
         if (php_sapi_name() != "cli") {
-            Output::write("只能运行在命令行模式下", 'red');
+            Output::write("The service can only run in command line mode", 'red');
             exit(1);
         }
 
@@ -57,7 +68,7 @@ class Application extends Container
 
         define('DEBUG_MODEL', $config->get('debug_model', false));
 
-        date_default_timezone_set($config->get('default_timezone', 'Asia/Shanghai'));
+        date_default_timezone_set($config->get('date_default_timezone', 'Asia/Shanghai'));
 
         register_shutdown_function([$this, 'onShutdown']);
         set_error_handler([$this, 'onError']);
@@ -126,23 +137,28 @@ class Application extends Container
             $protocol->register();
         }
 
-        $server->withHook(Server::ON_PIPE_MESSAGE, [$this, 'onPipeMessage']);
+        $hooks = [
+            Server::ON_PIPE_MESSAGE       => 'onPipeMessage',
+            Server::HOOK_SERVER_START     => 'onServerStart',
+            Server::HOOK_SERVER_STOP      => 'onServerStop',
+            Server::HOOK_SERVER_INIT      => 'onServerInit',
+            Server::HOOK_WORKER_INIT      => 'onWorkerInit',
+            Server::HOOK_TASK_WORKER_INIT => 'onTaskWorkerInit'
+        ];
 
-        $server->withHook(Server::HOOK_SERVER_START, [$this, 'onServerStart']);
-        $server->withHook(Server::HOOK_SERVER_STOP, [$this, 'onServerStop']);
-
-        $server->withHook(Server::HOOK_SERVER_INIT, [$this, 'onServerInit']);
-
-        $server->withHook(Server::HOOK_WORKER_INIT, [$this, 'onWorkerInit']);
-        $server->withHook(Server::HOOK_TASK_WORKER_INIT, [$this, 'onTaskWorkerInit']);
+        foreach ($hooks as $name => $hook) {
+            $server->withHook($name, $this->getHook($name, [$this, $hook]));
+        }
+        unset($hooks);
     }
+
 
     /**
      * @param SwooleServer $server
-     * @param              $fromId
-     * @param              $message
+     * @param int          $fromId
+     * @param string       $message
      */
-    public function onPipeMessage(SwooleServer $server, $fromId, $message)
+    public function onPipeMessage(SwooleServer $server, int $fromId, string $message)
     {
 
     }
@@ -152,8 +168,7 @@ class Application extends Container
      */
     public function onServerStart()
     {
-        $enableManageCenter = $this->get('config')->get('enable_manage_center', false);
-        if (! $enableManageCenter) {
+        if (! $this->get('config')->get('enable_service_center', false)) {
             return;
         }
 
@@ -172,8 +187,7 @@ class Application extends Container
      */
     public function onServerStop()
     {
-        $enableManageCenter = $this->get('config')->get('enable_manage_center', false);
-        if (! $enableManageCenter) {
+        if (! $this->get('config')->get('enable_service_center', false)) {
             return;
         }
 
@@ -202,10 +216,10 @@ class Application extends Container
             $this->get('runinfo')->logMaxQps($worker);
         }
 
-//        $pool = new Pool;
-//        $pool->withContainer($this);
-//        $pool->withWorkerId($workerId);
-//        $pool->initPool();
+        (new Pool)
+            ->withContainer($this);
+            ->withWorkerId($workerId);
+            ->init();
     }
 
     /**
@@ -307,25 +321,49 @@ class Application extends Container
     }
 
     /**
-     * @param string $provider
-     * @throws \Exception
+     * @param  string $provider
+     * @return $this
      */
     public function withServiceProvider(string $provider)
     {
         $provider = $this->make($provider);
 
         if (! $provider instanceof ServiceProvider) {
-            throw new \Exception('Provider must instanceof Weipaitang\Framework\Support\ServiceProvider');
+            throw new \Exception('Service provider must instanceof Weipaitang\Framework\Support\ServiceProvider');
         }
 
         $providerName = get_class($provider);
-        if (isset($this->registerProviders[$providerName])) {
+        if (isset($this->registeredProviders[$providerName])) {
             return;
         }
 
-        $this->registerProviders[$providerName] = true;
+        $this->registeredProviders[$providerName] = true;
 
         $provider->handler();
+
+        return $this;
+    }
+
+    /**
+     * @param  int    $name
+     * @param  mixed  $callback
+     * @return $this
+     */
+    public function withHook(int $name, $callback)
+    {
+        $this->registeredHooks[$name] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @param  int    $name
+     * @param  array  $default
+     * @return array|callable
+     */
+    public function getHook(int $name, array $default)
+    {
+        return $this->registeredHooks[$name] ?? $default;
     }
 
     /**
@@ -365,7 +403,7 @@ class Application extends Container
                 "Stack trace:",
             ];
 
-            $trace = debug_backtrace();
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
             foreach ($trace as $i => $t) {
                 $t['file'] = $t['file'] ?? 'unknown';
                 $t['line'] = $t['line'] ?? 0;

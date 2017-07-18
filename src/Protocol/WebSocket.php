@@ -2,11 +2,11 @@
 
 namespace Weipaitan\Framework\Protocol;
 
-use Swoole\Http\Request;
-use Swoole\Http\Response;
 use Weipaitang\Packet\JsonHandler;
 use Weipaitang\Packet\Packet;
 use Weipaitang\Server\Server;
+use Swoole\Http\Request;
+use Swoole\Http\Response;
 use Swoole\WebSocket\Server as SwooleWebSocketServer;
 use Swoole\WebSocket\Frame as SwooleWebSocketFrame;
 
@@ -17,20 +17,18 @@ use Swoole\WebSocket\Frame as SwooleWebSocketFrame;
 class WebSocket extends Tcp
 {
     /**
+     * @var array
+     */
+    protected $register = [
+        Server::ON_OPEN    => 'onOpen'
+        Server::ON_MESSAGE => 'onMessage'
+        Server::ON_CLOSE   => 'onClose'
+    ];
+
+    /**
      * @var string
      */
     protected $type = 'WebSocket';
-
-    /**
-     * @return void
-     */
-    public function register()
-    {
-        $this->server->hook(Server::ON_HAND_SHAKE, [$this, 'onHandShake']);
-        $this->server->hook(Server::ON_OPEN,       [$this, 'onOpen']);
-        $this->server->hook(Server::ON_MESSAGE,    [$this, 'onMessage']);
-        $this->server->hook(Server::ON_CLOSE,      [$this, 'onClose']);
-    }
 
     /**
      * @param SwooleWebSocketServer $server
@@ -74,15 +72,6 @@ class WebSocket extends Tcp
                 )
             );
         }
-    }
-
-    /**
-     * @param Request  $request
-     * @param Response $response
-     */
-    public function onHandShake(Request $request, Response $response)
-    {
-
     }
 
     /**

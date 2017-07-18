@@ -24,9 +24,22 @@ abstract class Protocol
     protected $server;
 
     /**
+     * @var array
+     */
+    protected $register = [];
+
+    /**
      * @return void
      */
-    abstract function register();
+    public function register()
+    {
+        foreach ($this->register as $name => $hook) {
+            $this->server->withHook(
+                $name, 
+                $this->app->getHook($name, [$this, $hook])
+            );
+        }
+    }
 
     /**
      * @param Server $server

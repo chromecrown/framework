@@ -16,13 +16,12 @@ use Swoole\Server as SwooleServer;
 class Task extends Protocol
 {
     /**
-     * @return void
+     * @var array
      */
-    public function register()
-    {
-        $this->server->withHook(Server::ON_TASK, [$this, 'onTask']);
-        $this->server->withHook(Server::ON_FINISH, [$this, 'onFinish']);
-    }
+    protected $register = [
+        Server::ON_TASK   => 'onTask',
+        Server::ON_FINISH => 'onFinish',
+    ];
 
     public function onTask(SwooleServer $server, int $taskId, int $workerId, $data)
     {
