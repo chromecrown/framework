@@ -4,6 +4,7 @@ namespace Weipaitang\Framework;
 
 use Weipaitang\Config\ConfigInterface;
 use Weipaitang\Database\Model as AbstractModel;
+use Weipaitang\Server\Server;
 
 /**
  * Class Model
@@ -13,8 +14,9 @@ class Model extends AbstractModel
 {
     /**
      * @param ConfigInterface $config
+     * @param Server          $server
      */
-    public function __constract(ConfigInterface $config)
+    public function __constract(ConfigInterface $config, Server $server)
     {
         if ($this->enableQueryCache === null) {
             $this->enableQueryCache = $config->get('enable_query_cache', false);
@@ -23,6 +25,12 @@ class Model extends AbstractModel
         if ($this->cacheTime === null) {
             $this->cacheTime = $config->get('query_cache_time', 86400);
         }
+
+        if (! $this->master) {
+            $this->master = $config->get('mysql_default');
+        }
+
+        $this->withEnableAsync(! ($server->getServer()->taskworker ?? false));
     }
 
     /**

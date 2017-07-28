@@ -3,10 +3,22 @@
 namespace Weipaitang\Framework;
 
 use Weipaitan\Framework\Protocol\Protocol;
+use Weipaitang\Client\Async\Dns;
+use Weipaitang\Client\Async\File;
+use Weipaitang\Client\Async\Http;
+use Weipaitang\Client\Async\MySQL;
 use Weipaitang\Client\Async\Pool\ManagePool;
+use Weipaitang\Client\Async\Redis;
+use Weipaitang\Client\Async\Tcp;
 use Weipaitang\Config\Config;
+use Weipaitang\Config\ConfigInterface;
 use Weipaitang\Config\SwooleTableHandler;
 use Weipaitang\Coroutine\Coroutine;
+use Weipaitang\Lock\Lock;
+use Weipaitang\Log\FileHandler;
+use Weipaitang\Log\Log;
+use Weipaitang\Log\Logger;
+use Weipaitang\Log\RedisHandler;
 use Weipaitang\Middleware\MiddlewareTrait;
 use Weipaitang\Packet\JsonHandler;
 use Weipaitang\Packet\MsgpackHandler;
@@ -217,12 +229,47 @@ class Application extends Container
             $this->get('runinfo')->logMaxQps($worker);
         }
 
+        $this->initPool();
+        $this->initLogger();
+    }
+
+    /**
+     * @return void
+     */
+    protected function initPool()
+    {
         $config = $this->get('config')->load('pool');
         $manage = (new ManagePool())
             ->withConfig($config)
             ->init();
 
         $this->register('pool', $manage);
+    }
+
+    /**
+     * @return void
+     */
+    protected function initLogger()
+    {
+        /**
+         * @var ConfigInterface $config
+         */
+        $config = $this->get('config');
+
+        $handler = $config->get('log_handler', 'file');
+        if ($handler == 'file') {
+            $handler = new FileHandler;
+            $handler->withLogPath(storage_path($config->get('log_path', 'log')));
+        } else {
+            $handler = new RedisHandler;
+            $handler->withPoolManage($this->get('pool'));
+        }
+
+        $logger = new Logger;
+        $logger->withServer($this->get('server'));
+        $logger->withLogHandler($handler);
+
+        Log::withLogger($logger);
     }
 
     /**
@@ -241,18 +288,7 @@ class Application extends Container
      */
     protected function registerBaseComponents()
     {
-        $this->registerConfigComponent();
-        $this->registerLogComponent();
-        $this->registerDatabaseComponent();
-        $this->registerCoroutineComponent();
-        $this->registerPacketComponent();
-        $this->registerPoolComponent();
-        $this->registerClientComponent();
-        $this->registerServerComponent();
-    }
-
-    private function registerConfigComponent()
-    {
+        // config
         $this->register('config', Config::class);
 
         /**
@@ -264,25 +300,11 @@ class Application extends Container
                 new MsgpackHandler
             )
         );
-    }
 
-    private function registerLogComponent()
-    {
-
-    }
-
-    private function registerDatabaseComponent()
-    {
-
-    }
-
-    private function registerCoroutineComponent()
-    {
+        // coroutine
         $this->register('coroutine', Coroutine::class);
-    }
 
-    private function registerPacketComponent()
-    {
+        // packet
         $this->register('packet', Packet::class, true);
 
         /**
@@ -306,26 +328,28 @@ class Application extends Container
         if ($packageEof) {
             $packet->withPackageEof($packageEof);
         }
-    }
 
-    private function registerPoolComponent()
-    {
+        // lock
+        $this->register('lock', Lock::class);
 
-    }
-
-    private function registerClientComponent()
-    {
-
-    }
-
-    private function registerServerComponent()
-    {
+        // server
         $this->register('server', Server::class, true);
+
+        // database
+
+        // client
+        $this->register('mysql', MySQL::class, true);
+        $this->register('redis', Redis::class, true);
+        $this->register('tcp',   Tcp::class,   true);
+        $this->register('http',  Http::class,  true);
+        $this->register('dns',   Dns::class,   true);
+        $this->register('file',  File::class,  true);
     }
 
     /**
-     * @param  string $provider
+     * @param string $provider
      * @return $this
+     * @throws \Exception
      */
     public function withServiceProvider(string $provider)
     {
@@ -336,13 +360,11 @@ class Application extends Container
         }
 
         $providerName = get_class($provider);
-        if (isset($this->registeredProviders[$providerName])) {
-            return;
+        if (! isset($this->registeredProviders[$providerName])) {
+            $this->registeredProviders[$providerName] = true;
+
+            $provider->handler();
         }
-
-        $this->registeredProviders[$providerName] = true;
-
-        $provider->handler();
 
         return $this;
     }
@@ -378,15 +400,15 @@ class Application extends Container
      */
     public function onError($errNo, $errStr, $errFile, $errLine, $errContext)
     {
-//        Log::error(
-//            "服务错误: {$errStr}",
-//            [
-//                $errNo,
-//                "{$errFile}:{$errLine}",
-//                $errStr,
-//                $errContext,
-//            ]
-//        );
+        Log::error(
+            "服务错误: {$errStr}",
+            [
+                $errNo,
+                "{$errFile}:{$errLine}",
+                $errStr,
+                $errContext,
+            ]
+        );
     }
 
     /**
@@ -423,7 +445,7 @@ class Application extends Container
                 $log[] = $logString;
             }
 
-//            Log::error('服务崩溃', $log);
+            Log::error('服务崩溃', $log);
         }
         unset($error);
     }
