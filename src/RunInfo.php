@@ -28,7 +28,7 @@ class RunInfo
      */
     public function __construct()
     {
-        $table = new SwooleTable(50);
+        $table = new SwooleTable(100);
         $table->column('success', SwooleTable::TYPE_INT, 8);
         $table->column('failure', SwooleTable::TYPE_INT, 8);
         $table->column('time',    SwooleTable::TYPE_FLOAT, 8);

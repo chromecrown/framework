@@ -20,9 +20,9 @@ class WebSocket extends Tcp
      * @var array
      */
     protected $register = [
-        Server::ON_OPEN    => 'onOpen'
-        Server::ON_MESSAGE => 'onMessage'
-        Server::ON_CLOSE   => 'onClose'
+        Server::ON_OPEN    => 'onOpen',
+        Server::ON_MESSAGE => 'onMessage',
+        Server::ON_CLOSE   => 'onClose',
     ];
 
     /**

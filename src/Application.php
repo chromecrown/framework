@@ -3,6 +3,7 @@
 namespace Weipaitang\Framework;
 
 use Weipaitan\Framework\Protocol\Protocol;
+use Weipaitang\Client\Async\Pool\ManagePool;
 use Weipaitang\Config\Config;
 use Weipaitang\Config\SwooleTableHandler;
 use Weipaitang\Coroutine\Coroutine;
@@ -216,10 +217,12 @@ class Application extends Container
             $this->get('runinfo')->logMaxQps($worker);
         }
 
-        (new Pool)
-            ->withContainer($this);
-            ->withWorkerId($workerId);
+        $config = $this->get('config')->load('pool');
+        $manage = (new ManagePool())
+            ->withConfig($config)
             ->init();
+
+        $this->register('pool', $manage);
     }
 
     /**
@@ -250,7 +253,7 @@ class Application extends Container
 
     private function registerConfigComponent()
     {
-        $this->register('config', Config::class, true);
+        $this->register('config', Config::class);
 
         /**
          * @var Config $config
