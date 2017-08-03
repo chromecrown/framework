@@ -4,15 +4,22 @@ namespace Weipaitang\Framework;
 
 use Weipaitang\Http\Request;
 use Weipaitang\Http\Response;
-use Swoole\Server as SwooleServer;
+use Weipaitang\Packet\JsonHandler;
+use Weipaitang\Packet\Packet;
 
 /**
  * Class Controller
- *
  * @package Weipaitang\Framework
  */
-abstract class Controller extends Base
+abstract class Controller
 {
+    use TraitBase;
+
+    /**
+     * @var int
+     */
+    protected $startTime;
+
     /**
      * @var int
      */
@@ -39,13 +46,6 @@ abstract class Controller extends Base
      * @var int
      */
     protected $code = 200;
-
-    public function withServer(SwooleServer $server)
-    {
-        $this->server = $server;
-
-        return $this;
-    }
 
     /**
      * @param int $fd
@@ -103,7 +103,7 @@ abstract class Controller extends Base
     }
 
     /**
-     * 发送消息 (TCP ONLY)
+     * tcp|udp only
      *
      * @param array $data
      */
@@ -111,15 +111,28 @@ abstract class Controller extends Base
     {
         $this->logRunInfo();
 
+        if (! $this->server->exist($this->fd)) {
+            return;
+        }
+
         if (count($data) === 1) {
             $data = current($data);
         }
 
-        $this->getServer()->send($this->fd, $data, $this->code);
+        /**
+         * @var Packet $packet
+         */
+        $packet = $this->container->get('packet');
+
+        $data = $packet->encode(
+            $packet->format($data, $this->code)
+        );
+
+        $this->server->send($this->fd, $data, $this->fromId);
     }
 
     /**
-     * 批量发送消息，用于大数据量 (TCP ONLY)
+     * tcp only
      *
      * @param mixed $data
      * @param bool  $isEnd
@@ -134,24 +147,53 @@ abstract class Controller extends Base
     }
 
     /**
-     * 发送消息 (HTTP ONLY)
+     * websock only
      *
-     * @param        $data
-     * @param string $msg
-     * @param int    $code
-     *
-     * @return Response
+     * @param array ...$data
      */
-    protected function response($data = null, $msg = '', $code = 1)
+    protected function push(...$data)
     {
         $this->logRunInfo();
 
+        if (! $this->server->exist($this->fd)) {
+            return;
+        }
+
+        if (count($data) === 1) {
+            $data = current($data);
+        }
+
+        /**
+         * @var Packet $packet
+         */
+        $packet = $this->container->get('packet');
+
+        $data = (new JsonHandler)->pack(
+            $packet->format($data, $this->code)
+        );
+
+        $this->server->push($this->fd, $data);
+    }
+
+
+    /**
+     * http only
+     *
+     * @param array ...$data
+     * @return Response
+     */
+    protected function response(...$data)
+    {
+        $this->logRunInfo();
+
+        if (count($data) === 1) {
+            $data = current($data);
+        }
+
         $this->response->withStatus($this->code);
-        $this->response->withContent(json_encode([
-            'code' => $code,
-            'msg'  => $msg,
-            'data' => $data
-        ], JSON_UNESCAPED_UNICODE));
+        $this->response->withContent(
+            (new JsonHandler)->pack($data)
+        );
 
         return $this->response;
     }
@@ -161,65 +203,15 @@ abstract class Controller extends Base
      */
     protected function logRunInfo()
     {
-        $this->app->logRunInfo($this->code == 200, (float)bcsub(microtime(true), $this->startTime, 7));
+        /**
+         * @var RunInfo $runInfo
+         */
+        $runInfo = $this->container->get('runinfo');
+        $runInfo->logRunInfo(
+            $this->code == 200,
+            (float)bcsub(microtime(true), $this->startTime, 7)
+        );
     }
-
-    /**
-     * 获取输入参数 (HTTP ONLY)
-     *
-     * @param  string $name
-     * @param  mixed  $default
-     * @return null
-     */
-    protected function input(string $name, $default = null)
-    {
-        return $this->request->getRequest($name, $default);
-    }
-
-//    /**
-//     * for tcp
-//     *
-//     * @param int   $fd
-//     * @param mixed $data
-//     * @param int   $code
-//     */
-//    public function sendsss(int $fd, $data, int $code = 200)
-//    {
-//        if (! $this->server->exist($fd)) {
-//            return;
-//        }
-//
-//        $data = $this->packet->encode(
-//            $this->packet->format($data, $code),
-//            $this->serverSet['package_eof']
-//        );
-//
-//        if (mb_strlen($data) > 1024 * 1024) {
-//            $data = str_split($data, 1024 * 1024);
-//        } else {
-//            $data = [$data];
-//        }
-//
-//        foreach ($data as $v) {
-//            $this->server->send($fd, $v);
-//        }
-//    }
-//
-//    /**
-//     * for udp
-//     *
-//     * @param string $host
-//     * @param int    $port
-//     * @param mixed  $data
-//     * @param int    $code
-//     */
-//    public function sendto(string $host, int $port, $data, int $code = 200)
-//    {
-//        $this->server->sendto($host, $port, $this->packet->encode(
-//            $this->packet->format($data, $code),
-//            $this->serverSet['package_eof']
-//        ));
-//    }
 
     /**
      * 析构函数
