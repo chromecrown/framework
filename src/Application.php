@@ -179,7 +179,7 @@ class Application extends Container
             return;
         }
 
-        $result = (new Register)->register();
+        $result = $this->make(Register::class)->register();
         if (! $result or $result['code'] !== 200) {
             Output::write("Register failure.");
             exit(1);
@@ -197,7 +197,7 @@ class Application extends Container
             return;
         }
 
-        $result = (new Register)->unregister();
+        $result = $this->make(Register::class)->unregister();
         $status = (! $result or $result['code'] !== 200) ? 'failure' : 'success';
 
         Output::write("unRegister {$status}.");

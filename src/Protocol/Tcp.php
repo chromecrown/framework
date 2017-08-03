@@ -3,11 +3,11 @@
 namespace Weipaitan\Framework\Protocol;
 
 use Weipaitang\Console\Output;
+use Weipaitang\Framework\ServiceCenter\Manage;
+use Weipaitang\Log\Log;
 use Weipaitang\Packet\Packet;
 use Weipaitang\Server\Server;
-use Weipaitang\Framework\RunInfo;
 use Weipaitang\Framework\Controller;
-use Weipaitang\ServiceCenter\Manage;
 use Swoole\Server as SwooleServer;
 
 /**
@@ -80,13 +80,10 @@ class Tcp extends Protocol
                     break;
 
                 case 'manage' :
-                    (new Manage)->withServer($server)
+                    $this->app->make(Manage::class)
+                        ->withServer($server)
                         ->withFd($fd)
                         ->dispatch($data);
-                    break;
-
-                case 'status' :
-                    $this->status($server);
                     break;
 
                 default :
@@ -98,8 +95,8 @@ class Tcp extends Protocol
             $message = $e->getMessage();
             $request = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-//            Log::error("{$this->type} dispatcher : " . $message, $data);
-//            Output::debug("{$this->type} dispatcher exception: {$message}, {$request}", 'red');
+            Log::error("{$this->type} dispatcher : " . $message, $data);
+            Output::debug("{$this->type} dispatcher exception: {$message}, {$request}", 'red');
 
             $server->send(
                 $fd,
@@ -156,47 +153,6 @@ class Tcp extends Protocol
         if ($generator instanceof \Generator) {
             $this->app->get('co.scheduler')->newTask($generator)->run();
         }
-    }
-
-    /**
-     * @param SwooleServer $server
-     *
-     * @return array
-     */
-    protected function status(SwooleServer $server)
-    {
-        $status = $server->stats();
-        unset($status['worker_request_count']);
-
-        $status['load_avg'] = sys_getloadavg();
-
-        /**
-         * @var RunInfo $runInfo
-         */
-        $runInfo = $this->app->get('runinfo');
-
-        $total = $runInfo->get('total');
-        $status['total'] = [
-            'success'  => $total ? $total['success'] : 0,
-            'failure'  => $total ? $total['failure'] : 0,
-            'avg_time' => ($total['success'] or $total['failure'])
-                ? bcdiv($total['time'], ($total['success'] + $total['failure']), 7)
-                : 0,
-        ];
-        unset($total);
-
-        $time = time();
-        $startTime = $time - $status['start_time'];
-
-        $total  = $status['total']['success'] + $status['total']['failure'];
-
-        $qpsSec = $runInfo->get('qps_' . ($time - 1))['success'] ?? 0;
-        $qpsAvg = $startTime ? ceil($total / $startTime) : $total;
-        $qpsMax = $runInfo->get('qps_max')['success'] ?? 0;
-
-        $status['qps'] = "{$qpsSec}, {$qpsAvg}, {$qpsMax}";
-
-        return $status;
     }
 
     /**
