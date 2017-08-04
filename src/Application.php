@@ -2,8 +2,13 @@
 
 namespace Weipaitang\Framework;
 
-use Weipaitan\Framework\Protocol\Protocol;
+use Weipaitang\Framework\Protocol\Protocol;
+use Weipaitang\Client\Async\AbstractAsync;
 use Weipaitang\Client\Async\Pool\ManagePool;
+use Weipaitang\Client\Async\Pool\MySQLPool;
+use Weipaitang\Client\Async\Pool\RedisMultiPool;
+use Weipaitang\Client\Async\Pool\RedisPool;
+use Weipaitang\Client\Async\Pool\TcpPool;
 use Weipaitang\Config\Config;
 use Weipaitang\Config\ConfigInterface;
 use Weipaitang\Config\SwooleTableHandler;
@@ -16,6 +21,7 @@ use Weipaitang\Middleware\MiddlewareTrait;
 use Weipaitang\Packet\JsonHandler;
 use Weipaitang\Packet\MsgpackHandler;
 use Weipaitang\Packet\Packet;
+use Weipaitang\Pool\AbstractPool;
 use Weipaitang\Server\Server;
 use Weipaitang\Console\Output;
 use Weipaitang\Container\Container;
@@ -131,7 +137,7 @@ class Application extends Container
         array_push($protocols, 'task');
 
         foreach ($protocols as $protocol) {
-            $protocol = 'Weipaitan\Framework\Protocol\\'. join('', array_map('ucfirst',
+            $protocol = 'Weipaitang\Framework\Protocol\\'. join('', array_map('ucfirst',
                 explode('_', $protocol)
             ));
 
@@ -145,16 +151,16 @@ class Application extends Container
         }
 
         $hooks = [
-            Server::ON_PIPE_MESSAGE       => 'onPipeMessage',
             Server::HOOK_SERVER_START     => 'onServerStart',
             Server::HOOK_SERVER_STOP      => 'onServerStop',
+            Server::ON_PIPE_MESSAGE       => 'onPipeMessage',
             Server::HOOK_SERVER_INIT      => 'onServerInit',
             Server::HOOK_WORKER_INIT      => 'onWorkerInit',
             Server::HOOK_TASK_WORKER_INIT => 'onTaskWorkerInit'
         ];
 
         foreach ($hooks as $name => $hook) {
-            $server->withHook($name, $this->getHook($name, [$this, $hook]));
+            $server->withHook($name, [$this, $hook]);
         }
         unset($hooks);
     }
@@ -167,7 +173,7 @@ class Application extends Container
      */
     public function onPipeMessage(SwooleServer $server, int $fromId, string $message)
     {
-
+        $this->hook(Server::ON_PIPE_MESSAGE, $server, $fromId, $message);
     }
 
     /**
@@ -175,6 +181,8 @@ class Application extends Container
      */
     public function onServerStart()
     {
+        $this->hook(Server::HOOK_SERVER_START, $this);
+
         if (! $this->get('config')->get('enable_service_center', false)) {
             return;
         }
@@ -193,6 +201,8 @@ class Application extends Container
      */
     public function onServerStop()
     {
+        $this->hook(Server::HOOK_SERVER_STOP, $this);
+
         if (! $this->get('config')->get('enable_service_center', false)) {
             return;
         }
@@ -204,12 +214,14 @@ class Application extends Container
     }
 
     /**
-     * @param SwooleServer|null $server
+     * @param Server|null $server
      */
-    public function onServerInit(SwooleServer $server = null)
+    public function onServerInit(Server $server = null)
     {
         // init runinfo
         $this->get('runinfo');
+
+        $this->hook(Server::HOOK_SERVER_INIT, $server);
     }
 
     /**
@@ -218,6 +230,8 @@ class Application extends Container
      */
     public function onWorkerInit($worker, int $workerId)
     {
+        $this->hook(Server::HOOK_WORKER_INIT, $worker, $workerId);
+
         if ($workerId == 0) {
             $this->get('runinfo')->logMaxQps($worker);
         }
@@ -230,6 +244,27 @@ class Application extends Container
         /**
          * @var ManagePool $pool
          */
+        $poolConfig = $config->get('pool');
+        foreach ($poolConfig as &$v) {
+            $v['pool_hooks'] = $v['pool_hooks'] ?? $v['pool_hooks'] = [
+                AbstractPool::WARNING_ABOVE_MAX_SIZE => function ($pool) {
+                    /**
+                     * @var MySQLPool|RedisPool|RedisMultiPool|TcpPool $pool
+                     */
+                    Log::error('The number of connections exceeds the maximum.', $pool->getDebugInfo());
+                }
+            ];
+
+            $v['hooks'] = $v['hooks'] ?? [
+                AbstractAsync::HOOK_WARNING_EXEC_TIMEOUT => function (AbstractAsync $client, $runTime) {
+                    Log::error('Execute timeout. time: '. $runTime, $client->getDebugInfo());
+                },
+                AbstractAsync::HOOK_EXEC_ERROR           => function (AbstractAsync $client, string $error, $errno) {
+                    Log::error($error. " ({$errno})", $client->getDebugInfo());
+                },
+            ];
+        }
+
         $pool = $this->get('pool');
         $pool->withConfig($config->get('pool'));
         $pool->init();
@@ -258,7 +293,7 @@ class Application extends Container
      */
     public function onTaskWorkerInit($worker, int $workerId)
     {
-
+        $this->hook(Server::HOOK_TASK_WORKER_INIT, $worker, $workerId);
     }
 
     /**
@@ -267,20 +302,20 @@ class Application extends Container
     protected function withBaseComponents()
     {
         $components = [
-            ['config',    '\Weipaitang\Config\Config',               false],
-            ['coroutine', '\Weipaitang\Coroutine\Coroutine',         true],
-            ['multi',     '\Weipaitang\Coroutine\Multi',             true],
-            ['packet',    '\Weipaitang\Packet\Packet',               false],
-            ['server',    '\Weipaitang\Server\Server',               false],
-            ['mysql',     '\Weipaitang\Client\Async\Mysql',          true],
-            ['redis',     '\Weipaitang\Client\Async\Redis',          true],
-            ['tcp',       '\Weipaitang\Client\Async\Tcp',            true],
-            ['http',      '\Weipaitang\Client\Async\Http',           true],
-            ['dns',       '\Weipaitang\Client\Async\Dns',            true],
-            ['file',      '\Weipaitang\Client\Async\File',           true],
-            ['lock',      '\Weipaitang\Lock\Lock',                   false],
-            ['pool',      'Weipaitang\Client\Async\Pool\ManagePool', false],
-            ['runinfo',   '\Weipaitang\Framework\RunInfo',           false],
+            ['config',    '\Weipaitang\Config\Config',               true],
+            ['coroutine', '\Weipaitang\Coroutine\Coroutine',         false],
+            ['multi',     '\Weipaitang\Coroutine\Multi',             false],
+            ['packet',    '\Weipaitang\Packet\Packet',               true],
+            ['server',    '\Weipaitang\Server\Server',               true],
+            ['mysql',     '\Weipaitang\Client\Async\Mysql',          false],
+            ['redis',     '\Weipaitang\Client\Async\Redis',          false],
+            ['tcp',       '\Weipaitang\Client\Async\Tcp',            false],
+            ['http',      '\Weipaitang\Client\Async\Http',           false],
+            ['dns',       '\Weipaitang\Client\Async\Dns',            false],
+            ['file',      '\Weipaitang\Client\Async\File',           false],
+            ['lock',      '\Weipaitang\Lock\Lock',                   true],
+            ['pool',      'Weipaitang\Client\Async\Pool\ManagePool', true],
+            ['runinfo',   '\Weipaitang\Framework\RunInfo',           true],
         ];
 
         foreach ($components as $item) {
@@ -302,23 +337,22 @@ class Application extends Container
                 new MsgpackHandler
             )
         );
+        $config->withPath(root_path('config'));
+        $config->init();
 
         // log
-        $logPath = $config->get('log_path', '');
-        $logPath = $logPath ?: 'logs';
-
         $logger = new Logger;
         $logger->withServer($this->get('server'));
         $logger->withLogHandler(
             (new FileHandler)->withLogPath(
-                storage_path($logPath)
+                storage_path($config->get('log_path', 'logs'))
             )
         );
 
         Log::withLogger($logger);
 
         // package eof
-        $packageEof = $config->get('server_set.package_eof');
+        $packageEof = $config->get('server_set')['package_eof'];
 
         // packet handler
         $handler = $config->get('packet_handler', 'msgpack');
@@ -379,6 +413,19 @@ class Application extends Container
     public function getHook(int $name, array $default)
     {
         return $this->registeredHooks[$name] ?? $default;
+    }
+
+    /**
+     * @param int   $hook
+     * @param array ...$arguments
+     */
+    public function hook(int $hook, ...$arguments)
+    {
+        if (! isset($this->registeredHooks[$hook])) {
+            return;
+        }
+
+        call_user_func_array($this->registeredHooks[$hook], $arguments);
     }
 
     /**

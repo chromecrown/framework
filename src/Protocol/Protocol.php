@@ -1,6 +1,6 @@
 <?php
 
-namespace Weipaitan\Framework\Protocol;
+namespace Weipaitang\Framework\Protocol;
 
 use Weipaitang\Console\Output;
 use Weipaitang\Framework\Application;
@@ -9,7 +9,7 @@ use Weipaitang\Server\Server;
 
 /**
  * Class Protocol
- * @package Weipaitan\Framework\Protocol
+ * @package Weipaitang\Framework\Protocol
  */
 abstract class Protocol
 {

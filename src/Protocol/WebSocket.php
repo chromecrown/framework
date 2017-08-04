@@ -1,7 +1,9 @@
 <?php
 
-namespace Weipaitan\Framework\Protocol;
+namespace Weipaitang\Framework\Protocol;
 
+use Weipaitang\Console\Output;
+use Weipaitang\Log\Log;
 use Weipaitang\Packet\JsonHandler;
 use Weipaitang\Packet\Packet;
 use Weipaitang\Server\Server;
@@ -12,7 +14,7 @@ use Swoole\WebSocket\Frame as SwooleWebSocketFrame;
 
 /**
  * Class WebSocket
- * @package Weipaitan\Framework\Protocol
+ * @package Weipaitang\Framework\Protocol
  */
 class WebSocket extends Tcp
 {
@@ -62,8 +64,8 @@ class WebSocket extends Tcp
         } catch (\Exception $e) {
             $message = $e->getMessage();
 
-//            Log::error('{$this->type} dispatcher : ' . $message, $data);
-//            Output::debug("{$this->type} dispatcher exception: {$message}", 'red');
+            Log::error("{$this->type} dispatcher : " . $message, $data ?? []);
+            Output::debug("{$this->type} dispatcher exception: {$message}", 'red');
 
             $server->push(
                 $frame->fd,

@@ -1,6 +1,6 @@
 <?php
 
-namespace Weipaitan\Framework\Protocol;
+namespace Weipaitang\Framework\Protocol;
 
 use Weipaitang\Console\Output;
 use Weipaitang\Framework\ServiceCenter\Manage;
@@ -12,7 +12,7 @@ use Swoole\Server as SwooleServer;
 
 /**
  * Class Tcp
- * @package Weipaitan\Framework\Protocol
+ * @package Weipaitang\Framework\Protocol
  */
 class Tcp extends Protocol
 {
@@ -151,7 +151,7 @@ class Tcp extends Protocol
         unset($data);
 
         if ($generator instanceof \Generator) {
-            $this->app->get('co.scheduler')->newTask($generator)->run();
+            $this->app->get('coroutine')->newTask($generator)->run();
         }
     }
 

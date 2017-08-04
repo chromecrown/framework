@@ -1,6 +1,6 @@
 <?php
 
-namespace Weipaitan\Framework\Protocol;
+namespace Weipaitang\Framework\Protocol;
 
 use Weipaitang\Config\Config;
 use Weipaitang\Console\Output;
@@ -16,7 +16,7 @@ use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
  * Class Http
- * @package Weipaitan\Framework\Protocol
+ * @package Weipaitang\Framework\Protocol
  */
 class Http extends Protocol
 {
@@ -43,7 +43,7 @@ class Http extends Protocol
          * @var Config $config
          */
         $config = $this->app->get('config');
-        $config->get('http.enable_route', false)
+        $config->get('http_enable_route', false)
             ? $this->dispatchWithRoute($request, $response)
             : $this->dispatch($request, $response);
     }

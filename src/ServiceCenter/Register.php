@@ -70,13 +70,13 @@ class Register extends Controller
          */
         $config = $this->container->get('config');
 
-        $registerIp = $config->get('service_center.ip', null);
+        $registerIp = $config->get('service_center_ip', null);
         if (! $registerIp) {
             Output::write('Service center ip not set.', 'red');
             exit(1);
         }
 
-        $registerPort = $config->get('service_center.port', '9501');
+        $registerPort = $config->get('service_center_port', '9501');
         unset($config);
 
         /**

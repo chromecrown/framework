@@ -1,9 +1,9 @@
 <?php
 
-namespace Weipaitang\Framework\Dispatcher;
+namespace Weipaitang\Framework\Protocol;
 
-use Weipaitan\Framework\Protocol\Protocol;
 use Weipaitang\Console\Output;
+use Weipaitang\Log\Log;
 use Weipaitang\Packet\MsgpackHandler;
 use Weipaitang\Server\Server;
 use Swoole\Server as SwooleServer;
@@ -30,7 +30,7 @@ class Task extends Protocol
             or ! isset($data['method'])
             or ! $data['method']
         ) {
-//            Log::error('Task not found.');
+            Log::error('Task not found.');
             return;
         }
         
@@ -52,7 +52,7 @@ class Task extends Protocol
         $request   = join('\\', array_map('ucfirst', explode('/', $data['request'])));
         $namespace = '\App\Task\\';
         if (! class_exists($namespace . $request)) {
-//            Log::error("Task not found. [{$request}]");
+            Log::error("Task not found. [{$request}]");
             return ;
         }
 
@@ -63,7 +63,7 @@ class Task extends Protocol
 
         // 请求的对象木有找到
         if (! method_exists($object, $method)) {
-//            Log::error("Task not found. [{$request}:{$method}]");
+            Log::error("Task not found. [{$request}:{$method}]");
             return;
         }
 
@@ -78,7 +78,6 @@ class Task extends Protocol
                 . (new MsgpackHandler)->pack($data['args'])
             );
 
-            // fixme : lock dependency redis client [pool]
             $lockHandler = $this->app->get('lock');
 
             if (yield $lockHandler->lock($lockKey)) {
@@ -94,7 +93,7 @@ class Task extends Protocol
         } catch (\Exception $e) {
             $lockKey && yield $lockHandler->unlock($lockKey);
 
-//            Log::error($e->getMessage());
+            Log::error($e->getMessage());
         }
 
         $lockKey && yield $lockHandler->unlock($lockKey);

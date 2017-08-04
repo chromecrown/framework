@@ -1,13 +1,13 @@
 <?php
 
-namespace Weipaitan\Framework\Protocol;
+namespace Weipaitang\Framework\Protocol;
 
 use Weipaitang\Server\Server;
 use Swoole\Server as SwooleServer;
 
 /**
  * Class Udp
- * @package Weipaitan\Framework\Protocol
+ * @package Weipaitang\Framework\Protocol
  */
 class Udp extends Tcp
 {
