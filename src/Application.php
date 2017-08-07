@@ -12,7 +12,6 @@ use Weipaitang\Client\Async\Pool\TcpPool;
 use Weipaitang\Config\Config;
 use Weipaitang\Config\ConfigInterface;
 use Weipaitang\Config\SwooleTableHandler;
-use Weipaitang\Framework\ServiceCenter\Register;
 use Weipaitang\Log\FileHandler;
 use Weipaitang\Log\Log;
 use Weipaitang\Log\Logger;
@@ -108,9 +107,12 @@ class Application extends Container
             $config->get('server_name', 'Weipaitang')
         );
 
-        $server->withServerSet(
-            $config->get('server_set', [])
-        );
+        $serverSet = $config->get('server_set', []);
+        $serverSet['worker_num']      = max(1, $serverSet['worker_num'] ?? 1);
+        $serverSet['task_worker_num'] = max(1, $serverSet['task_worker_num'] ?? 1);
+
+        // server set
+        $server->withServerSet($serverSet);
 
         $server->withServerConfig(
             $config->get('server_config', [])
@@ -187,7 +189,7 @@ class Application extends Container
             return;
         }
 
-        $result = $this->make(Register::class)->register();
+        $result = $this->get('register')->register();
         if (! $result or $result['code'] !== 200) {
             Output::write("Register failure.");
             exit(1);
@@ -207,7 +209,7 @@ class Application extends Container
             return;
         }
 
-        $result = $this->make(Register::class)->unregister();
+        $result = $this->get('register')->unregister();
         $status = (! $result or $result['code'] !== 200) ? 'failure' : 'success';
 
         Output::write("unRegister {$status}.");
@@ -302,20 +304,22 @@ class Application extends Container
     protected function withBaseComponents()
     {
         $components = [
-            ['config',    '\Weipaitang\Config\Config',               true],
-            ['coroutine', '\Weipaitang\Coroutine\Coroutine',         false],
-            ['multi',     '\Weipaitang\Coroutine\Multi',             false],
-            ['packet',    '\Weipaitang\Packet\Packet',               true],
-            ['server',    '\Weipaitang\Server\Server',               true],
-            ['mysql',     '\Weipaitang\Client\Async\Mysql',          false],
-            ['redis',     '\Weipaitang\Client\Async\Redis',          false],
-            ['tcp',       '\Weipaitang\Client\Async\Tcp',            false],
-            ['http',      '\Weipaitang\Client\Async\Http',           false],
-            ['dns',       '\Weipaitang\Client\Async\Dns',            false],
-            ['file',      '\Weipaitang\Client\Async\File',           false],
-            ['lock',      '\Weipaitang\Lock\Lock',                   true],
-            ['pool',      'Weipaitang\Client\Async\Pool\ManagePool', true],
-            ['runinfo',   '\Weipaitang\Framework\RunInfo',           true],
+            ['config',    '\Weipaitang\Config\Config',                    true],
+            ['coroutine', '\Weipaitang\Coroutine\Coroutine',              false],
+            ['multi',     '\Weipaitang\Coroutine\Multi',                  false],
+            ['packet',    '\Weipaitang\Packet\Packet',                    true],
+            ['server',    '\Weipaitang\Server\Server',                    true],
+            ['mysql',     '\Weipaitang\Client\Async\Mysql',               false],
+            ['redis',     '\Weipaitang\Client\Async\Redis',               false],
+            ['tcp',       '\Weipaitang\Client\Async\Tcp',                 false],
+            ['http',      '\Weipaitang\Client\Async\Http',                false],
+            ['dns',       '\Weipaitang\Client\Async\Dns',                 false],
+            ['file',      '\Weipaitang\Client\Async\File',                false],
+            ['lock',      '\Weipaitang\Lock\Lock',                        true],
+            ['pool',      '\Weipaitang\Client\Async\Pool\ManagePool',     true],
+            ['runinfo',   '\Weipaitang\Framework\RunInfo',                true],
+            ['manage',    '\Weipaitang\Framework\ServiceCenter\Manage',   false],
+            ['register',  '\Weipaitang\Framework\ServiceCenter\Register', false],
         ];
 
         foreach ($components as $item) {

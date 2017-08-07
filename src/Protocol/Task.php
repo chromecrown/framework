@@ -23,7 +23,13 @@ class Task extends Protocol
         Server::ON_FINISH => 'onFinish',
     ];
 
-    public function onTask(SwooleServer $server, int $taskId, int $workerId, $data)
+    /**
+     * @param SwooleServer $server
+     * @param int          $taskId
+     * @param int          $workerId
+     * @param array        $data
+     */
+    public function onTask(SwooleServer $server, int $taskId, int $workerId, array $data)
     {
         if (! isset($data['request'])
             or ! $data['request']
@@ -33,24 +39,29 @@ class Task extends Protocol
             Log::error('Task not found.');
             return;
         }
-        
+
         $data['args'] = $data['args'] ?? [];
         
-        $this->app->get('coroutine')->newTask(
-            $this->dispatch($data)
-        )->run();
+        $this->app->get('coroutine')->withTask(
+            $this->dispatch($server, $data)
+        )->start();
     }
 
     /**
-     * @param array $data
-     *
-     * @return \Generator|void
-     * @throws \Exception
+     * @param SwooleServer $server
+     * @param array        $data
      */
-    private function dispatch(array $data)
+    private function dispatch(SwooleServer $server, array $data)
     {
-        $request   = join('\\', array_map('ucfirst', explode('/', $data['request'])));
-        $namespace = '\App\Task\\';
+        $isManageTask = $data['request'] == 'manage.task';
+        if ($isManageTask) {
+            $request   = 'Task';
+            $namespace = '\Weipaitang\Framework\ServiceCenter\\';
+        } else {
+            $request   = join('\\', array_map('ucfirst', explode('/', $data['request'])));
+            $namespace = '\App\Task\\';
+        }
+
         if (! class_exists($namespace . $request)) {
             Log::error("Task not found. [{$request}]");
             return ;
@@ -61,13 +72,14 @@ class Task extends Protocol
 
         $object = $this->app->make($request);
 
-        // 请求的对象木有找到
         if (! method_exists($object, $method)) {
             Log::error("Task not found. [{$request}:{$method}]");
             return;
         }
 
-        $this->logRequest('task', $request, $method, $data['args']);
+        if (! $isManageTask) {
+            $this->logRequest('task', $request, $method, $data['args']);
+        }
         
         $lockKey = '';
         $lockHandler = null;
@@ -87,8 +99,9 @@ class Task extends Protocol
             }
         }
 
+        $result = null;
         try {
-            yield $object->$method(...array_values($data['args']));
+            $result = yield $object->$method(...array_values($data['args']));
             unset($data);
         } catch (\Exception $e) {
             $lockKey && yield $lockHandler->unlock($lockKey);
@@ -98,6 +111,8 @@ class Task extends Protocol
 
         $lockKey && yield $lockHandler->unlock($lockKey);
         unset($lockHandler);
+
+        $server->finish((new MsgpackHandler)->pack($result));
     }
 
     public function onFinish(SwooleServer $server, int $taskId, string $data)

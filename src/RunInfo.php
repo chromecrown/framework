@@ -38,8 +38,6 @@ class RunInfo
     }
 
     /**
-     * 记录运行信息
-     *
      * @param bool  $status
      * @param float $useTime
      */
@@ -52,8 +50,6 @@ class RunInfo
     }
 
     /**
-     * 记录最大 QPS
-     *
      * @param $worker
      */
     protected function logMaxQps($worker)

@@ -2,6 +2,7 @@
 
 namespace Weipaitang\Framework;
 
+use Weipaitang\Container\ContainerInterface;
 use Weipaitang\Http\Request;
 use Weipaitang\Http\Response;
 use Weipaitang\Packet\JsonHandler;
@@ -14,6 +15,11 @@ use Weipaitang\Packet\Packet;
 abstract class Controller
 {
     use TraitBase;
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
 
     /**
      * @var int
@@ -46,6 +52,17 @@ abstract class Controller
      * @var int
      */
     protected $code = 200;
+
+    /**
+     * Controller constructor.
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+
+        $this->startTime = microtime(true);
+    }
 
     /**
      * @param int $fd
@@ -128,7 +145,7 @@ abstract class Controller
             $packet->format($data, $this->code)
         );
 
-        $this->server->send($this->fd, $data, $this->fromId);
+        $this->server->send($this->fd, $data, $this->fromId ?: $this->fd);
     }
 
     /**
@@ -136,6 +153,8 @@ abstract class Controller
      *
      * @param mixed $data
      * @param bool  $isEnd
+     *
+     * fixme
      */
     protected function batchSend($data, bool $isEnd = false)
     {
@@ -143,7 +162,7 @@ abstract class Controller
             $this->logRunInfo();
         }
 
-        $this->getServer()->batchSend($this->fd, $data, $isEnd, $this->code);
+//        $this->getServer()->batchSend($this->fd, $data, $isEnd, $this->code);
     }
 
     /**

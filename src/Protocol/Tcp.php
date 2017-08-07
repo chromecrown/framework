@@ -80,7 +80,7 @@ class Tcp extends Protocol
                     break;
 
                 case 'manage' :
-                    $this->app->make(Manage::class)
+                    $this->app->get('manage')
                         ->withServer($server)
                         ->withFd($fd)
                         ->dispatch($data);
@@ -113,7 +113,6 @@ class Tcp extends Protocol
      * @param array        $data
      * @param int|null     $fd
      * @param int|null     $fromId
-     *
      * @throws \Exception
      */
     public function dispatchApi(SwooleServer $server, array $data, int $fd = null, int $fromId = null)
