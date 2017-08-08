@@ -16,17 +16,21 @@ class Task extends AbstractTask
      */
     public function status()
     {
-        $status = $this->getServer()->stats();
-        unset($status['worker_request_count']);
+        $status = [];
+
+        // linux system info
+        if (PHP_OS == 'Linux') {
+            $status = (new SystemInfo)->getInfo();
+        } else {
+            sleep(1);
+        }
 
         $status['load_avg'] = array_map(function ($v) {
             return round($v, 2);
         }, sys_getloadavg());
 
-        // linux system info
-        if (PHP_OS == 'Linux') {
-            $status = array_merge($status, (new SystemInfo)->getInfo());
-        }
+        $status = array_merge($status, $this->getServer()->stats());
+        unset($status['worker_request_count']);
 
         /**
          * @var RunInfo $runInfo

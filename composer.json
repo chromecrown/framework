@@ -9,17 +9,20 @@
     "ext-redis": "*",
     "ext-msgpack": "*",
     "ext-swoole": "~1.9",
-    "weipaitang/container": "dev-master",
-    "weipaitang/coroutine": "dev-master",
-    "weipaitang/config": "dev-master",
-    "weipaitang/database": "dev-master",
-    "weipaitang/http": "dev-master",
-    "weipaitang/lock": "dev-master",
-    "weipaitang/middleware": "dev-master",
-    "weipaitang/log": "dev-master",
-    "weipaitang/pool": "dev-master",
-    "weipaitang/server": "dev-master",
-    "weipaitang/support": "dev-master"
+    "weipaitang/container": ">=0.1|dev-master",
+    "weipaitang/server": ">=0.1|dev-master",
+    "weipaitang/console": ">=0.1|dev-master",
+    "weipaitang/coroutine": ">=0.1|dev-master",
+    "weipaitang/http": ">=0.1|dev-master",
+    "weipaitang/middleware": ">=0.1|dev-master",
+    "weipaitang/packet": ">=0.1|dev-master",
+    "weipaitang/config": ">=0.1|dev-master",
+    "weipaitang/pool": ">=0.1|dev-master",
+    "weipaitang/client": ">=0.1|dev-master",
+    "weipaitang/route": ">=0.1|dev-master",
+    "weipaitang/log": ">=0.1|dev-master",
+    "weipaitang/lock": ">=0.1|dev-master",
+    "weipaitang/database": ">=0.1|dev-master"
   },
   "autoload": {
     "psr-4": {
@@ -28,5 +31,10 @@
     "files": [
       "helpers.php"
     ]
-  }
+  },
+  "config": {
+    "secure-http": true
+  },
+  "prefer-stable": true,
+  "minimum-stability": "dev"
 }
