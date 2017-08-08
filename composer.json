@@ -29,7 +29,7 @@
       "Weipaitang\\Framework\\": "src"
     },
     "files": [
-      "helpers.php"
+      "src/helpers.php"
     ]
   },
   "config": {
