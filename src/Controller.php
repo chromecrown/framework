@@ -12,15 +12,8 @@ use Weipaitang\Packet\Packet;
  * Class Controller
  * @package Weipaitang\Framework
  */
-abstract class Controller
+abstract class Controller extends AbstractBase
 {
-    use TraitBase;
-
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
     /**
      * @var int
      */
@@ -59,9 +52,9 @@ abstract class Controller
      */
     public function __construct(ContainerInterface $container)
     {
-        $this->container = $container;
-
         $this->withStartTime(microtime(true));
+
+        parent::__construct($container);
     }
 
     /**

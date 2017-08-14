@@ -6,7 +6,7 @@ namespace Weipaitang\Framework;
  * Class Process
  * @package Weipaitang\Framework
  */
-class Process
+class Process extends AbstractBase
 {
-    use TraitBase;
+
 }

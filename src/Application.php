@@ -313,8 +313,6 @@ class Application extends Container
             ['redis',     '\Weipaitang\Client\Async\Redis',               false],
             ['tcp',       '\Weipaitang\Client\Async\Tcp',                 false],
             ['http',      '\Weipaitang\Client\Async\Http',                false],
-            ['dns',       '\Weipaitang\Client\Async\Dns',                 false],
-            ['file',      '\Weipaitang\Client\Async\File',                false],
             ['lock',      '\Weipaitang\Lock\Lock',                        true],
             ['pool',      '\Weipaitang\Client\Async\Pool\ManagePool',     true],
             ['runinfo',   '\Weipaitang\Framework\RunInfo',                true],
