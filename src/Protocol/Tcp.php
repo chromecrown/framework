@@ -150,7 +150,7 @@ class Tcp extends Protocol
         unset($data);
 
         if ($generator instanceof \Generator) {
-            $this->app->get('coroutine')->newTask($generator)->run();
+            $this->app->get('coroutine')->withTask($generator)->start();
         }
     }
 

@@ -61,7 +61,18 @@ abstract class Controller
     {
         $this->container = $container;
 
-        $this->startTime = microtime(true);
+        $this->withStartTime(microtime(true));
+    }
+
+    /**
+     * @param float $startTime
+     * @return $this
+     */
+    public function withStartTime(float $startTime)
+    {
+        $this->startTime = $startTime;
+
+        return $this;
     }
 
     /**
@@ -222,6 +233,10 @@ abstract class Controller
      */
     protected function logRunInfo()
     {
+        if (! $this->startTime) {
+            return;
+        }
+
         /**
          * @var RunInfo $runInfo
          */
