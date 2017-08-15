@@ -248,7 +248,7 @@ class Application extends Container
          */
         $poolConfig = $config->get('pool');
         foreach ($poolConfig as &$v) {
-            $v['pool_hooks'] = $v['pool_hooks'] ?? $v['pool_hooks'] = [
+            $v['pool_hooks'] = $v['pool_hooks'] ?? [
                 AbstractPool::WARNING_ABOVE_MAX_SIZE => function ($pool) {
                     /**
                      * @var MySQLPool|RedisPool|RedisMultiPool|TcpPool $pool
@@ -268,7 +268,7 @@ class Application extends Container
         }
 
         $pool = $this->get('pool');
-        $pool->withConfig($config->get('pool'));
+        $pool->withConfig($poolConfig);
         $pool->init();
 
         $this->register('pool', $pool);
