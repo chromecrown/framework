@@ -247,28 +247,9 @@ class Application extends Container
          * @var ManagePool $pool
          */
         $poolConfig = $config->get('pool');
-        foreach ($poolConfig as &$v) {
-            $v['pool_hooks'] = $v['pool_hooks'] ?? [
-                AbstractPool::WARNING_ABOVE_MAX_SIZE => function ($pool) {
-                    /**
-                     * @var MySQLPool|RedisPool|RedisMultiPool|TcpPool $pool
-                     */
-                    Log::error('The number of connections exceeds the maximum.', $pool->getDebugInfo());
-                }
-            ];
-
-            $v['hooks'] = $v['hooks'] ?? [
-                AbstractAsync::HOOK_WARNING_EXEC_TIMEOUT => function (AbstractAsync $client, $runTime) {
-                    Log::error('Execute timeout. time: '. $runTime, $client->getDebugInfo());
-                },
-                AbstractAsync::HOOK_EXEC_ERROR           => function (AbstractAsync $client, string $error, $errno) {
-                    Log::error($error. " ({$errno})", $client->getDebugInfo());
-                },
-            ];
-        }
 
         $pool = $this->get('pool');
-        $pool->withConfig($poolConfig);
+        $pool->withConfig($this->parsePoolConfig($poolConfig));
         $pool->init();
 
         $this->register('pool', $pool);
@@ -287,6 +268,35 @@ class Application extends Container
                 );
             }
         }
+    }
+
+    /**
+     * @param array $poolConfig
+     * @return array
+     */
+    protected function parsePoolConfig(array $poolConfig)
+    {
+        foreach ($poolConfig as &$v) {
+            $v['pool_hooks'] = $v['pool_hooks'] ?? [
+                    AbstractPool::WARNING_ABOVE_MAX_SIZE => function ($pool) {
+                        /**
+                         * @var MySQLPool|RedisPool|RedisMultiPool|TcpPool $pool
+                         */
+                        Log::error('The number of connections exceeds the maximum.', $pool->getDebugInfo());
+                    }
+                ];
+
+            $v['hooks'] = $v['hooks'] ?? [
+                    AbstractAsync::HOOK_WARNING_EXEC_TIMEOUT => function (AbstractAsync $client, $runTime) {
+                        Log::error('Execute timeout. time: '. $runTime, $client->getDebugInfo());
+                    },
+                    AbstractAsync::HOOK_EXEC_ERROR           => function (AbstractAsync $client, string $error, $errno) {
+                        Log::error($error. " ({$errno})", $client->getDebugInfo());
+                    },
+                ];
+        }
+
+        return $poolConfig;
     }
 
     /**
