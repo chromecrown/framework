@@ -189,9 +189,14 @@ class Http extends Protocol
             $middleware = new Middleware;
             $middleware->withMiddleware($middlewares);
 
-            $this->app->get('coroutine')->newTask(
-                $middleware->dispatch($request, $response)
-            )->run();
+            $this->app->get('coroutine')->newTask(function () use ($middleware, $request, $response) {
+                try {
+                    yield $middleware->dispatch($request, $response);
+                } catch (\Exception $e) {
+                    $response->withStatus($e->getCode() ?: 500);
+                    $response->end();
+                }
+            })->run();
         } catch (\Exception $e) {
             $response->withStatus($e->getCode() ?: 500);
             $response->end();

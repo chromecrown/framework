@@ -92,19 +92,7 @@ class Tcp extends Protocol
 
             unset($data);
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            $request = json_encode($data, JSON_UNESCAPED_UNICODE);
-
-            Log::error("{$this->type} dispatcher : " . $message, $data);
-            Output::debug("{$this->type} dispatcher exception: {$message}, {$request}", 'red');
-
-            $server->send(
-                $fd,
-                $packet->encode(
-                    $packet->format($message, 500)
-                ),
-                $fromId
-            );
+            $this->dispatchError($e, $server, $fd, $fromId, $data);
         }
     }
 
@@ -147,11 +135,45 @@ class Tcp extends Protocol
         $this->logRequest($this->type, $request, $method, $data['args']);
 
         $generator = $object->$method(...array_values($data['args'] ?: []));
-        unset($data);
 
         if ($generator instanceof \Generator) {
-            $this->app->get('coroutine')->withTask($generator)->start();
+            $this->app->get('coroutine')->withTask(function () use ($generator, $server, $fd, $fromId, $data) {
+                try {
+                    yield $generator;
+                } catch (\Exception $e) {
+                    $this->dispatchError($e, $server, $fd, $fromId, $data);
+                }
+            })->start();
         }
+    }
+
+    /**
+     * @param \Exception $e
+     * @param SwooleServer $server
+     * @param int $fd
+     * @param int $fromId
+     * @param array $data
+     */
+    protected function dispatchError(\Exception $e, SwooleServer $server, int $fd, int $fromId, array $data)
+    {
+        $message = $e->getMessage();
+        $request = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+        Log::error("{$this->type} dispatcher : " . $message, $data);
+        Output::debug("{$this->type} dispatcher exception: {$message}, {$request}", 'red');
+
+        /**
+         * @var Packet $packet
+         */
+        $packet = $this->app->get('packet');
+
+        $server->send(
+            $fd,
+            $packet->encode(
+                $packet->format($message, $e->getCode() ?: 500)
+            ),
+            $fromId
+        );
     }
 
     /**
