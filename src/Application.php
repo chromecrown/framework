@@ -280,7 +280,7 @@ class Application extends Container
      * @param array $poolConfig
      * @return array
      */
-    protected function parsePoolConfig(array $poolConfig)
+    public function parsePoolConfig(array $poolConfig)
     {
         foreach ($poolConfig as &$v) {
             $v['pool_hooks'] = $v['pool_hooks'] ?? [
