@@ -183,7 +183,10 @@ class Application extends Container
      */
     public function onServerStart()
     {
-        $this->hook(Server::HOOK_SERVER_START, $this);
+        if ($this->hasHook(Server::HOOK_SERVER_START)) {
+            $this->hook(Server::HOOK_SERVER_START, $this);
+            return;
+        }
 
         if (! $this->get('config')->get('enable_service_center', false)) {
             return;
@@ -203,7 +206,10 @@ class Application extends Container
      */
     public function onServerStop()
     {
-        $this->hook(Server::HOOK_SERVER_STOP, $this);
+        if ($this->hasHook(Server::HOOK_SERVER_STOP)) {
+            $this->hook(Server::HOOK_SERVER_STOP, $this);
+            return;
+        }
 
         if (! $this->get('config')->get('enable_service_center', false)) {
             return;
@@ -403,6 +409,15 @@ class Application extends Container
         }
 
         return $this;
+    }
+
+    /**
+     * @param int $name
+     * @return bool
+     */
+    public function hasHook(int $name)
+    {
+        return isset($this->registeredHooks[$name]);
     }
 
     /**
