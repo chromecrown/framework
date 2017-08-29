@@ -325,7 +325,7 @@ class Application extends Container
             ['multi',     '\Weipaitang\Coroutine\Multi',                  false],
             ['packet',    '\Weipaitang\Packet\Packet',                    true],
             ['server',    '\Weipaitang\Server\Server',                    true],
-            ['mysql',     '\Weipaitang\Client\Async\Mysql',               false],
+            ['mysql',     '\Weipaitang\Client\Async\MySQL',               false],
             ['redis',     '\Weipaitang\Client\Async\Redis',               false],
             ['tcp',       '\Weipaitang\Client\Async\Tcp',                 false],
             ['http',      '\Weipaitang\Client\Async\Http',                false],
