@@ -3,6 +3,7 @@
 namespace Weipaitang\Framework;
 
 use Swoole\Server;
+use Weipaitang\Client\Async\Pool\ManagePool;
 use Weipaitang\Container\ContainerInterface;
 use Weipaitang\Database\Dao;
 
@@ -56,26 +57,51 @@ abstract class AbstractBase
      * @param string $readWrite
      * @return Dao
      */
-    public function model(string $name, string $connect = null, string $readWrite = 'auto')
+    public function dao(string $name, string $connect = null, string $readWrite = 'auto')
+    {
+        $dao = $this->getClassName($name);
+
+        /**
+         * @var Dao $dao
+         */
+        $dao = $this->container->make($dao);
+
+        if ($connect) {
+            $dao->withConnect($connect);
+        }
+
+        $dao->withReadWrite($readWrite);
+
+        return $dao;
+    }
+
+    /**
+     * @param string $name
+     * @return Model
+     */
+    public function model(string $name)
+    {
+        $model = $this->getClassName($name);
+
+        /**
+         * @var Model $model
+         */
+        $model = $this->container->make($model);
+
+        return $model;
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    private function getClassName(string $name)
     {
         $name = strpos($name, '/') !== false
             ? join('\\', array_map('ucfirst', explode('/', $name)))
             : ucfirst($name);
 
-        $model = "\\App\\Dao\\" . ucfirst($name);
-
-        /**
-         * @var Dao $model
-         */
-        $model = $this->container->make($model);
-
-        if ($connect) {
-            $model->withConnect($connect);
-        }
-
-        $model->withReadWrite($readWrite);
-
-        return $model;
+        return "\\App\\Model\\" . ucfirst($name);
     }
 
     /**
@@ -84,7 +110,12 @@ abstract class AbstractBase
      */
     public function redis(string $pool = null)
     {
-        return $this->container->get('pool')->select($pool);
+        /**
+         * @var ManagePool $poolManage
+         */
+        $poolManage = $this->container->get('pool');
+
+        return $poolManage->select($pool);
     }
 
     /**
