@@ -59,7 +59,7 @@ abstract class AbstractBase
      */
     public function dao(string $name, string $connect = null, string $readWrite = 'auto')
     {
-        $dao = $this->getClassName($name);
+        $dao = $this->getClassName($name, 'Dao');
 
         /**
          * @var Dao $dao
@@ -81,7 +81,7 @@ abstract class AbstractBase
      */
     public function model(string $name)
     {
-        $model = $this->getClassName($name);
+        $model = $this->getClassName($name, 'Model');
 
         /**
          * @var Model $model
@@ -93,15 +93,16 @@ abstract class AbstractBase
 
     /**
      * @param string $name
+     * @param string $type
      * @return string
      */
-    private function getClassName(string $name)
+    private function getClassName(string $name, string $type)
     {
         $name = strpos($name, '/') !== false
             ? join('\\', array_map('ucfirst', explode('/', $name)))
             : ucfirst($name);
 
-        return "\\App\\Model\\" . ucfirst($name);
+        return "\\App\\{$type}\\" . ucfirst($name);
     }
 
     /**
