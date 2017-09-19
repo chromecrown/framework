@@ -288,13 +288,13 @@ class Application extends Container
                         /**
                          * @var MySQLPool|RedisPool|RedisMultiPool|TcpPool $pool
                          */
-                        Log::error('The number of connections exceeds the maximum.', $pool->getDebugInfo());
+                        Log::warning('The number of connections exceeds the maximum.', $pool->getDebugInfo());
                     }
                 ];
 
             $v['hooks'] = $v['hooks'] ?? [
                     AbstractAsync::HOOK_WARNING_EXEC_TIMEOUT => function (AbstractAsync $client, $runTime) {
-                        Log::error('Execute timeout. time: '. $runTime, $client->getDebugInfo());
+                        Log::warning('Execute timeout. time: '. $runTime, $client->getDebugInfo());
                     },
                     AbstractAsync::HOOK_EXEC_ERROR           => function (AbstractAsync $client, string $error, $errno) {
                         Log::error($error. " ({$errno})", $client->getDebugInfo());
