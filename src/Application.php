@@ -282,6 +282,8 @@ class Application extends Container
      */
     public function parsePoolConfig(array $poolConfig)
     {
+        $logRedis = $this->get('config')->get('log_pool', '');
+
         foreach ($poolConfig as &$v) {
             $v['pool_hooks'] = $v['pool_hooks'] ?? [
                     AbstractPool::WARNING_ABOVE_MAX_SIZE => function ($pool) {
@@ -292,14 +294,19 @@ class Application extends Container
                     }
                 ];
 
-            $v['hooks'] = $v['hooks'] ?? [
-                    AbstractAsync::HOOK_WARNING_EXEC_TIMEOUT => function (AbstractAsync $client, $runTime) {
-                        Log::error('Execute timeout. time: '. $runTime, $client->getDebugInfo());
-                    },
-                    AbstractAsync::HOOK_EXEC_ERROR           => function (AbstractAsync $client, string $error, $errno) {
+            if (! isset($v['hooks'])) {
+                $v['hooks'] = [
+                    AbstractAsync::HOOK_EXEC_ERROR => function (AbstractAsync $client, string $error, $errno) {
                         Log::error($error. " ({$errno})", $client->getDebugInfo());
                     },
                 ];
+
+                if ($v['name'] != $logRedis) {
+                    $v['hooks'][AbstractAsync::HOOK_WARNING_EXEC_TIMEOUT] = function (AbstractAsync $client, $runTime) {
+                        Log::warning('Execute timeout. time: '. $runTime, $client->getDebugInfo());
+                    };
+                }
+            }
         }
 
         return $poolConfig;
