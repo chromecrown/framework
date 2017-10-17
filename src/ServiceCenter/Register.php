@@ -61,7 +61,7 @@ class Register extends Controller
     /**
      * @param string $type
      * @param array  $data
-     * @return bool|null
+     * @return array|bool
      */
     protected function sendToServiceCenter(string $type, array $data)
     {
@@ -98,7 +98,6 @@ class Register extends Controller
                 'args'    => $data,
             ])
         );
-        unset($packet);
 
         try {
             $client = new Client(SWOOLE_SOCK_TCP);
@@ -107,7 +106,7 @@ class Register extends Controller
             $client->send($data);
             $result = $client->recv();
 
-            return $result ?: false;
+            return $result ? $packet->decode($result) : false;
         } catch (\Exception $e) {
             return false;
         }
